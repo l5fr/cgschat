@@ -708,7 +708,7 @@ function fmt(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'K
 function showE(el,msg){el.textContent=msg;el.classList.add('on');}
 function hideE(el){el.classList.remove('on');}
 function nowTs(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
-function hide(id){const el=document.getElementById(id);el.style.display='none';el.classList&&el.classList.remove('on');}
+function hide(id){const el=document.getElementById(id);if(!el)return;el.style.display='none';el.classList&&el.classList.remove('on');}
 function show(id){const el=document.getElementById(id);el.style.display='flex';el.classList&&el.classList.add('on');}
 function setLoadLbl(t){document.getElementById('loadLbl').textContent=t;}
 
