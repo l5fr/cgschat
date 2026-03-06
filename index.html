@@ -597,6 +597,21 @@ async function loadHistory() {
 }
 
 function dbToMsg(r) {
+  // Handle reactions - they can be object or JSON string
+  let reactions = {};
+  if(r.reactions) {
+    if(typeof r.reactions === 'string') {
+      try {
+        reactions = JSON.parse(r.reactions);
+      } catch(e) {
+        console.error('Error parsing reactions:', r.reactions, e);
+        reactions = {};
+      }
+    } else {
+      reactions = r.reactions;
+    }
+  }
+  
   return {
     id:       r.id,
     uid:      r.user_id,
@@ -607,7 +622,7 @@ function dbToMsg(r) {
     fileName: r.file_name,
     fileSize: r.file_size,
     edited:   r.edited,
-    reactions: r.reactions ? JSON.parse(r.reactions) : {},
+    reactions: reactions,
     ts:       new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),
     time:     new Date(r.created_at).getTime()
   };
@@ -615,22 +630,27 @@ function dbToMsg(r) {
 
 // ── REALTIME ──────────────────────────────────────
 function subscribeRealtime() {
-  if(realtimeCh) { sb.removeChannel(realtimeCh); }
+  console.log('Starting realtime subscription...');
+  if(realtimeCh) { 
+    console.log('Removing old channel');
+    sb.removeChannel(realtimeCh); 
+  }
 
   realtimeCh = sb.channel('global-chat')
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload => {
-      console.log('New message received:', payload.new);
+      console.log('✅ NEW MESSAGE EVENT RECEIVED:', payload.new);
       const msg = dbToMsg(payload.new);
       if(msgCache.find(m=>m.id===msg.id)) {
-        console.log('Message already in cache, skipping');
+        console.log('Message already in cache, skipping duplicate');
         return;
       }
+      console.log('Adding message to cache and rendering');
       msgCache.push(msg);
       appendMsg(msg);
       if(isNearBot()) scrollBot();
     })
     .on('postgres_changes', { event:'UPDATE', schema:'public', table:'messages' }, payload => {
-      console.log('Message updated:', payload.new);
+      console.log('📝 MESSAGE UPDATED:', payload.new.id);
       const idx = msgCache.findIndex(m=>m.id===payload.new.id);
       if(idx>=0) {
         msgCache[idx] = dbToMsg(payload.new);
@@ -639,7 +659,7 @@ function subscribeRealtime() {
       }
     })
     .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, payload => {
-      console.log('Message deleted:', payload.old.id);
+      console.log('🗑️ MESSAGE DELETED:', payload.old.id);
       msgCache = msgCache.filter(m=>m.id!==payload.old.id);
       renderAll();
     })
@@ -664,14 +684,23 @@ function subscribeRealtime() {
       newPresences.forEach(p => { if(p.uid!==me.id) toast(`${p.avatar} ${p.name} joined`,'info'); });
     })
     .subscribe((status) => {
-      console.log('Realtime subscription status:', status);
+      console.log('🔌 Realtime subscription status:', status);
       if(status==='SUBSCRIBED') {
-        console.log('Successfully subscribed to realtime');
+        console.log('✅ Successfully subscribed to realtime channel');
         realtimeCh.track({ uid: me.id, name: me.name, avatar: me.avatar });
         setPill('live', `${onlineCount} online`);
+        toast('Real-time connection established ✓', 'success');
+      } else if(status==='CLOSED') {
+        console.warn('⚠️ Realtime channel closed');
+        toast('Lost real-time connection - will try to reconnect', 'error');
+        // Retry connection after 3 seconds
+        setTimeout(() => {
+          console.log('Retrying realtime subscription...');
+          subscribeRealtime();
+        }, 3000);
       } else if(status==='CHANNEL_ERROR') {
-        console.error('Realtime channel error');
-        toast('Realtime connection error - messages may not update in real-time', 'error');
+        console.error('❌ Realtime channel error');
+        toast('Real-time error - check browser console (F12)', 'error');
       }
     });
 }
