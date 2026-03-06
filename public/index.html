@@ -1,0 +1,38 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>PurpleChat</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+
+<div id="login">
+  <h1>PurpleChat</h1>
+  <input id="username" placeholder="username">
+  <input id="password" placeholder="password" type="password">
+  <button onclick="login()">Login / Register</button>
+</div>
+
+<div id="app" style="display:none;">
+  <div id="sidebar">
+    <h2>Rooms</h2>
+    <div id="rooms"></div>
+    <button onclick="createRoom()">+ Room</button>
+  </div>
+
+  <div id="chat">
+    <div id="messages"></div>
+    <div id="input">
+      <input id="msg" placeholder="message">
+      <button onclick="send()">Send</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+<script src="/script.js"></script>
+</body>
+</html>
