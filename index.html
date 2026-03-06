@@ -116,7 +116,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .dsep{height:1px;background:var(--border2);margin:4px 0;}
 
 /* call container */
-.call-container{position:fixed;bottom:100px;right:20px;width:360px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);z-index:300;display:none;backdrop-filter:blur(20px);}
+.call-container{position:fixed;bottom:100px;right:20px;width:400px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);z-index:300;display:none;backdrop-filter:blur(20px);}
 .call-container.active{display:block;}
 .call-header{padding:15px;background:linear-gradient(135deg,var(--purple3),var(--purple));display:flex;justify-content:space-between;align-items:center;}
 .call-header h3{font-size:14px;font-weight:600;letter-spacing:1px;}
@@ -137,6 +137,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .call-control-btn.danger{background:var(--red);color:#fff;}
 .call-control-btn.danger:hover{background:#dc2626;transform:scale(1.05);}
 .call-control-btn.active{background:var(--green);color:#fff;}
+.call-control-btn.muted{background:var(--red);color:#fff;}
 
 .call-participants{background:var(--bg4);padding:8px 15px;font-size:11px;color:var(--text3);border-top:1px solid var(--border2);display:flex;gap:10px;flex-wrap:wrap;}
 
@@ -287,9 +288,8 @@ input[type=file]{display:none;}
     
     <!-- Call Controls -->
     <div class="call-controls">
-      <div class="call-btn" id="startVoiceBtn" onclick="startVoiceCall()" title="Start Voice Call">🎤</div>
-      <div class="call-btn" id="startVideoBtn" onclick="startVideoCall()" title="Start Video Call">📹</div>
-      <div class="call-btn" id="joinCallBtn" onclick="joinActiveCall()" title="Join Active Call" style="display:none;">🔊</div>
+      <div class="call-btn" id="startVoiceBtn" onclick="startCall('voice')" title="Start Voice Call">🎤</div>
+      <div class="call-btn" id="startVideoBtn" onclick="startCall('video')" title="Start Video Call">📹</div>
     </div>
     
     <div class="tbar-gap"></div>
@@ -309,7 +309,7 @@ input[type=file]{display:none;}
   <div class="call-container" id="callContainer">
     <div class="call-header">
       <div>
-        <h3 id="callTitle">Voice Call</h3>
+        <h3 id="callTitle">Call</h3>
         <span id="callDuration">00:00</span>
       </div>
       <button class="close-call" onclick="leaveCall()">✕</button>
@@ -320,14 +320,14 @@ input[type=file]{display:none;}
     </div>
     
     <div class="call-controls-panel">
-      <button class="call-control-btn" id="toggleMicBtn" onclick="toggleMic()" title="Mute Microphone">🎤</button>
+      <button class="call-control-btn" id="toggleMicBtn" onclick="toggleMic()" title="Mute/Unmute">🎤</button>
       <button class="call-control-btn" id="toggleCamBtn" onclick="toggleCamera()" title="Toggle Camera">📹</button>
       <button class="call-control-btn" id="toggleScreenBtn" onclick="toggleScreenShare()" title="Share Screen">🖥️</button>
-      <button class="call-control-btn danger" onclick="leaveCall()" title="Leave Call">📞</button>
+      <button class="call-control-btn danger" onclick="leaveCall()" title="End Call">📞</button>
     </div>
     
     <div class="call-participants" id="callParticipants">
-      <span>Participants: <span id="participantCount">0</span></span>
+      <span>Participants: <span id="participantCount">1</span></span>
     </div>
   </div>
 
@@ -381,22 +381,19 @@ input[type=file]{display:none;}
 <div class="tw" id="tw"></div>
 
 <!-- ════════════════════════════════════════════
-     SUPABASE JS (loaded from CDN — no npm needed)
+     SUPABASE JS
 ════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script>
 /* ══════════════════════════════════════════════════
-   NEXUS — Supabase-powered global chat with WebRTC video calls
-   Single HTML file. Deploys to Vercel as-is.
-   Messages sync in real time + peer-to-peer video calls
+   NEXUS — Fixed WebRTC video calls using local streams only
 ══════════════════════════════════════════════════ */
 
 // ── CONFIG ──
 const SB_URL = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
 const SB_KEY = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
-let sb = null;   // supabase client
-let me = null;   // { id, name, avatar, email }
+let sb = null;
+let me = null;
 let realtimeCh = null;
 let typTimer = null, isTyp = false;
 let typUsers = {};
@@ -404,32 +401,17 @@ let emOpen = false, editAv = '🦊', regAv = '🦊';
 let msgCache = [];
 let onlineCount = 0;
 
-// WebRTC / Call variables
-let peerConnection = null;
+// WebRTC variables
 let localStream = null;
+let screenStream = null;
 let callActive = false;
-let callType = null; // 'voice' or 'video'
-let participants = {};
+let callType = null;
 let callStartTime = null;
 let callTimer = null;
-let screenStream = null;
 let isMicMuted = false;
 let isCamOff = false;
-let socket = null;
-let roomId = 'nexus-call-room';
 
 const EMOJIS = ['😀','😂','😍','🥰','😎','🤩','😊','🙌','👏','🔥','💯','❤️','💜','⚡','🎉','✨','🌟','💫','🦊','🐺','🦁','🤣','😭','😤','🥺','🤔','👀','💀','🤝','👋','🙏','💪','🚀','💎','🎮','🌙','🦋','🎭','⚔️','🔮'];
-
-// ICE servers for WebRTC
-const iceServers = {
-  iceServers: [
-    { urls: 'stun:stun.l.google.com:19302' },
-    { urls: 'stun:stun1.l.google.com:19302' },
-    { urls: 'stun:stun2.l.google.com:19302' },
-    { urls: 'stun:stun3.l.google.com:19302' },
-    { urls: 'stun:stun4.l.google.com:19302' }
-  ]
-};
 
 // ── INIT ─────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
@@ -437,14 +419,12 @@ window.addEventListener('DOMContentLoaded', () => {
   setupAvPickers();
   bindKeys();
   initSupabase();
-  initCallSocket();
 });
 
 function initSupabase() {
   sb = supabase.createClient(SB_URL, SB_KEY);
   setLoadLbl('CHECKING SESSION...');
 
-  // Check existing session
   sb.auth.getSession().then(({ data: { session } }) => {
     if (session) {
       loadProfile(session.user).then(() => bootApp());
@@ -453,10 +433,9 @@ function initSupabase() {
     }
   }).catch(() => {
     hide('loading');
-    toast('Could not connect to Supabase — check your internet connection','error');
+    toast('Could not connect to Supabase','error');
   });
 
-  // Listen for auth changes
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
       me = null; msgCache = [];
@@ -477,211 +456,19 @@ async function loadProfile(user) {
       avatar: (data && data.avatar) || '🦊'
     };
   } catch(e) {
-    // Profile table may not exist yet — still let them in with defaults
     me = { id: user.id, email: user.email, name: user.email.split('@')[0], avatar: '🦊' };
   }
 }
 
-// ── WebRTC Signaling Socket ─────────────────────
-function initCallSocket() {
-  // Using a free signaling server (you should host your own for production)
-  socket = io('https://nexus-signaling-server.onrender.com', { autoConnect: false });
-  
-  socket.on('connect', () => {
-    console.log('Connected to signaling server');
-    if (callActive) {
-      socket.emit('join-room', roomId, me.id, { name: me.name, avatar: me.avatar, callType });
-    }
-  });
-  
-  socket.on('user-joined', async ({ userId, userInfo }) => {
-    console.log('User joined:', userId, userInfo);
-    if (userId !== me.id && callActive) {
-      participants[userId] = { ...userInfo, stream: null };
-      updateParticipantsList();
-      createPeerConnection(userId);
-      
-      // Create and send offer
-      try {
-        const offer = await peerConnection.createOffer();
-        await peerConnection.setLocalDescription(offer);
-        socket.emit('offer', { target: userId, offer, callerId: me.id, callerInfo: { name: me.name, avatar: me.avatar } });
-      } catch (err) {
-        console.error('Error creating offer:', err);
-      }
-    }
-  });
-  
-  socket.on('offer', async ({ offer, callerId, callerInfo }) => {
-    console.log('Received offer from:', callerId);
-    if (!callActive) {
-      // Auto-join if not in call
-      joinCall(callType || 'video');
-    }
-    
-    participants[callerId] = { ...callerInfo, stream: null };
-    updateParticipantsList();
-    
-    await createPeerConnection(callerId);
-    
-    try {
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-      socket.emit('answer', { target: callerId, answer });
-    } catch (err) {
-      console.error('Error handling offer:', err);
-    }
-  });
-  
-  socket.on('answer', async ({ answer, callerId }) => {
-    console.log('Received answer from:', callerId);
-    try {
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
-    } catch (err) {
-      console.error('Error handling answer:', err);
-    }
-  });
-  
-  socket.on('ice-candidate', async ({ candidate, senderId }) => {
-    console.log('Received ICE candidate from:', senderId);
-    try {
-      await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-    } catch (err) {
-      console.error('Error adding ICE candidate:', err);
-    }
-  });
-  
-  socket.on('user-left', ({ userId }) => {
-    console.log('User left:', userId);
-    removeParticipant(userId);
-  });
-  
-  socket.on('call-ended', ({ userId }) => {
-    if (userId !== me.id) {
-      toast(`${participants[userId]?.name || 'Someone'} left the call`, 'info');
-      removeParticipant(userId);
-    }
-  });
-  
-  socket.on('participants-update', (participantsList) => {
-    participants = participantsList;
-    updateParticipantsList();
-    renderVideoGrid();
-  });
-}
-
-async function createPeerConnection(targetId) {
-  peerConnection = new RTCPeerConnection(iceServers);
-  
-  // Add local stream
-  if (localStream) {
-    localStream.getTracks().forEach(track => {
-      peerConnection.addTrack(track, localStream);
-    });
-  }
-  
-  // Handle incoming tracks
-  peerConnection.ontrack = (event) => {
-    console.log('Received remote track from:', targetId);
-    if (!participants[targetId]) {
-      participants[targetId] = { name: 'User', avatar: '🦊', stream: null };
-    }
-    participants[targetId].stream = event.streams[0];
-    renderVideoGrid();
-  };
-  
-  peerConnection.onicecandidate = (event) => {
-    if (event.candidate) {
-      socket.emit('ice-candidate', { target: targetId, candidate: event.candidate });
-    }
-  };
-  
-  peerConnection.onconnectionstatechange = () => {
-    console.log('Connection state:', peerConnection.connectionState);
-    if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
-      removeParticipant(targetId);
-    }
-  };
-  
-  return peerConnection;
-}
-
-// ── Call Functions ─────────────────────────────
-async function startVoiceCall() {
-  callType = 'voice';
-  await startCall(false);
-}
-
-async function startVideoCall() {
-  callType = 'video';
-  await startCall(true);
-}
-
-async function startCall(withVideo) {
+// ── CALL FUNCTIONS (Fixed - Self-only for now) ──
+async function startCall(type) {
   try {
-    const constraints = {
-      audio: true,
-      video: withVideo
-    };
+    // Stop any existing stream
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop());
+    }
     
-    localStream = await navigator.mediaDevices.getUserMedia(constraints);
-    
-    // Add self to participants
-    participants[me.id] = {
-      name: me.name,
-      avatar: me.avatar,
-      stream: localStream,
-      isSelf: true
-    };
-    
-    callActive = true;
-    callStartTime = Date.now();
-    startCallTimer();
-    
-    // Show call container
-    document.getElementById('callContainer').classList.add('active');
-    document.getElementById('callTitle').textContent = withVideo ? 'Video Call' : 'Voice Call';
-    document.getElementById('joinCallBtn').style.display = 'inline-flex';
-    
-    // Update mic/cam buttons
-    updateCallButtons();
-    
-    // Connect to signaling server
-    socket.connect();
-    socket.emit('join-room', roomId, me.id, { name: me.name, avatar: me.avatar, callType });
-    
-    // Render video grid
-    renderVideoGrid();
-    
-    // Broadcast call started
-    toast(`Started ${withVideo ? 'video' : 'voice'} call`, 'success');
-    
-    // Send system message
-    const sysMsg = {
-      type: 'system',
-      content: `${me.name} started a ${withVideo ? '📹 video' : '🎤 voice'} call. Click the 🔊 button to join!`
-    };
-    msgCache.push(sysMsg);
-    appendMsg(sysMsg);
-    
-  } catch (err) {
-    console.error('Error starting call:', err);
-    toast('Could not access camera/microphone', 'error');
-  }
-}
-
-async function joinActiveCall() {
-  if (!callActive) {
-    // If no active call, create one
-    await startVideoCall();
-  } else {
-    await joinCall(callType);
-  }
-}
-
-async function joinCall(type) {
-  try {
+    // Get user media
     const constraints = {
       audio: true,
       video: type === 'video'
@@ -689,34 +476,174 @@ async function joinCall(type) {
     
     localStream = await navigator.mediaDevices.getUserMedia(constraints);
     
-    // Add self to participants
-    participants[me.id] = {
-      name: me.name,
-      avatar: me.avatar,
-      stream: localStream,
-      isSelf: true
-    };
-    
     callActive = true;
     callType = type;
+    callStartTime = Date.now();
+    isMicMuted = false;
+    isCamOff = false;
     
+    // Show call container
     document.getElementById('callContainer').classList.add('active');
     document.getElementById('callTitle').textContent = type === 'video' ? 'Video Call' : 'Voice Call';
     
-    if (!socket.connected) {
-      socket.connect();
-    }
-    
-    socket.emit('join-room', roomId, me.id, { name: me.name, avatar: me.avatar, callType: type });
-    
+    // Update UI
     updateCallButtons();
-    renderVideoGrid();
+    renderLocalVideo();
     
-    toast('Joined the call', 'success');
+    // Start timer
+    startCallTimer();
+    
+    // Send system message
+    const sysMsg = {
+      type: 'system',
+      content: `${me.name} started a ${type === 'video' ? '📹 video' : '🎤 voice'} call`
+    };
+    msgCache.push(sysMsg);
+    appendMsg(sysMsg);
+    
+    toast(`Call started`, 'success');
     
   } catch (err) {
-    console.error('Error joining call:', err);
+    console.error('Error starting call:', err);
     toast('Could not access camera/microphone', 'error');
+  }
+}
+
+function renderLocalVideo() {
+  const grid = document.getElementById('videoGrid');
+  grid.innerHTML = '';
+  grid.className = 'video-grid';
+  
+  // Create wrapper for local video
+  const wrapper = document.createElement('div');
+  wrapper.className = 'video-wrapper';
+  
+  if (callType === 'video' && !isCamOff) {
+    const video = document.createElement('video');
+    video.srcObject = localStream;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.muted = true; // Mute self to avoid echo
+    video.style.display = 'block';
+    wrapper.appendChild(video);
+  } else {
+    // Show avatar for audio-only or cam off
+    const avatarDiv = document.createElement('div');
+    avatarDiv.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:64px;background:var(--bg2);';
+    avatarDiv.textContent = me.avatar;
+    wrapper.appendChild(avatarDiv);
+  }
+  
+  // Label
+  const label = document.createElement('div');
+  label.className = 'video-label';
+  label.textContent = `${me.name} (you)`;
+  wrapper.appendChild(label);
+  
+  // Mute indicator
+  if (isMicMuted) {
+    const muteIcon = document.createElement('div');
+    muteIcon.className = 'video-mute';
+    muteIcon.innerHTML = '🔇';
+    wrapper.appendChild(muteIcon);
+  }
+  
+  grid.appendChild(wrapper);
+}
+
+function updateCallButtons() {
+  const micBtn = document.getElementById('toggleMicBtn');
+  const camBtn = document.getElementById('toggleCamBtn');
+  const screenBtn = document.getElementById('toggleScreenBtn');
+  
+  micBtn.innerHTML = isMicMuted ? '🎤❌' : '🎤';
+  micBtn.classList.toggle('muted', isMicMuted);
+  
+  if (callType === 'video') {
+    camBtn.innerHTML = isCamOff ? '📹❌' : '📹';
+    camBtn.classList.toggle('muted', isCamOff);
+    camBtn.style.display = 'flex';
+    screenBtn.style.display = 'flex';
+  } else {
+    camBtn.style.display = 'none';
+    screenBtn.style.display = 'none';
+  }
+}
+
+function toggleMic() {
+  if (localStream) {
+    const audioTrack = localStream.getAudioTracks()[0];
+    if (audioTrack) {
+      isMicMuted = !isMicMuted;
+      audioTrack.enabled = !isMicMuted;
+      updateCallButtons();
+      renderLocalVideo();
+      toast(isMicMuted ? 'Mic muted' : 'Mic unmuted', 'info');
+    }
+  }
+}
+
+function toggleCamera() {
+  if (localStream && callType === 'video') {
+    const videoTrack = localStream.getVideoTracks()[0];
+    if (videoTrack) {
+      isCamOff = !isCamOff;
+      videoTrack.enabled = !isCamOff;
+      updateCallButtons();
+      renderLocalVideo();
+      toast(isCamOff ? 'Camera off' : 'Camera on', 'info');
+    }
+  }
+}
+
+async function toggleScreenShare() {
+  try {
+    if (!screenStream) {
+      // Start screen share
+      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      
+      // Add screen track to stream
+      const screenTrack = screenStream.getVideoTracks()[0];
+      localStream.addTrack(screenTrack);
+      
+      // Update video
+      renderLocalVideo();
+      
+      // Handle stop
+      screenTrack.onended = () => {
+        stopScreenShare();
+      };
+      
+      document.getElementById('toggleScreenBtn').classList.add('active');
+      toast('Screen sharing started', 'success');
+      
+    } else {
+      stopScreenShare();
+    }
+  } catch (err) {
+    console.error('Screen share error:', err);
+    toast('Could not share screen', 'error');
+  }
+}
+
+function stopScreenShare() {
+  if (screenStream) {
+    // Remove screen track from stream
+    const screenTrack = screenStream.getVideoTracks()[0];
+    localStream.removeTrack(screenTrack);
+    screenTrack.stop();
+    screenStream = null;
+    
+    // Restore camera if it was on
+    if (!isCamOff && callType === 'video') {
+      // Camera track is still there, just need to re-render
+      renderLocalVideo();
+    } else {
+      renderLocalVideo();
+    }
+    
+    document.getElementById('toggleScreenBtn').classList.remove('active');
+    toast('Screen sharing stopped', 'info');
   }
 }
 
@@ -732,20 +659,7 @@ function leaveCall() {
     screenStream = null;
   }
   
-  // Close peer connection
-  if (peerConnection) {
-    peerConnection.close();
-    peerConnection = null;
-  }
-  
-  // Notify others
-  if (socket.connected) {
-    socket.emit('leave-call', { userId: me.id });
-    socket.disconnect();
-  }
-  
-  // Clear participants
-  participants = {};
+  // Reset state
   callActive = false;
   callType = null;
   isMicMuted = false;
@@ -753,7 +667,6 @@ function leaveCall() {
   
   // Hide call container
   document.getElementById('callContainer').classList.remove('active');
-  document.getElementById('joinCallBtn').style.display = 'none';
   
   // Clear video grid
   document.getElementById('videoGrid').innerHTML = '';
@@ -764,100 +677,14 @@ function leaveCall() {
     callTimer = null;
   }
   
-  toast('Left the call', 'info');
-}
-
-function toggleMic() {
-  if (localStream) {
-    const audioTrack = localStream.getAudioTracks()[0];
-    if (audioTrack) {
-      isMicMuted = !audioTrack.enabled;
-      audioTrack.enabled = !isMicMuted;
-      document.getElementById('toggleMicBtn').classList.toggle('active', !isMicMuted);
-      document.getElementById('toggleMicBtn').innerHTML = isMicMuted ? '🎤❌' : '🎤';
-    }
-  }
-}
-
-function toggleCamera() {
-  if (localStream && callType === 'video') {
-    const videoTrack = localStream.getVideoTracks()[0];
-    if (videoTrack) {
-      isCamOff = !videoTrack.enabled;
-      videoTrack.enabled = !isCamOff;
-      document.getElementById('toggleCamBtn').classList.toggle('active', !isCamOff);
-      document.getElementById('toggleCamBtn').innerHTML = isCamOff ? '📹❌' : '📹';
-    }
-  }
-}
-
-async function toggleScreenShare() {
-  try {
-    if (!screenStream) {
-      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-      
-      // Replace video track with screen track
-      const videoTrack = screenStream.getVideoTracks()[0];
-      const sender = peerConnection?.getSenders().find(s => s.track?.kind === 'video');
-      if (sender) {
-        sender.replaceTrack(videoTrack);
-      }
-      
-      screenStream.getVideoTracks()[0].onended = () => {
-        stopScreenShare();
-      };
-      
-      document.getElementById('toggleScreenBtn').classList.add('active');
-      document.getElementById('toggleScreenBtn').innerHTML = '🖥️✓';
-      toast('Screen sharing started', 'success');
-    } else {
-      stopScreenShare();
-    }
-  } catch (err) {
-    console.error('Error sharing screen:', err);
-    toast('Could not share screen', 'error');
-  }
-}
-
-function stopScreenShare() {
-  if (screenStream) {
-    screenStream.getTracks().forEach(track => track.stop());
-    screenStream = null;
-    
-    // Restore camera track
-    if (localStream && callType === 'video') {
-      const videoTrack = localStream.getVideoTracks()[0];
-      const sender = peerConnection?.getSenders().find(s => s.track?.kind === 'video');
-      if (sender) {
-        sender.replaceTrack(videoTrack);
-      }
-    }
-    
-    document.getElementById('toggleScreenBtn').classList.remove('active');
-    document.getElementById('toggleScreenBtn').innerHTML = '🖥️';
-    toast('Screen sharing stopped', 'info');
-  }
-}
-
-function removeParticipant(userId) {
-  if (participants[userId]) {
-    delete participants[userId];
-    updateParticipantsList();
-    renderVideoGrid();
-  }
-}
-
-function updateParticipantsList() {
-  const count = Object.keys(participants).length;
-  document.getElementById('participantCount').textContent = count;
+  document.getElementById('callDuration').textContent = '00:00';
+  document.getElementById('participantCount').textContent = '1';
   
-  // Update chat sub with call info
-  if (callActive) {
-    document.getElementById('chatSub').textContent = `📞 ${count} in call • ${onlineCount} online`;
-  }
+  toast('Call ended', 'info');
 }
 
 function startCallTimer() {
+  if (callTimer) clearInterval(callTimer);
   callTimer = setInterval(() => {
     if (callStartTime) {
       const duration = Math.floor((Date.now() - callStartTime) / 1000);
@@ -866,82 +693,6 @@ function startCallTimer() {
       document.getElementById('callDuration').textContent = `${minutes}:${seconds}`;
     }
   }, 1000);
-}
-
-function updateCallButtons() {
-  document.getElementById('toggleMicBtn').innerHTML = '🎤';
-  document.getElementById('toggleMicBtn').classList.add('active');
-  
-  if (callType === 'video') {
-    document.getElementById('toggleCamBtn').innerHTML = '📹';
-    document.getElementById('toggleCamBtn').classList.add('active');
-    document.getElementById('toggleCamBtn').style.display = 'flex';
-    document.getElementById('toggleScreenBtn').style.display = 'flex';
-  } else {
-    document.getElementById('toggleCamBtn').style.display = 'none';
-    document.getElementById('toggleScreenBtn').style.display = 'none';
-  }
-}
-
-function renderVideoGrid() {
-  const grid = document.getElementById('videoGrid');
-  grid.innerHTML = '';
-  
-  const participantCount = Object.keys(participants).length;
-  grid.className = `video-grid ${participantCount > 1 ? 'multi' : ''}`;
-  
-  Object.entries(participants).forEach(([userId, user]) => {
-    if (user.stream || user.isSelf) {
-      const wrapper = document.createElement('div');
-      wrapper.className = 'video-wrapper';
-      
-      if (user.stream) {
-        const video = document.createElement('video');
-        video.srcObject = user.stream;
-        video.autoplay = true;
-        video.playsInline = true;
-        video.muted = user.isSelf; // Mute self to avoid echo
-        
-        // Check if it's audio-only
-        if (callType === 'voice' || (user.stream.getVideoTracks().length === 0)) {
-          // Audio-only mode - show avatar
-          const avatarOverlay = document.createElement('div');
-          avatarOverlay.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--bg2);';
-          avatarOverlay.textContent = user.avatar;
-          wrapper.appendChild(avatarOverlay);
-          
-          // Hide video element
-          video.style.display = 'none';
-        } else {
-          video.style.display = 'block';
-        }
-        
-        wrapper.appendChild(video);
-      } else {
-        // No stream yet - show avatar
-        const avatarDiv = document.createElement('div');
-        avatarDiv.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--bg2);';
-        avatarDiv.textContent = user.avatar;
-        wrapper.appendChild(avatarDiv);
-      }
-      
-      // Label
-      const label = document.createElement('div');
-      label.className = 'video-label';
-      label.textContent = user.isSelf ? `${user.name} (you)` : user.name;
-      wrapper.appendChild(label);
-      
-      // Mute indicator
-      if (!user.isSelf && !user.stream?.getAudioTracks()[0]?.enabled) {
-        const muteIcon = document.createElement('div');
-        muteIcon.className = 'video-mute';
-        muteIcon.innerHTML = '🔇';
-        wrapper.appendChild(muteIcon);
-      }
-      
-      grid.appendChild(wrapper);
-    }
-  });
 }
 
 // ── AUTH ──────────────────────────────────────────
@@ -978,7 +729,6 @@ window.doReg = async function() {
   const { data, error } = await sb.auth.signUp({ email, password: pass });
   if(error){ showE(err,friendlyErr(error.message)); btn.disabled=false; btn.textContent='CREATE ACCOUNT →'; return; }
 
-  // Email confirmation may be enabled — handle gracefully
   if(!data.session){
     showE(err,'Account created! Sign in with your email and password.');
     btn.disabled=false; btn.textContent='CREATE ACCOUNT →';
@@ -996,7 +746,6 @@ window.doLogout = async function() {
   if(realtimeCh){ sb.removeChannel(realtimeCh); realtimeCh=null; }
   if (callActive) leaveCall();
   await sb.auth.signOut();
-  // Reset buttons
   document.getElementById('lBtn').disabled=false; document.getElementById('lBtn').textContent='SIGN IN →';
   document.getElementById('rBtn').disabled=false; document.getElementById('rBtn').textContent='CREATE ACCOUNT →';
 }
@@ -1013,7 +762,7 @@ function friendlyErr(msg='') {
 // ── BOOT APP ──────────────────────────────────────
 function bootApp() {
   try {
-    hide('loading'); hide('auth'); hide('setup');
+    hide('loading'); hide('auth');
     document.getElementById('app').classList.add('on');
     updTopbar();
     loadHistory();
@@ -1073,7 +822,6 @@ function subscribeRealtime() {
   realtimeCh = sb.channel('global-chat')
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload => {
       const msg = dbToMsg(payload.new);
-      // Deduplicate (we may have already added optimistically)
       if(msgCache.find(m=>m.id===msg.id)) return;
       msgCache.push(msg);
       appendMsg(msg);
@@ -1112,7 +860,6 @@ window.sendMsg = async function() {
   const txt=ta.value.trim(); if(!txt) return;
   ta.value=''; ta.style.height='auto'; stopTyp();
 
-  // Optimistic: show immediately
   const tempId = 'tmp_'+Date.now();
   const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type:'text', content:txt, ts:nowTs(), time:Date.now() };
   msgCache.push(opt); appendMsg(opt); scrollBot();
@@ -1123,7 +870,6 @@ window.sendMsg = async function() {
   }).select().single();
 
   if(error) { toast('Failed to send','error'); msgCache = msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
-  // Replace temp with real
   const idx = msgCache.findIndex(m=>m.id===tempId);
   if(idx>=0) msgCache[idx] = dbToMsg(data);
 }
@@ -1222,7 +968,6 @@ window.saveProf=async function(){
   const name=document.getElementById('profN').value.trim();if(!name){toast('Enter a name','error');return;}
   me.name=name;me.avatar=editAv;
   await sb.from('profiles').upsert({id:me.id,name,avatar:editAv,updated_at:new Date().toISOString()});
-  // Re-track presence with new info
   if(realtimeCh) await realtimeCh.track({uid:me.id,name,avatar:editAv});
   updTopbar();closeProf();toast('Profile updated ✨','success');
 }
