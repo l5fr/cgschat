@@ -438,7 +438,7 @@ function initSupabase() {
 
   sb.auth.getSession().then(({ data: { session } }) => {
     if (session) {
-      loadProfile(session.user).then(() => bootApp());
+      loadProfile(session.user).then(async () => await bootApp());
     } else {
       hide('loading'); show('auth');
     }
@@ -536,13 +536,13 @@ function friendlyErr(msg='') {
 }
 
 // ── BOOT APP ──────────────────────────────────────
-function bootApp() {
+async function bootApp() {
   try {
     hide('loading'); hide('auth');
     document.getElementById('app').classList.add('on');
     updTopbar();
     if(isOwner) document.getElementById('adminPanel').classList.add('on');
-    loadHistory();
+    await loadHistory();
     subscribeRealtime();
   } catch(e) {
     console.error('bootApp error:', e);
@@ -560,6 +560,9 @@ function updTopbar() {
 async function loadHistory() {
   try {
     setLoadLbl('LOADING MESSAGES...');
+    // Give the UI a moment to render
+    await new Promise(r => setTimeout(r, 100));
+    
     const { data, error } = await sb.from('messages')
       .select('*')
       .order('created_at', { ascending: true });
