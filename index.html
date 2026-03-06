@@ -619,13 +619,18 @@ function subscribeRealtime() {
 
   realtimeCh = sb.channel('global-chat')
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload => {
+      console.log('New message received:', payload.new);
       const msg = dbToMsg(payload.new);
-      if(msgCache.find(m=>m.id===msg.id)) return;
+      if(msgCache.find(m=>m.id===msg.id)) {
+        console.log('Message already in cache, skipping');
+        return;
+      }
       msgCache.push(msg);
       appendMsg(msg);
       if(isNearBot()) scrollBot();
     })
     .on('postgres_changes', { event:'UPDATE', schema:'public', table:'messages' }, payload => {
+      console.log('Message updated:', payload.new);
       const idx = msgCache.findIndex(m=>m.id===payload.new.id);
       if(idx>=0) {
         msgCache[idx] = dbToMsg(payload.new);
@@ -634,6 +639,7 @@ function subscribeRealtime() {
       }
     })
     .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, payload => {
+      console.log('Message deleted:', payload.old.id);
       msgCache = msgCache.filter(m=>m.id!==payload.old.id);
       renderAll();
     })
@@ -657,10 +663,15 @@ function subscribeRealtime() {
     .on('presence', { event:'join' }, ({ newPresences }) => {
       newPresences.forEach(p => { if(p.uid!==me.id) toast(`${p.avatar} ${p.name} joined`,'info'); });
     })
-    .subscribe(async status => {
+    .subscribe((status) => {
+      console.log('Realtime subscription status:', status);
       if(status==='SUBSCRIBED') {
-        await realtimeCh.track({ uid: me.id, name: me.name, avatar: me.avatar });
+        console.log('Successfully subscribed to realtime');
+        realtimeCh.track({ uid: me.id, name: me.name, avatar: me.avatar });
         setPill('live', `${onlineCount} online`);
+      } else if(status==='CHANNEL_ERROR') {
+        console.error('Realtime channel error');
+        toast('Realtime connection error - messages may not update in real-time', 'error');
       }
     });
 }
