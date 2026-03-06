@@ -215,6 +215,67 @@ a{color:var(--accent);}
 .mention{color:var(--accent);font-weight:600;}
 input[type=file]{display:none;}
 @media(max-width:600px){.auth-card{padding:30px 20px;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}}
+
+/* ── ADMIN PANEL ── */
+.admin-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.08));border:1px solid rgba(239,68,68,.35);border-radius:6px;padding:2px 8px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#f87171;letter-spacing:1.5px;margin-left:6px;vertical-align:middle;}
+.ditem.admin-item{color:#f87171;}
+.ditem.admin-item:hover{background:rgba(239,68,68,.1);color:#fca5a5;}
+
+/* Admin panel slide-in */
+#adminPanel{position:fixed;top:0;right:-420px;width:400px;height:100vh;background:linear-gradient(180deg,rgba(10,5,5,.99),rgba(8,3,3,.99));border-left:1px solid rgba(239,68,68,.2);z-index:300;transition:right .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.6);}
+#adminPanel.open{right:0;}
+.ap-header{padding:20px 22px 16px;border-bottom:1px solid rgba(239,68,68,.12);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+.ap-icon{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#7f1d1d,#dc2626);display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 16px rgba(239,68,68,.3);}
+.ap-title{font-size:15px;font-weight:800;letter-spacing:2px;color:#fca5a5;}
+.ap-sub{font-size:10px;color:rgba(239,68,68,.5);font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-top:1px;}
+.ap-close{margin-left:auto;width:30px;height:30px;border-radius:8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#f87171;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.ap-close:hover{background:rgba(239,68,68,.18);}
+.ap-body{flex:1;overflow-y:auto;padding:18px 22px;}
+.ap-section{margin-bottom:24px;}
+.ap-section-title{font-size:10px;letter-spacing:3px;color:rgba(239,68,68,.5);font-family:'JetBrains Mono',monospace;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.ap-section-title::after{content:'';flex:1;height:1px;background:rgba(239,68,68,.1);}
+
+/* Stat cards */
+.ap-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+.ap-stat{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.1);border-radius:12px;padding:14px 16px;}
+.ap-stat-num{font-size:26px;font-weight:800;color:#fca5a5;line-height:1;}
+.ap-stat-lbl{font-size:10px;color:rgba(239,68,68,.45);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;margin-top:4px;}
+
+/* Danger actions */
+.ap-action{width:100%;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:11px;padding:13px 16px;color:#fca5a5;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;margin-bottom:8px;text-align:left;letter-spacing:.5px;}
+.ap-action:hover{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.4);transform:translateX(3px);}
+.ap-action.nuclear{background:linear-gradient(135deg,rgba(127,29,29,.35),rgba(239,68,68,.12));border-color:rgba(239,68,68,.4);}
+.ap-action.nuclear:hover{background:linear-gradient(135deg,rgba(127,29,29,.55),rgba(239,68,68,.2));box-shadow:0 0 20px rgba(239,68,68,.15);}
+.ap-action-ic{width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.12);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.ap-action-text{}
+.ap-action-text b{display:block;font-size:13px;}
+.ap-action-text small{font-size:10px;color:rgba(239,68,68,.45);font-family:'JetBrains Mono',monospace;font-weight:400;}
+
+/* User list */
+.ap-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(239,68,68,.08);background:rgba(239,68,68,.03);margin-bottom:6px;transition:all .2s;}
+.ap-user:hover{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.15);}
+.ap-user-av{width:32px;height:32px;border-radius:9px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden;border:1px solid rgba(239,68,68,.15);}
+.ap-user-av img{width:100%;height:100%;object-fit:cover;}
+.ap-user-info{flex:1;min-width:0;}
+.ap-user-name{font-size:13px;font-weight:600;color:#fca5a5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ap-user-meta{font-size:10px;color:rgba(239,68,68,.4);font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.ap-user-actions{display:flex;gap:5px;}
+.ap-ubtn{width:28px;height:28px;border-radius:7px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.07);color:#f87171;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.ap-ubtn:hover{background:rgba(239,68,68,.18);transform:scale(1.1);}
+.ap-empty{text-align:center;padding:20px;font-size:12px;color:rgba(239,68,68,.3);font-family:'JetBrains Mono',monospace;}
+.ap-loading{text-align:center;padding:16px;font-size:11px;color:rgba(239,68,68,.35);font-family:'JetBrains Mono',monospace;letter-spacing:2px;}
+
+/* Admin confirm modal */
+#adminConfMov .modal{border-color:rgba(239,68,68,.3);background:linear-gradient(160deg,rgba(20,5,5,.99),rgba(10,3,3,.99));}
+#adminConfMov .modal h3{color:#f87171;}
+#adminConfMov .bok{background:linear-gradient(135deg,#991b1b,#ef4444);box-shadow:0 4px 12px rgba(239,68,68,.4);}
+#adminConfMov .bok:hover{box-shadow:0 6px 20px rgba(239,68,68,.6);}
+.conf-warn{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.18);border-radius:10px;padding:12px 14px;font-size:12px;color:#fca5a5;font-family:'JetBrains Mono',monospace;line-height:1.6;margin-bottom:16px;}
+.conf-warn strong{color:#f87171;display:block;margin-bottom:4px;font-size:11px;letter-spacing:1px;}
+
+/* overlay for panel */
+#adminOverlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:299;display:none;}
+#adminOverlay.on{display:block;}
 </style>
 </head>
 <body>
@@ -278,6 +339,8 @@ input[type=file]{display:none;}
       <div class="drop" id="drop">
         <div class="ditem" onclick="openProf()">✏️ Edit Profile</div>
         <div class="dsep"></div>
+        <div class="ditem admin-item" id="adminDropItem" style="display:none;" onclick="openAdmin()">🛡️ Admin Panel <span class="admin-badge">ADMIN</span></div>
+        <div class="dsep" id="adminDropSep" style="display:none;"></div>
         <div class="ditem red" onclick="doLogout()">🚪 Sign Out</div>
       </div>
     </div>
@@ -355,6 +418,87 @@ input[type=file]{display:none;}
     <div class="mbtns">
       <button class="bcnl" onclick="closeDelModal()">Cancel</button>
       <button class="bok" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 4px 12px rgba(239,68,68,.4);" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN PANEL OVERLAY -->
+<div id="adminOverlay" onclick="closeAdmin()"></div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <div class="ap-header">
+    <div class="ap-icon">&#x1F6E1;&#xFE0F;</div>
+    <div>
+      <div class="ap-title">ADMIN PANEL</div>
+      <div class="ap-sub">NEXUS CONTROL CENTER</div>
+    </div>
+    <button class="ap-close" onclick="closeAdmin()">&#x2715;</button>
+  </div>
+  <div class="ap-body">
+    <div class="ap-stats">
+      <div class="ap-stat">
+        <div class="ap-stat-num" id="apMsgCount">&#x2014;</div>
+        <div class="ap-stat-lbl">MESSAGES</div>
+      </div>
+      <div class="ap-stat">
+        <div class="ap-stat-num" id="apUserCount">&#x2014;</div>
+        <div class="ap-stat-lbl">USERS</div>
+      </div>
+    </div>
+    <div class="ap-section">
+      <div class="ap-section-title">DANGER ZONE</div>
+      <button class="ap-action nuclear" onclick="adminAction('wipe_all')">
+        <div class="ap-action-ic">&#x2622;&#xFE0F;</div>
+        <div class="ap-action-text">
+          <b>Wipe Entire Chat</b>
+          <small>Permanently delete ALL messages for everyone</small>
+        </div>
+      </button>
+      <button class="ap-action" onclick="adminAction('clear_deleted')">
+        <div class="ap-action-ic">&#x1F9F9;</div>
+        <div class="ap-action-text">
+          <b>Purge Deleted Messages</b>
+          <small>Hard-delete all soft-deleted messages</small>
+        </div>
+      </button>
+      <button class="ap-action" onclick="loadAdminUsers()">
+        <div class="ap-action-ic">&#x1F504;</div>
+        <div class="ap-action-text">
+          <b>Refresh User List</b>
+          <small>Reload all registered profiles</small>
+        </div>
+      </button>
+    </div>
+    <div class="ap-section">
+      <div class="ap-section-title">REGISTERED USERS</div>
+      <div id="apUserList"><div class="ap-loading">LOADING...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN CONFIRM MODAL -->
+<div class="mov" id="adminConfMov">
+  <div class="modal" style="border-color:rgba(239,68,68,.3);background:linear-gradient(160deg,rgba(20,5,5,.99),rgba(10,3,3,.99));">
+    <h3 id="adminConfTitle">Confirm Action</h3>
+    <p id="adminConfSub">THIS CANNOT BE UNDONE</p>
+    <div class="conf-warn" id="adminConfWarn"></div>
+    <div class="mbtns">
+      <button class="bcnl" onclick="closeAdminConf()">Cancel</button>
+      <button class="bok" id="adminConfOk" style="background:linear-gradient(135deg,#991b1b,#ef4444);box-shadow:0 4px 12px rgba(239,68,68,.4);" onclick="executeAdminAction()">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- USER WIPE CONFIRM MODAL -->
+<div class="mov" id="userWipeMov">
+  <div class="modal" style="border-color:rgba(239,68,68,.3);background:linear-gradient(160deg,rgba(20,5,5,.99),rgba(10,3,3,.99));">
+    <h3 style="color:#f87171;">&#x1F5D1;&#xFE0F; Wipe User Messages</h3>
+    <p>THIS CANNOT BE UNDONE</p>
+    <div class="conf-warn" id="userWipeWarn"></div>
+    <div class="mbtns">
+      <button class="bcnl" onclick="closeUserWipe()">Cancel</button>
+      <button class="bok" style="background:linear-gradient(135deg,#991b1b,#ef4444);box-shadow:0 4px 12px rgba(239,68,68,.4);" onclick="executeUserWipe()">Delete All</button>
     </div>
   </div>
 </div>
@@ -484,7 +628,7 @@ function bootApp() {
   try {
     hide('loading'); hide('auth');
     document.getElementById('app').classList.add('on');
-    updTopbar(); loadHistory(); subscribeRealtime();
+    updTopbar(); checkAdmin(); loadHistory(); subscribeRealtime();
   } catch(e) { toast('App error: ' + e.message, 'error'); }
 }
 
@@ -890,8 +1034,171 @@ document.addEventListener('click', e => {
   if(emOpen&&!e.target.closest('.iwrap')&&!e.target.closest('#emBtn')){ emOpen=false;document.getElementById('embox').style.display='none'; }
   if(!e.target.closest('.tbar-user')) document.getElementById('drop').classList.remove('on');
 });
+
+// ── ADMIN ──────────────────────────────────────────────
+const ADMIN_IDS = [
+  'af8060a4-1af3-4f89-94e2-939c3e001b43',
+  'ef732c5f-625b-4334-b4eb-f456b79beae2'
+];
+let isAdmin = false;
+let pendingAdminAction = null;
+let pendingUserWipe = null; // { id, name }
+
+function checkAdmin() {
+  isAdmin = me && ADMIN_IDS.includes(me.id);
+  const item = document.getElementById('adminDropItem');
+  const sep  = document.getElementById('adminDropSep');
+  if(item) item.style.display = isAdmin ? 'flex' : 'none';
+  if(sep)  sep.style.display  = isAdmin ? 'block' : 'none';
+  // Show admin badge on topbar name
+  const nameEl = document.getElementById('tbarName');
+  if(isAdmin && nameEl && !nameEl.querySelector('.admin-badge')) {
+    nameEl.innerHTML = me.name + ' <span class="admin-badge">ADMIN</span>';
+  }
+}
+
+window.openAdmin = function() {
+  if(!isAdmin) return;
+  document.getElementById('drop').classList.remove('on');
+  document.getElementById('adminPanel').classList.add('open');
+  document.getElementById('adminOverlay').classList.add('on');
+  loadAdminStats();
+  loadAdminUsers();
+}
+
+window.closeAdmin = function() {
+  document.getElementById('adminPanel').classList.remove('open');
+  document.getElementById('adminOverlay').classList.remove('on');
+}
+
+async function loadAdminStats() {
+  try {
+    const { count: msgCount } = await sb.from('messages').select('*', { count: 'exact', head: true });
+    const { count: userCount } = await sb.from('profiles').select('*', { count: 'exact', head: true });
+    document.getElementById('apMsgCount').textContent = msgCount ?? '?';
+    document.getElementById('apUserCount').textContent = userCount ?? '?';
+  } catch(e) {
+    document.getElementById('apMsgCount').textContent = 'ERR';
+    document.getElementById('apUserCount').textContent = 'ERR';
+  }
+}
+
+window.loadAdminUsers = async function() {
+  const list = document.getElementById('apUserList');
+  list.innerHTML = '<div class="ap-loading">LOADING...</div>';
+  try {
+    const { data, error } = await sb.from('profiles').select('id, name, avatar, avatar_url').order('name');
+    if(error) throw error;
+    if(!data || !data.length) { list.innerHTML = '<div class="ap-empty">No users found</div>'; return; }
+    list.innerHTML = '';
+    data.forEach(u => {
+      const div = document.createElement('div');
+      div.className = 'ap-user';
+      const avHtml = u.avatar_url
+        ? `<div class="ap-user-av"><img src="${u.avatar_url}" alt=""></div>`
+        : `<div class="ap-user-av">${u.avatar || '🦊'}</div>`;
+      const isYou = u.id === me.id;
+      const isAdminUser = ADMIN_IDS.includes(u.id);
+      div.innerHTML = `
+        ${avHtml}
+        <div class="ap-user-info">
+          <div class="ap-user-name">${x(u.name)}${isYou?' <span style="font-size:10px;opacity:.5">(you)</span>':''}${isAdminUser?' <span class="admin-badge">ADMIN</span>':''}</div>
+          <div class="ap-user-meta">${u.id.slice(0,18)}...</div>
+        </div>
+        <div class="ap-user-actions">
+          ${!isYou ? `<button class="ap-ubtn" title="Wipe all messages from this user" onclick="askUserWipe('${u.id}','${x(u.name)}')">🗑️</button>` : ''}
+        </div>`;
+      list.appendChild(div);
+    });
+  } catch(e) {
+    list.innerHTML = `<div class="ap-empty">Error: ${e.message}</div>`;
+  }
+}
+
+// ── ADMIN ACTIONS ──
+window.adminAction = function(action) {
+  pendingAdminAction = action;
+  const confMov = document.getElementById('adminConfMov');
+  const title   = document.getElementById('adminConfTitle');
+  const warn    = document.getElementById('adminConfWarn');
+
+  if(action === 'wipe_all') {
+    title.textContent = '☢️ Wipe Entire Chat';
+    warn.innerHTML = '<strong>⚠️ NUCLEAR OPTION</strong>This will permanently and irreversibly delete EVERY message in the chat for ALL users. This action is immediate and cannot be rolled back.';
+  } else if(action === 'clear_deleted') {
+    title.textContent = '🧹 Purge Deleted Messages';
+    warn.innerHTML = '<strong>⚠️ PERMANENT ACTION</strong>All soft-deleted messages will be hard-deleted from the database. This frees storage but is permanent.';
+  }
+  confMov.classList.add('on');
+}
+
+window.closeAdminConf = function() {
+  document.getElementById('adminConfMov').classList.remove('on');
+  pendingAdminAction = null;
+}
+
+window.executeAdminAction = async function() {
+  if(!isAdmin || !pendingAdminAction) return;
+  closeAdminConf();
+
+  if(pendingAdminAction === 'wipe_all') {
+    try {
+      // Delete all messages — using gt filter on a timestamp that everything is older than
+      const { error } = await sb.from('messages').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      if(error) throw error;
+      msgCache = [];
+      renderAll();
+      loadAdminStats();
+      toast('💥 Chat wiped — all messages deleted', 'success');
+    } catch(e) {
+      toast('Wipe failed: ' + e.message, 'error');
+    }
+  } else if(pendingAdminAction === 'clear_deleted') {
+    try {
+      const { error } = await sb.from('messages').delete().eq('deleted', true);
+      if(error) throw error;
+      msgCache = msgCache.filter(m => !m.deleted);
+      renderAll();
+      loadAdminStats();
+      toast('🧹 Purged all soft-deleted messages', 'success');
+    } catch(e) {
+      toast('Purge failed: ' + e.message, 'error');
+    }
+  }
+  pendingAdminAction = null;
+}
+
+// ── USER WIPE ──
+window.askUserWipe = function(uid, uname) {
+  pendingUserWipe = { id: uid, name: uname };
+  document.getElementById('userWipeWarn').innerHTML = `<strong>⚠️ TARGET USER</strong>All messages sent by <b>${x(uname)}</b> will be permanently deleted from the global chat.`;
+  document.getElementById('userWipeMov').classList.add('on');
+}
+
+window.closeUserWipe = function() {
+  document.getElementById('userWipeMov').classList.remove('on');
+  pendingUserWipe = null;
+}
+
+window.executeUserWipe = async function() {
+  if(!isAdmin || !pendingUserWipe) return;
+  const { id, name } = pendingUserWipe;
+  closeUserWipe();
+  try {
+    const { error } = await sb.from('messages').delete().eq('user_id', id);
+    if(error) throw error;
+    msgCache = msgCache.filter(m => m.uid !== id);
+    renderAll();
+    loadAdminStats();
+    toast(`🗑️ Wiped all messages from ${name}`, 'success');
+  } catch(e) {
+    toast('User wipe failed: ' + e.message, 'error');
+  }
+  pendingUserWipe = null;
+}
+
 document.addEventListener('keydown', e => {
-  if(e.key==='Escape'){ closeLb(); closeProf(); closeDelModal(); document.getElementById('drop').classList.remove('on'); }
+  if(e.key==='Escape'){ closeLb(); closeProf(); closeDelModal(); closeAdmin(); closeAdminConf(); closeUserWipe(); document.getElementById('drop').classList.remove('on'); }
 });
 </script>
 
