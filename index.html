@@ -408,7 +408,10 @@ input[type=file]{display:none;}
 // ── CONFIG ──
 const SB_URL = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
 const SB_KEY = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
-const OWNER_ID = 'YOUR_OWNER_USER_ID_HERE'; // Set this to the owner's Supabase user ID
+const OWNER_IDS = [
+  'ef732c5f-625b-4334-b4eb-f456b79beae2',
+  'af8060a4-1af3-4f89-94e2-939c3e001b43'
+]; // Array of owner user IDs - both accounts will have admin access
 let sb = null;
 let me = null;
 let realtimeCh = null;
@@ -465,10 +468,10 @@ async function loadProfile(user) {
       name:   (data && data.name)  || user.email.split('@')[0],
       avatar: (data && data.avatar) || '🦊'
     };
-    isOwner = me.id === OWNER_ID;
+    isOwner = OWNER_IDS.includes(me.id);
   } catch(e) {
     me = { id: user.id, email: user.email, name: user.email.split('@')[0], avatar: '🦊' };
-    isOwner = me.id === OWNER_ID;
+    isOwner = OWNER_IDS.includes(me.id);
   }
 }
 
