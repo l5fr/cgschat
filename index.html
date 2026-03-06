@@ -7,8 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
-   NEXUS — black & purple global chat
-   Deploys to Vercel. Powered by Supabase.
+   NEXUS — Enhanced Chat with Admin Controls
 ═══════════════════════════════════════════ */
 :root{
   --bg:#050508;
@@ -30,6 +29,7 @@
   --border2:rgba(124,58,237,.07);
   --green:#22c55e;
   --red:#ef4444;
+  --yellow:#eab308;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow:hidden;}
@@ -81,29 +81,52 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .aerr.on{display:block;}
 
 /* ── APP ── */
-#app{display:none;flex-direction:column;height:100vh;position:relative;z-index:1;}
+#app{display:none;flex-direction:row;height:100vh;position:relative;z-index:1;}
 #app.on{display:flex;}
 
 /* topbar */
-.tbar{height:54px;background:rgba(8,8,16,.94);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 20px;gap:14px;backdrop-filter:blur(24px);flex-shrink:0;z-index:50;}
+.tbar{height:54px;background:rgba(8,8,16,.94);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 20px;gap:14px;backdrop-filter:blur(24px);flex-shrink:0;z-index:50;position:relative;grid-column:1/-1;}
 .tbar-logo{font-size:16px;font-weight:800;letter-spacing:6px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .pill{display:flex;align-items:center;gap:7px;border-radius:20px;padding:3px 12px;font-size:11px;font-family:'JetBrains Mono',monospace;transition:all .3s;}
 .pill.live{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#4ade80;}
 .pill.wait{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.2);color:#fde047;}
 .pdot{width:7px;height:7px;border-radius:50%;}
 .pill.live .pdot{background:var(--green);animation:liveDot 2s ease-in-out infinite;}
-.pill.wait .pdot{background:var(--yellow,#eab308);}
+.pill.wait .pdot{background:var(--yellow);}
 @keyframes liveDot{0%,100%{opacity:1;box-shadow:0 0 6px rgba(34,197,94,.8)}50%{opacity:.35;box-shadow:none}}
 .tbar-gap{flex:1;}
 .tbar-user{display:flex;align-items:center;gap:9px;cursor:pointer;position:relative;user-select:none;}
 .tbar-av{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid var(--purple);background:var(--bg3);}
 .tbar-name{font-size:13px;font-weight:600;color:var(--text2);}
+.owner-badge{font-size:9px;background:rgba(239,68,68,.2);color:#fca5a5;padding:1px 6px;border-radius:4px;margin-left:4px;}
 .drop{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg3);border:1px solid var(--border);border-radius:13px;padding:7px;min-width:175px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none;z-index:200;animation:slideUp .18s ease both;}
 .drop.on{display:block;}
 .ditem{padding:9px 12px;border-radius:8px;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:9px;}
 .ditem:hover{background:var(--dim);color:var(--text);}
 .ditem.red:hover{background:rgba(239,68,68,.1);color:var(--red);}
 .dsep{height:1px;background:var(--border2);margin:4px 0;}
+
+/* admin panel sidebar */
+.admin-panel{width:280px;background:rgba(8,8,16,.7);border-right:1px solid var(--border2);display:none;flex-direction:column;overflow:hidden;backdrop-filter:blur(14px);}
+.admin-panel.on{display:flex;}
+.admin-panel-head{padding:16px;border-bottom:1px solid var(--border2);font-size:12px;font-weight:700;letter-spacing:2px;color:var(--text3);}
+.admin-panel-content{flex:1;overflow-y:auto;padding:12px;}
+.admin-section{margin-bottom:16px;}
+.admin-section-title{font-size:11px;letter-spacing:2px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;}
+.admin-users{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;}
+.admin-user-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border2);font-size:12px;cursor:pointer;transition:all .2s;}
+.admin-user-item:hover{border-color:var(--purple2);background:var(--bg4);}
+.admin-user-av{font-size:14px;}
+.admin-user-name{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-user-actions{display:flex;gap:4px;}
+.admin-btn-small{width:24px;height:24px;border-radius:5px;background:var(--dim);border:none;color:var(--accent);font-size:11px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.admin-btn-small:hover{background:rgba(239,68,68,.2);color:var(--red);}
+.admin-actions{display:flex;flex-direction:column;gap:6px;}
+.admin-btn{width:100%;background:var(--dim);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
+.admin-btn:hover{background:rgba(239,68,68,.2);border-color:var(--red);color:var(--red);}
+
+/* chat container */
+.chat-container{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 
 /* chat */
 .chat{flex:1;display:flex;flex-direction:column;overflow:hidden;}
@@ -113,19 +136,39 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .chat-sub{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:1px;}
 .msgs{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:2px;}
 
+/* search bar */
+.search-bar{padding:10px 20px;background:rgba(8,8,16,.6);border-bottom:1px solid var(--border2);display:flex;gap:8px;}
+.search-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;font-family:'Syne',sans-serif;}
+.search-input:focus{border-color:var(--purple);}
+.search-input::placeholder{color:var(--text3);}
+.search-btn{background:var(--dim);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--accent);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;}
+.search-btn:hover{background:var(--purple);color:#fff;}
+
 /* message groups */
-.mg{display:flex;flex-direction:column;margin-bottom:16px;}
+.mg{display:flex;flex-direction:column;margin-bottom:16px;position:relative;}
 .mg.me{align-items:flex-end;}
 .mg.them{align-items:flex-start;}
 .mmeta{display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:0 2px;}
 .mg.me .mmeta{flex-direction:row-reverse;}
-.mav{width:26px;height:26px;border-radius:7px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.mav{width:26px;height:26px;border-radius:7px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;cursor:pointer;}
 .mname{font-size:12px;font-weight:600;color:var(--text2);}
 .mtime{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
-.bub{max-width:520px;padding:10px 15px;border-radius:15px;font-size:14px;line-height:1.65;word-break:break-word;animation:bIn .2s cubic-bezier(.34,1.56,.64,1) both;}
+.bub{max-width:520px;padding:10px 15px;border-radius:15px;font-size:14px;line-height:1.65;word-break:break-word;animation:bIn .2s cubic-bezier(.34,1.56,.64,1) both;position:relative;transition:all .2s;}
 @keyframes bIn{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
 .mg.me   .bub{background:linear-gradient(135deg,var(--purple),var(--purple3));color:#fff;border-bottom-right-radius:3px;box-shadow:0 3px 14px rgba(124,58,237,.28);}
 .mg.them .bub{background:var(--bg3);color:var(--text);border-bottom-left-radius:3px;border:1px solid var(--border2);}
+.bub:hover{box-shadow:0 0 0 1px var(--purple);}
+.bub-actions{display:none;position:absolute;top:-32px;right:0;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:4px;gap:4px;flex-direction:row;z-index:10;}
+.bub:hover .bub-actions{display:flex;}
+.bub-action-btn{width:24px;height:24px;border-radius:5px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.bub-action-btn:hover{background:var(--dim);color:var(--accent);}
+.bub-action-btn.delete:hover{background:rgba(239,68,68,.2);color:var(--red);}
+.bub-edited{font-size:10px;color:var(--text3);margin-top:4px;font-style:italic;}
+.reactions-bar{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
+.reaction{background:var(--bg4);border:1px solid var(--border2);border-radius:16px;padding:2px 8px;font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;transition:all .15s;}
+.reaction:hover{border-color:var(--purple);background:var(--dim);}
+.reaction-count{font-size:10px;color:var(--text3);}
+.reaction.reacted{border-color:var(--accent);background:rgba(192,132,252,.1);}
 .mimg{max-width:280px;border-radius:13px;overflow:hidden;cursor:pointer;transition:transform .2s;animation:bIn .2s cubic-bezier(.34,1.56,.64,1) both;}
 .mimg:hover{transform:scale(1.02);}
 .mimg img{width:100%;display:block;}
@@ -190,7 +233,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 a{color:var(--accent);}
 .mention{color:var(--accent);font-weight:600;}
 input[type=file]{display:none;}
-@media(max-width:600px){.auth-card{padding:30px 20px;}.setup-box{padding:30px 20px;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}}
+@media(max-width:600px){.auth-card{padding:30px 20px;}.admin-panel{width:0;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}}
 </style>
 </head>
 <body>
@@ -252,7 +295,10 @@ input[type=file]{display:none;}
     <div class="tbar-gap"></div>
     <div class="tbar-user" id="tbarUser" onclick="togDrop()">
       <div class="tbar-av" id="tbarAv">🦊</div>
-      <div class="tbar-name" id="tbarName">User</div>
+      <div style="display:flex;align-items:center;">
+        <div class="tbar-name" id="tbarName">User</div>
+        <div class="owner-badge" id="ownerBadge" style="display:none;">OWNER</div>
+      </div>
       <span style="color:var(--text3);font-size:11px;margin-left:2px;">▾</span>
       <div class="drop" id="drop">
         <div class="ditem" onclick="openProf()">✏️ Edit Profile</div>
@@ -262,28 +308,50 @@ input[type=file]{display:none;}
     </div>
   </div>
 
-  <div class="chat">
-    <div class="chat-head">
-      <div class="chat-ic">🌐</div>
-      <div>
-        <div class="chat-nm">Global Chat</div>
-        <div class="chat-sub" id="chatSub">—</div>
+  <!-- ADMIN PANEL -->
+  <div class="admin-panel" id="adminPanel">
+    <div class="admin-panel-head">⚙️ ADMIN PANEL</div>
+    <div class="admin-panel-content">
+      <div class="admin-section">
+        <div class="admin-section-title">Online Users</div>
+        <div class="admin-users" id="adminUsers"></div>
+      </div>
+      <div class="admin-section">
+        <div class="admin-actions">
+          <button class="admin-btn" onclick="clearAllChat()">🗑️ Clear All Chat</button>
+        </div>
       </div>
     </div>
-    <div class="msgs" id="msgs"></div>
-    <div class="tybar" id="tybar"></div>
-    <div class="iarea">
-      <div class="itb">
-        <div class="tbb" onclick="document.getElementById('imgIn').click()">🖼️ Image</div>
-        <div class="tbb" onclick="document.getElementById('fileIn').click()">📎 File</div>
-        <div class="tbb" onclick="togEm()" id="emBtn">😊 Emoji</div>
-      </div>
-      <div class="irow">
-        <div class="iwrap">
-          <div class="embox" id="embox" style="display:none;"></div>
-          <textarea class="mta" id="mta" placeholder="Message everyone on NEXUS..." rows="1" onkeydown="onKey(event)" oninput="onTaIn()"></textarea>
+  </div>
+
+  <div class="chat-container">
+    <div class="chat">
+      <div class="chat-head">
+        <div class="chat-ic">🌐</div>
+        <div>
+          <div class="chat-nm">Global Chat</div>
+          <div class="chat-sub" id="chatSub">—</div>
         </div>
-        <button class="sbtn" onclick="sendMsg()">➤</button>
+      </div>
+      <div class="search-bar">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search messages...">
+        <button class="search-btn" onclick="searchMessages()">Search</button>
+      </div>
+      <div class="msgs" id="msgs"></div>
+      <div class="tybar" id="tybar"></div>
+      <div class="iarea">
+        <div class="itb">
+          <div class="tbb" onclick="document.getElementById('imgIn').click()">🖼️ Image</div>
+          <div class="tbb" onclick="document.getElementById('fileIn').click()">📎 File</div>
+          <div class="tbb" onclick="togEm()" id="emBtn">😊 Emoji</div>
+        </div>
+        <div class="irow">
+          <div class="iwrap">
+            <div class="embox" id="embox" style="display:none;"></div>
+            <textarea class="mta" id="mta" placeholder="Message everyone on NEXUS..." rows="1" onkeydown="onKey(event)" oninput="onTaIn()"></textarea>
+          </div>
+          <button class="sbtn" onclick="sendMsg()">➤</button>
+        </div>
       </div>
     </div>
   </div>
@@ -308,31 +376,51 @@ input[type=file]{display:none;}
   </div>
 </div>
 
+<!-- USER PROFILE MODAL -->
+<div class="mov" id="userProfileMov">
+  <div class="modal" style="width:420px;">
+    <h3 id="userProfileName">User Profile</h3>
+    <p id="userProfileJoin">Joined today</p>
+    <div style="background:var(--bg2);border-radius:12px;padding:16px;margin:15px 0;text-align:center;">
+      <div style="font-size:48px;margin-bottom:10px;" id="userProfileAvatar">🦊</div>
+      <div style="font-size:14px;font-weight:700;margin-bottom:4px;" id="userProfileDisplayName">User</div>
+      <div style="font-size:11px;color:var(--text3);" id="userProfileStats">0 messages</div>
+    </div>
+    <div class="mbtns">
+      <button class="bcnl" onclick="closeUserProfile()">Close</button>
+    </div>
+  </div>
+</div>
+
 <div class="lb" id="lb" onclick="closeLb()"><img id="lbImg" src="" alt=""></div>
 <div class="tw" id="tw"></div>
 
 <!-- ════════════════════════════════════════════
-     SUPABASE JS (loaded from CDN — no npm needed)
+     SUPABASE JS (loaded from CDN)
 ════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ══════════════════════════════════════════════════
-   NEXUS — Supabase-powered global chat
+   NEXUS — Enhanced Chat with Admin Controls
    Single HTML file. Deploys to Vercel as-is.
-   Messages sync in real time across every device.
 ══════════════════════════════════════════════════ */
 
 // ── CONFIG ──
 const SB_URL = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
 const SB_KEY = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
-let sb = null;   // supabase client
-let me = null;   // { id, name, avatar, email }
+const OWNER_ID = 'YOUR_OWNER_USER_ID_HERE'; // Set this to the owner's Supabase user ID
+let sb = null;
+let me = null;
 let realtimeCh = null;
 let typTimer = null, isTyp = false;
 let typUsers = {};
 let emOpen = false, editAv = '🦊', regAv = '🦊';
 let msgCache = [];
 let onlineCount = 0;
+let onlineUsers = {};
+let isOwner = false;
+let editingMsgId = null;
+let searchResults = [];
 
 const EMOJIS = ['😀','😂','😍','🥰','😎','🤩','😊','🙌','👏','🔥','💯','❤️','💜','⚡','🎉','✨','🌟','💫','🦊','🐺','🦁','🤣','😭','😤','🥺','🤔','👀','💀','🤝','👋','🙏','💪','🚀','💎','🎮','🌙','🦋','🎭','⚔️','🔮'];
 
@@ -348,7 +436,6 @@ function initSupabase() {
   sb = supabase.createClient(SB_URL, SB_KEY);
   setLoadLbl('CHECKING SESSION...');
 
-  // Check existing session
   sb.auth.getSession().then(({ data: { session } }) => {
     if (session) {
       loadProfile(session.user).then(() => bootApp());
@@ -360,7 +447,6 @@ function initSupabase() {
     toast('Could not connect to Supabase — check your internet connection','error');
   });
 
-  // Listen for auth changes
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
       me = null; msgCache = [];
@@ -379,9 +465,10 @@ async function loadProfile(user) {
       name:   (data && data.name)  || user.email.split('@')[0],
       avatar: (data && data.avatar) || '🦊'
     };
+    isOwner = me.id === OWNER_ID;
   } catch(e) {
-    // Profile table may not exist yet — still let them in with defaults
     me = { id: user.id, email: user.email, name: user.email.split('@')[0], avatar: '🦊' };
+    isOwner = me.id === OWNER_ID;
   }
 }
 
@@ -419,7 +506,6 @@ window.doReg = async function() {
   const { data, error } = await sb.auth.signUp({ email, password: pass });
   if(error){ showE(err,friendlyErr(error.message)); btn.disabled=false; btn.textContent='CREATE ACCOUNT →'; return; }
 
-  // Email confirmation may be enabled — handle gracefully
   if(!data.session){
     showE(err,'Account created! Sign in with your email and password.');
     btn.disabled=false; btn.textContent='CREATE ACCOUNT →';
@@ -436,7 +522,6 @@ window.doLogout = async function() {
   document.getElementById('drop').classList.remove('on');
   if(realtimeCh){ sb.removeChannel(realtimeCh); realtimeCh=null; }
   await sb.auth.signOut();
-  // Reset buttons
   document.getElementById('lBtn').disabled=false; document.getElementById('lBtn').textContent='SIGN IN →';
   document.getElementById('rBtn').disabled=false; document.getElementById('rBtn').textContent='CREATE ACCOUNT →';
 }
@@ -453,9 +538,10 @@ function friendlyErr(msg='') {
 // ── BOOT APP ──────────────────────────────────────
 function bootApp() {
   try {
-    hide('loading'); hide('auth'); hide('setup');
+    hide('loading'); hide('auth');
     document.getElementById('app').classList.add('on');
     updTopbar();
+    if(isOwner) document.getElementById('adminPanel').classList.add('on');
     loadHistory();
     subscribeRealtime();
   } catch(e) {
@@ -467,26 +553,42 @@ function bootApp() {
 function updTopbar() {
   document.getElementById('tbarAv').textContent   = me.avatar;
   document.getElementById('tbarName').textContent = me.name;
+  if(isOwner) document.getElementById('ownerBadge').style.display = 'inline-block';
 }
 
 // ── HISTORY ───────────────────────────────────────
 async function loadHistory() {
   try {
+    setLoadLbl('LOADING MESSAGES...');
     const { data, error } = await sb.from('messages')
-      .select('*').order('created_at', { ascending: true }).limit(150);
+      .select('*')
+      .order('created_at', { ascending: true });
+    
     if(error){
+      console.error('Load error:', error);
       if(error.code === '42P01' || error.message.includes('does not exist')){
         document.getElementById('msgs').innerHTML = '<div class="sys">⚠️ Database tables not set up yet — run the SQL in Supabase SQL Editor first</div>';
+      } else if(error.message.includes('permission') || error.message.includes('denied')){
+        document.getElementById('msgs').innerHTML = '<div class="sys">⚠️ RLS policies not set up — check SETUP_GUIDE.md and enable proper permissions</div>';
       } else {
         toast('Could not load messages: ' + error.message, 'error');
+        console.error('Full error:', error);
       }
       return;
     }
-    msgCache = (data||[]).map(dbToMsg);
+    
+    if(!data || data.length === 0) {
+      msgCache = [];
+      renderAll();
+      return;
+    }
+    
+    msgCache = data.map(dbToMsg);
     renderAll();
     scrollBot();
     setPill('live', onlineCount + ' online');
   } catch(e) {
+    console.error('Load error:', e);
     toast('Load error: ' + e.message, 'error');
   }
 }
@@ -501,6 +603,8 @@ function dbToMsg(r) {
     content:  r.content || '',
     fileName: r.file_name,
     fileSize: r.file_size,
+    edited:   r.edited,
+    reactions: r.reactions ? JSON.parse(r.reactions) : {},
     ts:       new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),
     time:     new Date(r.created_at).getTime()
   };
@@ -513,11 +617,22 @@ function subscribeRealtime() {
   realtimeCh = sb.channel('global-chat')
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload => {
       const msg = dbToMsg(payload.new);
-      // Deduplicate (we may have already added optimistically)
       if(msgCache.find(m=>m.id===msg.id)) return;
       msgCache.push(msg);
       appendMsg(msg);
       if(isNearBot()) scrollBot();
+    })
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'messages' }, payload => {
+      const idx = msgCache.findIndex(m=>m.id===payload.new.id);
+      if(idx>=0) {
+        msgCache[idx] = dbToMsg(payload.new);
+        renderAll();
+        if(isNearBot()) scrollBot();
+      }
+    })
+    .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, payload => {
+      msgCache = msgCache.filter(m=>m.id!==payload.old.id);
+      renderAll();
     })
     .on('broadcast', { event:'typing' }, ({ payload }) => {
       if(payload.uid === me.id) return;
@@ -530,8 +645,11 @@ function subscribeRealtime() {
     .on('presence', { event:'sync' }, () => {
       const state = realtimeCh.presenceState();
       onlineCount = Object.keys(state).length;
+      onlineUsers = {};
+      Object.values(state).forEach(p=>p.forEach(u=>onlineUsers[u.uid]={name:u.name,avatar:u.avatar}));
       setPill('live', `${onlineCount} online`);
       document.getElementById('chatSub').textContent = `${onlineCount} user${onlineCount!==1?'s':''} online`;
+      if(isOwner) updateAdminPanel();
     })
     .on('presence', { event:'join' }, ({ newPresences }) => {
       newPresences.forEach(p => { if(p.uid!==me.id) toast(`${p.avatar} ${p.name} joined`,'info'); });
@@ -544,41 +662,118 @@ function subscribeRealtime() {
     });
 }
 
-function subscribePresence() {} // handled inside subscribeRealtime
+// ── ADMIN PANEL ──────────────────────────────────
+function updateAdminPanel() {
+  const panel = document.getElementById('adminUsers');
+  const users = Object.values(onlineUsers);
+  panel.innerHTML = '';
+  users.forEach(u => {
+    const el = document.createElement('div');
+    el.className = 'admin-user-item';
+    el.innerHTML = `
+      <div class="admin-user-av">${u.avatar}</div>
+      <div class="admin-user-name">${x(u.name)}</div>
+      <div class="admin-user-actions">
+        <button class="admin-btn-small delete" onclick="deleteUserMessages('${u.name}')">×</button>
+      </div>
+    `;
+    panel.appendChild(el);
+  });
+}
+
+window.deleteUserMessages = async function(userName) {
+  if(!isOwner) return;
+  if(!confirm(`Delete all messages from ${userName}?`)) return;
+  try {
+    const { error } = await sb.from('messages').delete().eq('name', userName);
+    if(error) { toast('Error: ' + error.message, 'error'); return; }
+    msgCache = msgCache.filter(m=>m.name!==userName);
+    renderAll();
+    toast(`Deleted all messages from ${userName} ✓`, 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+window.clearAllChat = async function() {
+  if(!isOwner) return;
+  if(!confirm('Clear ALL messages? This cannot be undone.')) return;
+  try {
+    const { error } = await sb.from('messages').delete().neq('id', '');
+    if(error) { toast('Error clearing chat: ' + error.message, 'error'); return; }
+    msgCache = [];
+    renderAll();
+    toast('Chat cleared ✓', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
 
 // ── SEND ──────────────────────────────────────────
 window.sendMsg = async function() {
   const ta=document.getElementById('mta');
   const txt=ta.value.trim(); if(!txt) return;
-  ta.value=''; ta.style.height='auto'; stopTyp();
+  
+  if(editingMsgId) {
+    const msg = msgCache.find(m=>m.id===editingMsgId);
+    if(!msg) return;
+    ta.value=''; ta.style.height='auto'; stopTyp();
+    const { error } = await sb.from('messages').update({ content: txt, edited: true }).eq('id', editingMsgId);
+    if(error) { toast('Failed to edit','error'); return; }
+    editingMsgId = null;
+    toast('Message edited ✓', 'success');
+  } else {
+    ta.value=''; ta.style.height='auto'; stopTyp();
+    const tempId = 'tmp_'+Date.now();
+    const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type:'text', content:txt, reactions:{}, ts:nowTs(), time:Date.now() };
+    msgCache.push(opt); appendMsg(opt); scrollBot();
 
-  // Optimistic: show immediately
-  const tempId = 'tmp_'+Date.now();
-  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type:'text', content:txt, ts:nowTs(), time:Date.now() };
-  msgCache.push(opt); appendMsg(opt); scrollBot();
+    const { data, error } = await sb.from('messages').insert({
+      user_id: me.id, name: me.name, avatar: me.avatar,
+      type: 'text', content: txt, reactions: '{}'
+    }).select().single();
 
-  const { data, error } = await sb.from('messages').insert({
-    user_id: me.id, name: me.name, avatar: me.avatar,
-    type: 'text', content: txt
-  }).select().single();
-
-  if(error) { toast('Failed to send','error'); msgCache = msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
-  // Replace temp with real
-  const idx = msgCache.findIndex(m=>m.id===tempId);
-  if(idx>=0) msgCache[idx] = dbToMsg(data);
+    if(error) { toast('Failed to send','error'); msgCache = msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
+    const idx = msgCache.findIndex(m=>m.id===tempId);
+    if(idx>=0) msgCache[idx] = dbToMsg(data);
+  }
 }
 
 async function sendMedia(type, content, fileName, fileSize) {
   const tempId = 'tmp_'+Date.now();
-  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type, content, fileName, fileSize, ts:nowTs(), time:Date.now() };
+  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type, content, fileName, fileSize, reactions:{}, ts:nowTs(), time:Date.now() };
   msgCache.push(opt); appendMsg(opt); scrollBot();
 
-  const row = { user_id:me.id, name:me.name, avatar:me.avatar, type, content };
+  const row = { user_id:me.id, name:me.name, avatar:me.avatar, type, content, reactions: '{}' };
   if(fileName) { row.file_name=fileName; row.file_size=fileSize; }
 
   const { data, error } = await sb.from('messages').insert(row).select().single();
   if(error) { toast('Failed to send','error'); msgCache=msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
   const idx=msgCache.findIndex(m=>m.id===tempId); if(idx>=0) msgCache[idx]=dbToMsg(data);
+}
+
+async function deleteMessage(msgId, uid) {
+  if(!isOwner && uid !== me.id) return;
+  const { error } = await sb.from('messages').delete().eq('id', msgId);
+  if(error) { toast('Failed to delete','error'); return; }
+  msgCache = msgCache.filter(m=>m.id!==msgId);
+  renderAll();
+  toast('Message deleted ✓', 'success');
+}
+
+async function addReaction(msgId, emoji) {
+  const msg = msgCache.find(m=>m.id===msgId);
+  if(!msg) return;
+  if(!msg.reactions) msg.reactions = {};
+  const key = `${emoji}:${me.id}`;
+  if(msg.reactions[key]) {
+    delete msg.reactions[key];
+  } else {
+    msg.reactions[key] = true;
+  }
+  const { error } = await sb.from('messages').update({ reactions: JSON.stringify(msg.reactions) }).eq('id', msgId);
+  if(error) return;
+  renderAll();
 }
 
 // ── TYPING ────────────────────────────────────────
@@ -610,6 +805,19 @@ document.getElementById('fileIn').addEventListener('change', function(){
   const r=new FileReader(); r.onload=async e=>{ await sendMedia('file',e.target.result,f.name,fmt(f.size)); toast('File shared 📎','success'); };
   r.readAsDataURL(f); this.value='';
 });
+
+// ── SEARCH ───────────────────────────────────────
+window.searchMessages = function() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  if(!q) { renderAll(); return; }
+  searchResults = msgCache.filter(m => 
+    m.type === 'text' && m.content.toLowerCase().includes(q) ||
+    m.name.toLowerCase().includes(q)
+  );
+  const el=document.getElementById('msgs'); el.innerHTML='';
+  if(!searchResults.length){el.innerHTML='<div class="sys">No messages found</div>';return;}
+  grp(searchResults).forEach(g=>renderGrp(g,el));
+}
 
 // ── RENDER ────────────────────────────────────────
 function renderAll(){
@@ -643,17 +851,120 @@ function renderGrp(g,container){
   const mine=g.uid===me.id;
   const grpEl=document.createElement('div');grpEl.className=`mg ${mine?'me':'them'}`;grpEl.dataset.uid=g.uid;grpEl.dataset.t=g.lt;
   const hdr=document.createElement('div');hdr.className='mmeta';
-  hdr.innerHTML=`<div class="mav">${g.avatar}</div><span class="mname">${x(mine?'You':g.name)}</span><span class="mtime">${g.msgs[0].ts}</span>`;
+  const avEl = document.createElement('div');
+  avEl.className='mav';
+  avEl.textContent=g.avatar;
+  avEl.style.cursor='pointer';
+  avEl.onclick=()=>showUserProfile(g.uid, g.name, g.avatar);
+  hdr.appendChild(avEl);
+  const nameSpan = document.createElement('span');
+  nameSpan.className='mname';
+  nameSpan.textContent=x(mine?'You':g.name);
+  nameSpan.style.cursor='pointer';
+  nameSpan.onclick=()=>showUserProfile(g.uid, g.name, g.avatar);
+  hdr.appendChild(nameSpan);
+  const timeSpan = document.createElement('span');
+  timeSpan.className='mtime';
+  timeSpan.textContent=g.msgs[0].ts;
+  hdr.appendChild(timeSpan);
   grpEl.appendChild(hdr);
   g.msgs.forEach(m=>renderBub(m,grpEl));
   container.appendChild(grpEl);
 }
 
 function renderBub(m,grp){
-  if(m.type==='text'){const b=document.createElement('div');b.className='bub';b.innerHTML=linkify(x(m.content));grp.appendChild(b);}
-  else if(m.type==='image'){const w=document.createElement('div');w.className='mimg';const img=document.createElement('img');img.src=m.content;img.loading='lazy';img.onclick=()=>openLb(m.content);w.appendChild(img);grp.appendChild(w);}
-  else if(m.type==='file'){const f=document.createElement('div');f.className='mfile';f.innerHTML=`<div class="fic">📄</div><div><div class="fnm">${x(m.fileName||'')}</div><div class="fsz">${m.fileSize||''}</div></div>`;f.onclick=()=>{const a=document.createElement('a');a.href=m.content;a.download=m.fileName;a.click();};grp.appendChild(f);}
+  if(m.type==='text'){
+    const b=document.createElement('div');
+    b.className='bub';
+    const content = document.createElement('div');
+    content.innerHTML=linkify(x(m.content));
+    b.appendChild(content);
+    if(m.edited) {
+      const ed = document.createElement('div');
+      ed.className='bub-edited';
+      ed.textContent='(edited)';
+      b.appendChild(ed);
+    }
+    if(isOwner || me.id === m.uid) {
+      const actions = document.createElement('div');
+      actions.className = 'bub-actions';
+      if(me.id === m.uid) {
+        const editBtn = document.createElement('button');
+        editBtn.className = 'bub-action-btn';
+        editBtn.innerHTML = '✏️';
+        editBtn.onclick = ()=>editMsg(m.id);
+        actions.appendChild(editBtn);
+      }
+      const delBtn = document.createElement('button');
+      delBtn.className = 'bub-action-btn delete';
+      delBtn.innerHTML = '×';
+      delBtn.onclick = ()=>deleteMessage(m.id, m.uid);
+      actions.appendChild(delBtn);
+      b.appendChild(actions);
+    }
+    const reacs = document.createElement('div');
+    reacs.className = 'reactions-bar';
+    if(m.reactions && Object.keys(m.reactions).length > 0) {
+      const emojis = {};
+      Object.keys(m.reactions).forEach(k => {
+        const emoji = k.split(':')[0];
+        emojis[emoji] = (emojis[emoji] || 0) + 1;
+      });
+      Object.entries(emojis).forEach(([emoji, count]) => {
+        const reac = document.createElement('div');
+        reac.className = 'reaction';
+        if(Object.keys(m.reactions).find(k=>k.startsWith(emoji+':'+me.id))) {
+          reac.classList.add('reacted');
+        }
+        reac.innerHTML = `<span>${emoji}</span><span class="reaction-count">${count}</span>`;
+        reac.onclick = ()=>addReaction(m.id, emoji);
+        reacs.appendChild(reac);
+      });
+    }
+    const addReacBtn = document.createElement('div');
+    addReacBtn.className = 'reaction';
+    addReacBtn.innerHTML = '➕';
+    addReacBtn.style.cursor = 'pointer';
+    addReacBtn.onclick = ()=>showEmojiPicker(m.id);
+    reacs.appendChild(addReacBtn);
+    b.appendChild(reacs);
+    grp.appendChild(b);
+  }
+  else if(m.type==='image'){
+    const w=document.createElement('div');w.className='mimg';const img=document.createElement('img');img.src=m.content;img.loading='lazy';img.onclick=()=>openLb(m.content);w.appendChild(img);grp.appendChild(w);
+  }
+  else if(m.type==='file'){
+    const f=document.createElement('div');f.className='mfile';f.innerHTML=`<div class="fic">📄</div><div><div class="fnm">${x(m.fileName||'')}</div><div class="fsz">${m.fileSize||''}</div></div>`;f.onclick=()=>{const a=document.createElement('a');a.href=m.content;a.download=m.fileName;a.click();};grp.appendChild(f);
+  }
 }
+
+function editMsg(msgId) {
+  const msg = msgCache.find(m=>m.id===msgId);
+  if(!msg) return;
+  editingMsgId = msgId;
+  document.getElementById('mta').value = msg.content;
+  document.getElementById('mta').focus();
+  toast('Edit mode: press Enter to save', 'info');
+}
+
+function showEmojiPicker(msgId) {
+  const emojis = ['😀','😂','❤️','🔥','👍','😍','🥰','😎'];
+  const picker = prompt('Reaction: ' + emojis.join(' '), '');
+  if(picker) addReaction(msgId, picker);
+}
+
+function showUserProfile(uid, name, avatar) {
+  const userMsgs = msgCache.filter(m=>m.uid===uid);
+  const joinDate = userMsgs.length > 0 ? new Date(userMsgs[0].time).toLocaleDateString() : 'unknown';
+  document.getElementById('userProfileName').textContent = name;
+  document.getElementById('userProfileAvatar').textContent = avatar;
+  document.getElementById('userProfileDisplayName').textContent = name;
+  document.getElementById('userProfileJoin').textContent = `Joined: ${joinDate}`;
+  document.getElementById('userProfileStats').textContent = `${userMsgs.length} messages`;
+  document.getElementById('userProfileMov').classList.add('on');
+}
+
+window.closeUserProfile = ()=>document.getElementById('userProfileMov').classList.remove('on');
 
 // ── PROFILE ───────────────────────────────────────
 window.openProf=()=>{document.getElementById('profN').value=me.name;editAv=me.avatar;document.querySelectorAll('#editAv .avo').forEach(el=>el.classList.toggle('on',el.dataset.e===me.avatar));document.getElementById('profMov').classList.add('on');document.getElementById('drop').classList.remove('on');}
@@ -662,7 +973,6 @@ window.saveProf=async function(){
   const name=document.getElementById('profN').value.trim();if(!name){toast('Enter a name','error');return;}
   me.name=name;me.avatar=editAv;
   await sb.from('profiles').upsert({id:me.id,name,avatar:editAv,updated_at:new Date().toISOString()});
-  // Re-track presence with new info
   if(realtimeCh) await realtimeCh.track({uid:me.id,name,avatar:editAv});
   updTopbar();closeProf();toast('Profile updated ✨','success');
 }
@@ -717,7 +1027,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('.tbar-user')) document.getElementById('drop').classList.remove('on');
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeLb();closeProf();document.getElementById('drop').classList.remove('on');}
+  if(e.key==='Escape'){closeLb();closeProf();closeUserProfile();document.getElementById('drop').classList.remove('on');}
 });
 </script>
 </body>
