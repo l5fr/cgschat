@@ -745,12 +745,13 @@ window.clearAllChat = async function() {
   if(!isOwner) return;
   if(!confirm('Clear ALL messages? This cannot be undone.')) return;
   try {
-    const { error } = await sb.from('messages').delete().neq('id', '');
-    if(error) { toast('Error clearing chat: ' + error.message, 'error'); return; }
+    const { error } = await sb.from('messages').delete().gte('id', '');
+    if(error) { toast('Error clearing chat: ' + error.message, 'error'); console.error('Clear error:', error); return; }
     msgCache = [];
     renderAll();
     toast('Chat cleared ✓', 'success');
   } catch(e) {
+    console.error('Clear chat error:', e);
     toast('Error: ' + e.message, 'error');
   }
 }
@@ -765,7 +766,11 @@ window.sendMsg = async function() {
     if(!msg) return;
     ta.value=''; ta.style.height='auto'; stopTyp();
     const { error } = await sb.from('messages').update({ content: txt, edited: true }).eq('id', editingMsgId);
-    if(error) { toast('Failed to edit','error'); return; }
+    if(error) { 
+      console.error('Edit error:', error);
+      toast('Failed to edit: ' + error.message,'error'); 
+      return; 
+    }
     editingMsgId = null;
     toast('Message edited ✓', 'success');
   } else {
@@ -779,7 +784,13 @@ window.sendMsg = async function() {
       type: 'text', content: txt, reactions: '{}'
     }).select().single();
 
-    if(error) { toast('Failed to send','error'); msgCache = msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
+    if(error) { 
+      console.error('Send error:', error);
+      toast('Failed to send: ' + error.message,'error'); 
+      msgCache = msgCache.filter(m=>m.id!==tempId); 
+      renderAll(); 
+      return; 
+    }
     const idx = msgCache.findIndex(m=>m.id===tempId);
     if(idx>=0) msgCache[idx] = dbToMsg(data);
   }
