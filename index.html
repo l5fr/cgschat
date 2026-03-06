@@ -371,13 +371,18 @@ function initSupabase() {
 }
 
 async function loadProfile(user) {
-  const { data } = await sb.from('profiles').select('name, avatar').eq('id', user.id).single();
-  me = {
-    id:     user.id,
-    email:  user.email,
-    name:   data?.name  || user.email.split('@')[0],
-    avatar: data?.avatar || '🦊'
-  };
+  try {
+    const { data } = await sb.from('profiles').select('name, avatar').eq('id', user.id).single();
+    me = {
+      id:     user.id,
+      email:  user.email,
+      name:   (data && data.name)  || user.email.split('@')[0],
+      avatar: (data && data.avatar) || '🦊'
+    };
+  } catch(e) {
+    // Profile table may not exist yet — still let them in with defaults
+    me = { id: user.id, email: user.email, name: user.email.split('@')[0], avatar: '🦊' };
+  }
 }
 
 // ── AUTH ──────────────────────────────────────────
@@ -414,7 +419,14 @@ window.doReg = async function() {
   const { data, error } = await sb.auth.signUp({ email, password: pass });
   if(error){ showE(err,friendlyErr(error.message)); btn.disabled=false; btn.textContent='CREATE ACCOUNT →'; return; }
 
-  // Save profile row
+  // Email confirmation may be enabled — handle gracefully
+  if(!data.session){
+    showE(err,'Account created! Sign in with your email and password.');
+    btn.disabled=false; btn.textContent='CREATE ACCOUNT →';
+    setTab('l'); document.getElementById('lE').value=email;
+    return;
+  }
+
   await sb.from('profiles').upsert({ id: data.user.id, name: name.trim().slice(0,24), avatar: regAv, updated_at: new Date().toISOString() });
   me = { id: data.user.id, email, name: name.trim().slice(0,24), avatar: regAv };
   bootApp();
@@ -440,12 +452,16 @@ function friendlyErr(msg='') {
 
 // ── BOOT APP ──────────────────────────────────────
 function bootApp() {
-  hide('loading'); hide('auth'); hide('setup');
-  document.getElementById('app').classList.add('on');
-  updTopbar();
-  loadHistory();
-  subscribeRealtime();
-  subscribePresence();
+  try {
+    hide('loading'); hide('auth'); hide('setup');
+    document.getElementById('app').classList.add('on');
+    updTopbar();
+    loadHistory();
+    subscribeRealtime();
+  } catch(e) {
+    console.error('bootApp error:', e);
+    toast('App error: ' + e.message, 'error');
+  }
 }
 
 function updTopbar() {
@@ -455,13 +471,24 @@ function updTopbar() {
 
 // ── HISTORY ───────────────────────────────────────
 async function loadHistory() {
-  const { data, error } = await sb.from('messages')
-    .select('*').order('created_at', { ascending: true }).limit(150);
-  if(error){ toast('Could not load messages','error'); return; }
-  msgCache = (data||[]).map(dbToMsg);
-  renderAll();
-  scrollBot();
-  setPill('live', `${onlineCount} online`);
+  try {
+    const { data, error } = await sb.from('messages')
+      .select('*').order('created_at', { ascending: true }).limit(150);
+    if(error){
+      if(error.code === '42P01' || error.message.includes('does not exist')){
+        document.getElementById('msgs').innerHTML = '<div class="sys">⚠️ Database tables not set up yet — run the SQL in Supabase SQL Editor first</div>';
+      } else {
+        toast('Could not load messages: ' + error.message, 'error');
+      }
+      return;
+    }
+    msgCache = (data||[]).map(dbToMsg);
+    renderAll();
+    scrollBot();
+    setPill('live', onlineCount + ' online');
+  } catch(e) {
+    toast('Load error: ' + e.message, 'error');
+  }
 }
 
 function dbToMsg(r) {
