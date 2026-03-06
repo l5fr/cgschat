@@ -7,40 +7,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#050508;
-  --bg2:#0a0a12;
-  --bg3:#0f0f1a;
-  --bg4:#141420;
-  --purple:#7c3aed;
-  --purple2:#9d5bf7;
-  --purple3:#5b21b6;
-  --purple4:#3b0d99;
-  --glow:rgba(124,58,237,.45);
-  --dim:rgba(124,58,237,.13);
-  --accent:#c084fc;
-  --accent2:#e879f9;
-  --text:#f0eeff;
-  --text2:#a89fc7;
-  --text3:#5f5680;
-  --border:rgba(124,58,237,.2);
-  --border2:rgba(124,58,237,.07);
-  --green:#22c55e;
-  --red:#ef4444;
+  --bg:#050508; --bg2:#0a0a12; --bg3:#0f0f1a; --bg4:#141420;
+  --purple:#7c3aed; --purple2:#9d5bf7; --purple3:#5b21b6; --purple4:#3b0d99;
+  --glow:rgba(124,58,237,.45); --dim:rgba(124,58,237,.13);
+  --accent:#c084fc; --accent2:#e879f9;
+  --text:#f0eeff; --text2:#a89fc7; --text3:#5f5680;
+  --border:rgba(124,58,237,.2); --border2:rgba(124,58,237,.07);
+  --green:#22c55e; --red:#ef4444;
+  --ap-red:rgba(239,68,68,.18); --ap-redborder:rgba(239,68,68,.25);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow:hidden;}
-::-webkit-scrollbar{width:3px;}
-::-webkit-scrollbar-thumb{background:var(--purple4);border-radius:2px;}
-
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-thumb{background:var(--purple4);border-radius:2px;}
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(124,58,237,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.035) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(ellipse at 50% 0%,black 30%,transparent 80%);pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(124,58,237,.18) 0%,transparent 55%);pointer-events:none;z-index:0;}
-
 .layer{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;}
 
 /* LOADING */
 #loading{background:var(--bg);}
 .load-inner{display:flex;flex-direction:column;align-items:center;gap:20px;}
-.load-mark{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,var(--purple),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:34px;animation:markPulse 2.4s ease-in-out infinite;box-shadow:0 0 0 0 var(--glow);}
+.load-mark{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,var(--purple),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:34px;animation:markPulse 2.4s ease-in-out infinite;}
 @keyframes markPulse{0%,100%{box-shadow:0 0 30px var(--glow)}50%{box-shadow:0 0 70px var(--glow),0 0 140px rgba(124,58,237,.15)}}
 .load-ring{width:38px;height:38px;border-radius:50%;border:2.5px solid var(--dim);border-top-color:var(--purple);animation:spin .75s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -73,11 +59,13 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .aerr{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:9px;padding:10px 14px;font-size:12px;color:#fca5a5;margin-top:10px;display:none;font-family:'JetBrains Mono',monospace;line-height:1.5;}
 .aerr.on{display:block;}
 
-/* APP */
-#app{display:none;flex-direction:column;height:100vh;position:relative;z-index:1;}
+/* ══ APP SHELL — two-column when admin ══ */
+#app{display:none;flex-direction:row;height:100vh;position:relative;z-index:1;}
 #app.on{display:flex;}
+/* main column */
+.main-col{flex:1;display:flex;flex-direction:column;min-width:0;overflow:hidden;}
 
-/* topbar */
+/* TOPBAR */
 .tbar{height:54px;background:rgba(8,8,16,.94);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 20px;gap:14px;backdrop-filter:blur(24px);flex-shrink:0;z-index:50;}
 .tbar-logo{font-size:16px;font-weight:800;letter-spacing:6px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .pill{display:flex;align-items:center;gap:7px;border-radius:20px;padding:3px 12px;font-size:11px;font-family:'JetBrains Mono',monospace;transition:all .3s;}
@@ -92,14 +80,17 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .tbar-av{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid var(--purple);background:var(--bg3);overflow:hidden;}
 .tbar-av img{width:100%;height:100%;object-fit:cover;border-radius:7px;}
 .tbar-name{font-size:13px;font-weight:600;color:var(--text2);}
+.admin-badge{display:inline-flex;align-items:center;background:linear-gradient(135deg,rgba(239,68,68,.2),rgba(239,68,68,.1));border:1px solid rgba(239,68,68,.4);border-radius:5px;padding:1px 7px;font-size:9px;font-family:'JetBrains Mono',monospace;color:#f87171;letter-spacing:1.5px;margin-left:5px;vertical-align:middle;}
 .drop{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg3);border:1px solid var(--border);border-radius:13px;padding:7px;min-width:175px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none;z-index:200;animation:slideUp .18s ease both;}
 .drop.on{display:block;}
 .ditem{padding:9px 12px;border-radius:8px;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:9px;}
 .ditem:hover{background:var(--dim);color:var(--text);}
 .ditem.red:hover{background:rgba(239,68,68,.1);color:var(--red);}
+.ditem.danger{color:#f87171;}
+.ditem.danger:hover{background:rgba(239,68,68,.1);color:#fca5a5;}
 .dsep{height:1px;background:var(--border2);margin:4px 0;}
 
-/* chat */
+/* CHAT */
 .chat{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 .chat-head{padding:13px 24px 11px;border-bottom:1px solid var(--border2);background:rgba(8,8,16,.6);backdrop-filter:blur(14px);display:flex;align-items:center;gap:12px;flex-shrink:0;}
 .chat-ic{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,var(--purple3),var(--purple));display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 16px rgba(124,58,237,.3);}
@@ -107,7 +98,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .chat-sub{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:1px;}
 .msgs{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:2px;}
 
-/* message groups */
+/* messages */
 .mg{display:flex;flex-direction:column;margin-bottom:16px;}
 .mg.me{align-items:flex-end;}
 .mg.them{align-items:flex-start;}
@@ -117,18 +108,17 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .mav img{width:100%;height:100%;object-fit:cover;}
 .mname{font-size:12px;font-weight:600;color:var(--text2);}
 .mtime{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
-
-/* message wrapper — for delete hover effect */
 .bub-wrap{position:relative;display:flex;align-items:center;gap:6px;max-width:100%;}
 .mg.me .bub-wrap{flex-direction:row-reverse;}
 .del-btn{opacity:0;width:26px;height:26px;border-radius:7px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
 .bub-wrap:hover .del-btn{opacity:1;}
 .del-btn:hover{background:rgba(239,68,68,.18);transform:scale(1.1);}
-
 .bub{max-width:520px;padding:10px 15px;border-radius:15px;font-size:14px;line-height:1.65;word-break:break-word;animation:bIn .2s cubic-bezier(.34,1.56,.64,1) both;}
 @keyframes bIn{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
-.mg.me   .bub{background:linear-gradient(135deg,var(--purple),var(--purple3));color:#fff;border-bottom-right-radius:3px;box-shadow:0 3px 14px rgba(124,58,237,.28);}
+.mg.me .bub{background:linear-gradient(135deg,var(--purple),var(--purple3));color:#fff;border-bottom-right-radius:3px;box-shadow:0 3px 14px rgba(124,58,237,.28);}
 .mg.them .bub{background:var(--bg3);color:var(--text);border-bottom-left-radius:3px;border:1px solid var(--border2);}
+.bub.deleted{opacity:.4;font-style:italic;font-size:13px;}
+.mg.me .bub.deleted{background:var(--bg4);color:var(--text3);border:1px solid var(--border2);box-shadow:none;}
 .mimg{max-width:280px;border-radius:13px;overflow:hidden;cursor:pointer;transition:transform .2s;animation:bIn .2s cubic-bezier(.34,1.56,.64,1) both;}
 .mimg:hover{transform:scale(1.02);}
 .mimg img{width:100%;display:block;}
@@ -140,18 +130,12 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .sys{text-align:center;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;padding:5px 0;display:flex;align-items:center;gap:10px;margin:4px 0;}
 .sys::before,.sys::after{content:'';flex:1;height:1px;background:var(--border2);}
 
-/* deleted message */
-.bub.deleted{opacity:.4;font-style:italic;font-size:13px;}
-.mg.me .bub.deleted{background:var(--bg4);color:var(--text3);border:1px solid var(--border2);box-shadow:none;}
-
-/* typing */
+/* typing / input */
 .tybar{padding:0 24px 8px;min-height:26px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
 .tydots{display:flex;gap:3px;}
 .tydots span{width:5px;height:5px;border-radius:50%;background:var(--purple2);animation:td 1.4s ease-in-out infinite;}
 .tydots span:nth-child(2){animation-delay:.2s;}.tydots span:nth-child(3){animation-delay:.4s;}
 @keyframes td{0%,60%,100%{transform:translateY(0);opacity:.35}30%{transform:translateY(-5px);opacity:1}}
-
-/* input */
 .iarea{padding:13px 20px 17px;background:rgba(8,8,16,.84);border-top:1px solid var(--border2);backdrop-filter:blur(18px);flex-shrink:0;}
 .itb{display:flex;gap:5px;margin-bottom:8px;}
 .tbb{height:26px;background:var(--bg3);border:1px solid var(--border2);border-radius:7px;color:var(--text3);font-size:11px;padding:0 10px;cursor:pointer;transition:all .15s;font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:5px;white-space:nowrap;}
@@ -167,6 +151,60 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .embox{position:absolute;bottom:calc(100% + 8px);left:0;background:var(--bg3);border:1px solid var(--border);border-radius:13px;padding:9px;display:flex;flex-wrap:wrap;gap:3px;width:228px;box-shadow:0 -8px 26px rgba(0,0,0,.45);z-index:80;animation:slideUp .15s ease both;}
 .em{width:29px;height:29px;display:flex;align-items:center;justify-content:center;font-size:16px;cursor:pointer;border-radius:7px;transition:background .12s;user-select:none;}
 .em:hover{background:var(--dim);}
+
+/* ══ ADMIN SIDE PANEL ══ */
+#adminCol{width:320px;flex-shrink:0;display:none;flex-direction:column;background:linear-gradient(180deg,#07030a,#060208);border-left:1px solid var(--ap-redborder);overflow:hidden;position:relative;z-index:40;}
+#adminCol.visible{display:flex;}
+
+.ap-topbar{height:54px;background:rgba(15,3,3,.9);border-bottom:1px solid var(--ap-redborder);display:flex;align-items:center;padding:0 16px;gap:10px;flex-shrink:0;backdrop-filter:blur(24px);}
+.ap-topbar-ic{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,#7f1d1d,#dc2626);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;box-shadow:0 0 10px rgba(239,68,68,.3);}
+.ap-topbar-title{font-size:13px;font-weight:800;letter-spacing:3px;color:#f87171;}
+.ap-topbar-gap{flex:1;}
+.ap-topbar-close{width:26px;height:26px;border-radius:7px;background:rgba(239,68,68,.08);border:1px solid var(--ap-redborder);color:#f87171;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.ap-topbar-close:hover{background:rgba(239,68,68,.2);}
+
+/* stats row */
+.ap-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:14px 14px 0;}
+.ap-stat{background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.1);border-radius:10px;padding:11px 14px;}
+.ap-stat-num{font-size:22px;font-weight:800;color:#fca5a5;line-height:1;}
+.ap-stat-lbl{font-size:9px;color:rgba(239,68,68,.4);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;margin-top:3px;}
+
+/* nuke button */
+.ap-nuke{margin:12px 14px 0;background:linear-gradient(135deg,rgba(127,29,29,.5),rgba(185,28,28,.3));border:1px solid rgba(239,68,68,.4);border-radius:11px;padding:11px 14px;color:#fca5a5;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .2s;width:calc(100% - 28px);}
+.ap-nuke:hover{background:linear-gradient(135deg,rgba(153,27,27,.65),rgba(220,38,38,.4));box-shadow:0 0 20px rgba(239,68,68,.2);transform:translateY(-1px);}
+.ap-nuke:active{transform:translateY(0);}
+.ap-nuke-ic{width:28px;height:28px;border-radius:8px;background:rgba(239,68,68,.15);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+.ap-nuke-text b{display:block;font-size:12px;}
+.ap-nuke-text small{font-size:10px;color:rgba(239,68,68,.45);font-family:'JetBrains Mono',monospace;font-weight:400;}
+
+/* section label */
+.ap-sec{padding:14px 14px 8px;font-size:9px;letter-spacing:3px;color:rgba(239,68,68,.4);font-family:'JetBrains Mono',monospace;display:flex;align-items:center;gap:8px;}
+.ap-sec::after{content:'';flex:1;height:1px;background:rgba(239,68,68,.08);}
+
+/* search */
+.ap-search{margin:0 14px 10px;position:relative;}
+.ap-search input{width:100%;background:rgba(239,68,68,.04);border:1px solid rgba(239,68,68,.12);border-radius:9px;padding:8px 12px 8px 32px;color:#fca5a5;font-family:'JetBrains Mono',monospace;font-size:11px;outline:none;transition:all .2s;}
+.ap-search input::placeholder{color:rgba(239,68,68,.25);}
+.ap-search input:focus{border-color:rgba(239,68,68,.3);background:rgba(239,68,68,.06);}
+.ap-search-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.4;pointer-events:none;}
+
+/* message list */
+.ap-msgs{flex:1;overflow-y:auto;padding:0 14px 14px;}
+.ap-msg{display:flex;align-items:flex-start;gap:9px;padding:9px 10px;border-radius:10px;border:1px solid transparent;transition:all .15s;margin-bottom:5px;background:rgba(239,68,68,.025);}
+.ap-msg:hover{background:rgba(239,68,68,.06);border-color:rgba(239,68,68,.12);}
+.ap-msg.is-deleted{opacity:.35;}
+.ap-msg-av{width:28px;height:28px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden;border:1px solid rgba(239,68,68,.1);}
+.ap-msg-av img{width:100%;height:100%;object-fit:cover;}
+.ap-msg-body{flex:1;min-width:0;}
+.ap-msg-meta{display:flex;align-items:center;gap:6px;margin-bottom:3px;}
+.ap-msg-name{font-size:11px;font-weight:700;color:#fca5a5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;}
+.ap-msg-time{font-size:9px;color:rgba(239,68,68,.35);font-family:'JetBrains Mono',monospace;}
+.ap-msg-content{font-size:11px;color:rgba(239,68,68,.6);line-height:1.4;word-break:break-word;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;}
+.ap-msg-del{width:26px;height:26px;border-radius:7px;background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.15);color:#f87171;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;opacity:0;}
+.ap-msg:hover .ap-msg-del{opacity:1;}
+.ap-msg-del:hover{background:rgba(239,68,68,.2);transform:scale(1.1);}
+.ap-empty{text-align:center;padding:30px 20px;font-size:11px;color:rgba(239,68,68,.25);font-family:'JetBrains Mono',monospace;letter-spacing:1px;}
+.ap-loading{text-align:center;padding:20px;font-size:10px;color:rgba(239,68,68,.3);font-family:'JetBrains Mono',monospace;letter-spacing:2px;}
 
 /* modals */
 .mov{position:fixed;inset:0;background:rgba(3,3,8,.86);backdrop-filter:blur(10px);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
@@ -184,98 +222,34 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .bcnl:hover{background:var(--bg3);}
 .bok{flex:1;background:linear-gradient(135deg,var(--purple),var(--purple2));border:none;border-radius:9px;padding:11px;color:#fff;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 12px rgba(124,58,237,.4);}
 .bok:hover{box-shadow:0 6px 20px rgba(124,58,237,.6);transform:translateY(-1px);}
+.bok.red{background:linear-gradient(135deg,#991b1b,#ef4444);box-shadow:0 4px 12px rgba(239,68,68,.4);}
+.bok.red:hover{box-shadow:0 6px 20px rgba(239,68,68,.6);}
+.conf-warn{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.18);border-radius:10px;padding:12px 14px;font-size:12px;color:#fca5a5;font-family:'JetBrains Mono',monospace;line-height:1.6;margin-bottom:4px;}
+.conf-warn strong{color:#f87171;display:block;margin-bottom:4px;font-size:10px;letter-spacing:1px;}
 
-/* profile picture upload area */
+/* profile pic modal */
 .avatar-upload-area{display:flex;align-items:center;gap:18px;margin-bottom:16px;}
 .avatar-preview{width:72px;height:72px;border-radius:18px;background:var(--bg2);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;cursor:pointer;transition:all .2s;flex-shrink:0;position:relative;}
 .avatar-preview:hover{border-color:var(--purple2);background:var(--dim);}
 .avatar-preview img{width:100%;height:100%;object-fit:cover;}
 .avatar-preview .av-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;border-radius:16px;font-size:20px;}
 .avatar-preview:hover .av-overlay{opacity:1;}
-.avatar-upload-info{flex:1;}
 .avatar-upload-info h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
 .avatar-upload-info p{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:1.5;}
 .av-or{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:2px;}
 .av-or::before,.av-or::after{content:'';flex:1;height:1px;background:var(--border2);}
 
-/* confirm delete modal */
-#delMov .modal{width:340px;}
-#delMov .modal h3{color:var(--red);}
-
-/* lightbox */
+/* lightbox / toasts */
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:800;display:none;align-items:center;justify-content:center;cursor:zoom-out;}
 .lb.on{display:flex;}
 .lb img{max-width:90vw;max-height:90vh;border-radius:12px;}
-
-/* toasts */
 .tw{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:900;display:flex;flex-direction:column;gap:7px;pointer-events:none;}
 .toast{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 17px;font-size:12px;display:flex;align-items:center;gap:9px;animation:bIn .25s cubic-bezier(.34,1.56,.64,1) both;box-shadow:0 4px 20px rgba(0,0,0,.5);white-space:nowrap;}
 
 a{color:var(--accent);}
 .mention{color:var(--accent);font-weight:600;}
 input[type=file]{display:none;}
-@media(max-width:600px){.auth-card{padding:30px 20px;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}}
-
-/* ── ADMIN PANEL ── */
-.admin-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,rgba(239,68,68,.15),rgba(239,68,68,.08));border:1px solid rgba(239,68,68,.35);border-radius:6px;padding:2px 8px;font-size:10px;font-family:'JetBrains Mono',monospace;color:#f87171;letter-spacing:1.5px;margin-left:6px;vertical-align:middle;}
-.ditem.admin-item{color:#f87171;}
-.ditem.admin-item:hover{background:rgba(239,68,68,.1);color:#fca5a5;}
-
-/* Admin panel slide-in */
-#adminPanel{position:fixed;top:0;right:-420px;width:400px;height:100vh;background:linear-gradient(180deg,rgba(10,5,5,.99),rgba(8,3,3,.99));border-left:1px solid rgba(239,68,68,.2);z-index:300;transition:right .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;box-shadow:-8px 0 40px rgba(0,0,0,.6);}
-#adminPanel.open{right:0;}
-.ap-header{padding:20px 22px 16px;border-bottom:1px solid rgba(239,68,68,.12);display:flex;align-items:center;gap:12px;flex-shrink:0;}
-.ap-icon{width:38px;height:38px;border-radius:11px;background:linear-gradient(135deg,#7f1d1d,#dc2626);display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 16px rgba(239,68,68,.3);}
-.ap-title{font-size:15px;font-weight:800;letter-spacing:2px;color:#fca5a5;}
-.ap-sub{font-size:10px;color:rgba(239,68,68,.5);font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-top:1px;}
-.ap-close{margin-left:auto;width:30px;height:30px;border-radius:8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#f87171;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
-.ap-close:hover{background:rgba(239,68,68,.18);}
-.ap-body{flex:1;overflow-y:auto;padding:18px 22px;}
-.ap-section{margin-bottom:24px;}
-.ap-section-title{font-size:10px;letter-spacing:3px;color:rgba(239,68,68,.5);font-family:'JetBrains Mono',monospace;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-.ap-section-title::after{content:'';flex:1;height:1px;background:rgba(239,68,68,.1);}
-
-/* Stat cards */
-.ap-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
-.ap-stat{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.1);border-radius:12px;padding:14px 16px;}
-.ap-stat-num{font-size:26px;font-weight:800;color:#fca5a5;line-height:1;}
-.ap-stat-lbl{font-size:10px;color:rgba(239,68,68,.45);font-family:'JetBrains Mono',monospace;letter-spacing:1.5px;margin-top:4px;}
-
-/* Danger actions */
-.ap-action{width:100%;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:11px;padding:13px 16px;color:#fca5a5;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;margin-bottom:8px;text-align:left;letter-spacing:.5px;}
-.ap-action:hover{background:rgba(239,68,68,.14);border-color:rgba(239,68,68,.4);transform:translateX(3px);}
-.ap-action.nuclear{background:linear-gradient(135deg,rgba(127,29,29,.35),rgba(239,68,68,.12));border-color:rgba(239,68,68,.4);}
-.ap-action.nuclear:hover{background:linear-gradient(135deg,rgba(127,29,29,.55),rgba(239,68,68,.2));box-shadow:0 0 20px rgba(239,68,68,.15);}
-.ap-action-ic{width:32px;height:32px;border-radius:8px;background:rgba(239,68,68,.12);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
-.ap-action-text{}
-.ap-action-text b{display:block;font-size:13px;}
-.ap-action-text small{font-size:10px;color:rgba(239,68,68,.45);font-family:'JetBrains Mono',monospace;font-weight:400;}
-
-/* User list */
-.ap-user{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1px solid rgba(239,68,68,.08);background:rgba(239,68,68,.03);margin-bottom:6px;transition:all .2s;}
-.ap-user:hover{background:rgba(239,68,68,.07);border-color:rgba(239,68,68,.15);}
-.ap-user-av{width:32px;height:32px;border-radius:9px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden;border:1px solid rgba(239,68,68,.15);}
-.ap-user-av img{width:100%;height:100%;object-fit:cover;}
-.ap-user-info{flex:1;min-width:0;}
-.ap-user-name{font-size:13px;font-weight:600;color:#fca5a5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.ap-user-meta{font-size:10px;color:rgba(239,68,68,.4);font-family:'JetBrains Mono',monospace;margin-top:2px;}
-.ap-user-actions{display:flex;gap:5px;}
-.ap-ubtn{width:28px;height:28px;border-radius:7px;border:1px solid rgba(239,68,68,.2);background:rgba(239,68,68,.07);color:#f87171;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
-.ap-ubtn:hover{background:rgba(239,68,68,.18);transform:scale(1.1);}
-.ap-empty{text-align:center;padding:20px;font-size:12px;color:rgba(239,68,68,.3);font-family:'JetBrains Mono',monospace;}
-.ap-loading{text-align:center;padding:16px;font-size:11px;color:rgba(239,68,68,.35);font-family:'JetBrains Mono',monospace;letter-spacing:2px;}
-
-/* Admin confirm modal */
-#adminConfMov .modal{border-color:rgba(239,68,68,.3);background:linear-gradient(160deg,rgba(20,5,5,.99),rgba(10,3,3,.99));}
-#adminConfMov .modal h3{color:#f87171;}
-#adminConfMov .bok{background:linear-gradient(135deg,#991b1b,#ef4444);box-shadow:0 4px 12px rgba(239,68,68,.4);}
-#adminConfMov .bok:hover{box-shadow:0 6px 20px rgba(239,68,68,.6);}
-.conf-warn{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.18);border-radius:10px;padding:12px 14px;font-size:12px;color:#fca5a5;font-family:'JetBrains Mono',monospace;line-height:1.6;margin-bottom:16px;}
-.conf-warn strong{color:#f87171;display:block;margin-bottom:4px;font-size:11px;letter-spacing:1px;}
-
-/* overlay for panel */
-#adminOverlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:299;display:none;}
-#adminOverlay.on{display:block;}
+@media(max-width:700px){#adminCol{display:none!important;}.auth-card{padding:30px 20px;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}}
 </style>
 </head>
 <body>
@@ -328,47 +302,94 @@ input[type=file]{display:none;}
 
 <!-- APP -->
 <div id="app">
-  <div class="tbar">
-    <div class="tbar-logo">NEXUS</div>
-    <div class="pill wait" id="pill"><div class="pdot"></div><span id="pillTxt">Connecting</span></div>
-    <div class="tbar-gap"></div>
-    <div class="tbar-user" id="tbarUser" onclick="togDrop()">
-      <div class="tbar-av" id="tbarAv">🦊</div>
-      <div class="tbar-name" id="tbarName">User</div>
-      <span style="color:var(--text3);font-size:11px;margin-left:2px;">▾</span>
-      <div class="drop" id="drop">
-        <div class="ditem" onclick="openProf()">✏️ Edit Profile</div>
-        <div class="dsep"></div>
-        <div class="ditem admin-item" id="adminDropItem" style="display:none;" onclick="openAdmin()">🛡️ Admin Panel <span class="admin-badge">ADMIN</span></div>
-        <div class="dsep" id="adminDropSep" style="display:none;"></div>
-        <div class="ditem red" onclick="doLogout()">🚪 Sign Out</div>
+  <!-- ── MAIN COLUMN ── -->
+  <div class="main-col">
+    <div class="tbar">
+      <div class="tbar-logo">NEXUS</div>
+      <div class="pill wait" id="pill"><div class="pdot"></div><span id="pillTxt">Connecting</span></div>
+      <div class="tbar-gap"></div>
+      <div class="tbar-user" id="tbarUser" onclick="togDrop()">
+        <div class="tbar-av" id="tbarAv">🦊</div>
+        <div class="tbar-name" id="tbarName">User</div>
+        <span style="color:var(--text3);font-size:11px;margin-left:2px;">▾</span>
+        <div class="drop" id="drop">
+          <div class="ditem" onclick="openProf()">✏️ Edit Profile</div>
+          <div class="dsep"></div>
+          <div class="ditem danger" id="adminDropItem" style="display:none;" onclick="toggleAdminPanel()">🛡️ Admin Panel</div>
+          <div class="dsep" id="adminDropSep" style="display:none;"></div>
+          <div class="ditem red" onclick="doLogout()">🚪 Sign Out</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chat">
+      <div class="chat-head">
+        <div class="chat-ic">🌐</div>
+        <div>
+          <div class="chat-nm">Global Chat</div>
+          <div class="chat-sub" id="chatSub">—</div>
+        </div>
+      </div>
+      <div class="msgs" id="msgs"></div>
+      <div class="tybar" id="tybar"></div>
+      <div class="iarea">
+        <div class="itb">
+          <div class="tbb" onclick="document.getElementById('imgIn').click()">🖼️ Image</div>
+          <div class="tbb" onclick="document.getElementById('fileIn').click()">📎 File</div>
+          <div class="tbb" onclick="togEm()" id="emBtn">😊 Emoji</div>
+        </div>
+        <div class="irow">
+          <div class="iwrap">
+            <div class="embox" id="embox" style="display:none;"></div>
+            <textarea class="mta" id="mta" placeholder="Message everyone on NEXUS..." rows="1" onkeydown="onKey(event)" oninput="onTaIn()"></textarea>
+          </div>
+          <button class="sbtn" onclick="sendMsg()">➤</button>
+        </div>
       </div>
     </div>
   </div>
 
-  <div class="chat">
-    <div class="chat-head">
-      <div class="chat-ic">🌐</div>
-      <div>
-        <div class="chat-nm">Global Chat</div>
-        <div class="chat-sub" id="chatSub">—</div>
+  <!-- ── ADMIN SIDE PANEL ── -->
+  <div id="adminCol">
+    <div class="ap-topbar">
+      <div class="ap-topbar-ic">🛡️</div>
+      <div class="ap-topbar-title">ADMIN</div>
+      <div class="ap-topbar-gap"></div>
+      <button class="ap-topbar-close" onclick="toggleAdminPanel()">✕</button>
+    </div>
+
+    <!-- stats -->
+    <div class="ap-stats">
+      <div class="ap-stat">
+        <div class="ap-stat-num" id="apMsgCount">—</div>
+        <div class="ap-stat-lbl">MESSAGES</div>
+      </div>
+      <div class="ap-stat">
+        <div class="ap-stat-num" id="apOnline">—</div>
+        <div class="ap-stat-lbl">ONLINE NOW</div>
       </div>
     </div>
-    <div class="msgs" id="msgs"></div>
-    <div class="tybar" id="tybar"></div>
-    <div class="iarea">
-      <div class="itb">
-        <div class="tbb" onclick="document.getElementById('imgIn').click()">🖼️ Image</div>
-        <div class="tbb" onclick="document.getElementById('fileIn').click()">📎 File</div>
-        <div class="tbb" onclick="togEm()" id="emBtn">😊 Emoji</div>
+
+    <!-- nuke all -->
+    <button class="ap-nuke" onclick="askNukeAll()">
+      <div class="ap-nuke-ic">☢️</div>
+      <div class="ap-nuke-text">
+        <b>DELETE ALL MESSAGES</b>
+        <small>Wipe the entire chat permanently</small>
       </div>
-      <div class="irow">
-        <div class="iwrap">
-          <div class="embox" id="embox" style="display:none;"></div>
-          <textarea class="mta" id="mta" placeholder="Message everyone on NEXUS..." rows="1" onkeydown="onKey(event)" oninput="onTaIn()"></textarea>
-        </div>
-        <button class="sbtn" onclick="sendMsg()">➤</button>
-      </div>
+    </button>
+
+    <div class="ap-sec">ALL MESSAGES</div>
+
+    <!-- search -->
+    <div class="ap-search">
+      <span class="ap-search-ic">🔍</span>
+      <input type="text" id="apSearch" placeholder="Search messages..." oninput="filterApMsgs()">
+    </div>
+
+    <!-- message list -->
+    <div class="ap-msgs" id="apMsgList">
+      <div class="ap-loading">LOADING...</div>
     </div>
   </div>
 </div>
@@ -378,8 +399,6 @@ input[type=file]{display:none;}
   <div class="modal">
     <h3>Edit Profile</h3>
     <p>UPDATE NAME, PICTURE & AVATAR</p>
-
-    <!-- Profile picture upload -->
     <div class="avatar-upload-area">
       <div class="avatar-preview" id="profPicPreview" onclick="document.getElementById('profPicIn').click()">
         <span id="profPicEmoji">🦊</span>
@@ -391,16 +410,13 @@ input[type=file]{display:none;}
         <button class="tbb" style="margin-top:8px;" onclick="clearProfPic()">🗑️ Remove Photo</button>
       </div>
     </div>
-
     <div class="av-or">OR CHOOSE EMOJI</div>
-
     <div class="mf">
       <label>EMOJI AVATAR</label>
       <div class="avrow" id="editAv">
         <div class="avo on" data-e="🦊">🦊</div><div class="avo" data-e="🐺">🐺</div><div class="avo" data-e="🦁">🦁</div><div class="avo" data-e="🐉">🐉</div><div class="avo" data-e="👾">👾</div><div class="avo" data-e="🤖">🤖</div><div class="avo" data-e="👻">👻</div><div class="avo" data-e="🌟">🌟</div><div class="avo" data-e="🎭">🎭</div><div class="avo" data-e="🔮">🔮</div>
       </div>
     </div>
-
     <div class="mf" style="margin-top:14px;"><label>DISPLAY NAME</label><input type="text" id="profN" maxlength="24"></div>
     <div class="mbtns">
       <button class="bcnl" onclick="closeProf()">Cancel</button>
@@ -409,96 +425,44 @@ input[type=file]{display:none;}
   </div>
 </div>
 
-<!-- DELETE CONFIRM MODAL -->
+<!-- DELETE OWN MSG CONFIRM -->
 <div class="mov" id="delMov">
   <div class="modal">
-    <h3>🗑️ Delete Message</h3>
+    <h3 style="color:var(--red);">🗑️ Delete Message</h3>
     <p>THIS CANNOT BE UNDONE</p>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:0;">Are you sure you want to delete this message? It will be removed for everyone.</p>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:0;">This message will be removed for everyone.</p>
     <div class="mbtns">
       <button class="bcnl" onclick="closeDelModal()">Cancel</button>
-      <button class="bok" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 4px 12px rgba(239,68,68,.4);" onclick="confirmDelete()">Delete</button>
+      <button class="bok red" onclick="confirmDelete()">Delete</button>
     </div>
   </div>
 </div>
 
-<!-- ADMIN PANEL OVERLAY -->
-<div id="adminOverlay" onclick="closeAdmin()"></div>
-
-<!-- ADMIN PANEL -->
-<div id="adminPanel">
-  <div class="ap-header">
-    <div class="ap-icon">&#x1F6E1;&#xFE0F;</div>
-    <div>
-      <div class="ap-title">ADMIN PANEL</div>
-      <div class="ap-sub">NEXUS CONTROL CENTER</div>
-    </div>
-    <button class="ap-close" onclick="closeAdmin()">&#x2715;</button>
-  </div>
-  <div class="ap-body">
-    <div class="ap-stats">
-      <div class="ap-stat">
-        <div class="ap-stat-num" id="apMsgCount">&#x2014;</div>
-        <div class="ap-stat-lbl">MESSAGES</div>
-      </div>
-      <div class="ap-stat">
-        <div class="ap-stat-num" id="apUserCount">&#x2014;</div>
-        <div class="ap-stat-lbl">USERS</div>
-      </div>
-    </div>
-    <div class="ap-section">
-      <div class="ap-section-title">DANGER ZONE</div>
-      <button class="ap-action nuclear" onclick="adminAction('wipe_all')">
-        <div class="ap-action-ic">&#x2622;&#xFE0F;</div>
-        <div class="ap-action-text">
-          <b>Wipe Entire Chat</b>
-          <small>Permanently delete ALL messages for everyone</small>
-        </div>
-      </button>
-      <button class="ap-action" onclick="adminAction('clear_deleted')">
-        <div class="ap-action-ic">&#x1F9F9;</div>
-        <div class="ap-action-text">
-          <b>Purge Deleted Messages</b>
-          <small>Hard-delete all soft-deleted messages</small>
-        </div>
-      </button>
-      <button class="ap-action" onclick="loadAdminUsers()">
-        <div class="ap-action-ic">&#x1F504;</div>
-        <div class="ap-action-text">
-          <b>Refresh User List</b>
-          <small>Reload all registered profiles</small>
-        </div>
-      </button>
-    </div>
-    <div class="ap-section">
-      <div class="ap-section-title">REGISTERED USERS</div>
-      <div id="apUserList"><div class="ap-loading">LOADING...</div></div>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN CONFIRM MODAL -->
-<div class="mov" id="adminConfMov">
+<!-- ADMIN DELETE ONE MSG CONFIRM -->
+<div class="mov" id="adminDelOneMov">
   <div class="modal" style="border-color:rgba(239,68,68,.3);background:linear-gradient(160deg,rgba(20,5,5,.99),rgba(10,3,3,.99));">
-    <h3 id="adminConfTitle">Confirm Action</h3>
-    <p id="adminConfSub">THIS CANNOT BE UNDONE</p>
-    <div class="conf-warn" id="adminConfWarn"></div>
-    <div class="mbtns">
-      <button class="bcnl" onclick="closeAdminConf()">Cancel</button>
-      <button class="bok" id="adminConfOk" style="background:linear-gradient(135deg,#991b1b,#ef4444);box-shadow:0 4px 12px rgba(239,68,68,.4);" onclick="executeAdminAction()">Confirm</button>
-    </div>
-  </div>
-</div>
-
-<!-- USER WIPE CONFIRM MODAL -->
-<div class="mov" id="userWipeMov">
-  <div class="modal" style="border-color:rgba(239,68,68,.3);background:linear-gradient(160deg,rgba(20,5,5,.99),rgba(10,3,3,.99));">
-    <h3 style="color:#f87171;">&#x1F5D1;&#xFE0F; Wipe User Messages</h3>
+    <h3 style="color:#f87171;">🗑️ Admin Delete</h3>
     <p>THIS CANNOT BE UNDONE</p>
-    <div class="conf-warn" id="userWipeWarn"></div>
+    <div class="conf-warn" id="adminDelOneWarn"></div>
     <div class="mbtns">
-      <button class="bcnl" onclick="closeUserWipe()">Cancel</button>
-      <button class="bok" style="background:linear-gradient(135deg,#991b1b,#ef4444);box-shadow:0 4px 12px rgba(239,68,68,.4);" onclick="executeUserWipe()">Delete All</button>
+      <button class="bcnl" onclick="closeAdminDelOne()">Cancel</button>
+      <button class="bok red" onclick="confirmAdminDelOne()">Delete Message</button>
+    </div>
+  </div>
+</div>
+
+<!-- NUKE ALL CONFIRM -->
+<div class="mov" id="nukeMov">
+  <div class="modal" style="border-color:rgba(239,68,68,.3);background:linear-gradient(160deg,rgba(20,5,5,.99),rgba(10,3,3,.99));">
+    <h3 style="color:#f87171;">☢️ Wipe Entire Chat</h3>
+    <p>NUCLEAR OPTION — IRREVERSIBLE</p>
+    <div class="conf-warn">
+      <strong>⚠️ WARNING</strong>
+      This will permanently and instantly delete EVERY message in the global chat for all users. There is no undo.
+    </div>
+    <div class="mbtns">
+      <button class="bcnl" onclick="closeNuke()">Cancel</button>
+      <button class="bok red" onclick="confirmNuke()">☢️ Wipe Everything</button>
     </div>
   </div>
 </div>
@@ -508,29 +472,32 @@ input[type=file]{display:none;}
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
+// ══════════════════════════════════════════════
+//  NEXUS — config
+// ══════════════════════════════════════════════
 const SB_URL = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
 const SB_KEY = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
-let sb = null;
-let me = null;
-let realtimeCh = null;
-let typTimer = null, isTyp = false;
-let typUsers = {};
+const ADMIN_IDS = [
+  'af8060a4-1af3-4f89-94e2-939c3e001b43',
+  'ef732c5f-625b-4334-b4eb-f456b79beae2'
+];
+
+let sb = null, me = null, realtimeCh = null;
+let typTimer = null, isTyp = false, typUsers = {};
 let emOpen = false, editAv = '🦊', regAv = '🦊';
 let msgCache = [];
 let onlineCount = 0;
-// Profile picture state
-let pendingProfPic = null; // base64 string or null
-let currentProfPicUrl = null; // current saved pic url
-// Delete state
-let pendingDeleteId = null;
+let pendingProfPic = null, currentProfPicUrl = null;
+let pendingDeleteId = null;       // own msg delete
+let pendingAdminDelId = null;     // admin del one
+let isAdmin = false;
+let apFilter = '';
 
 const EMOJIS = ['😀','😂','😍','🥰','😎','🤩','😊','🙌','👏','🔥','💯','❤️','💜','⚡','🎉','✨','🌟','💫','🦊','🐺','🦁','🤣','😭','😤','🥺','🤔','👀','💀','🤝','👋','🙏','💪','🚀','💎','🎮','🌙','🦋','🎭','⚔️','🔮'];
 
+// ── INIT ──
 window.addEventListener('DOMContentLoaded', () => {
-  buildEmojis();
-  setupAvPickers();
-  bindKeys();
-  setupProfPicInput();
+  buildEmojis(); setupAvPickers(); bindKeys(); setupProfPicInput();
   initSupabase();
 });
 
@@ -538,7 +505,7 @@ function initSupabase() {
   sb = supabase.createClient(SB_URL, SB_KEY);
   setLoadLbl('CHECKING SESSION...');
   sb.auth.getSession().then(({ data: { session } }) => {
-    if (session) { loadProfile(session.user).then(() => bootApp()); }
+    if (session) loadProfile(session.user).then(() => bootApp());
     else { hide('loading'); show('auth'); }
   }).catch(() => { hide('loading'); toast('Could not connect to Supabase','error'); });
   sb.auth.onAuthStateChange((event, session) => {
@@ -552,17 +519,11 @@ function initSupabase() {
 
 async function loadProfile(user) {
   try {
-    const { data } = await sb.from('profiles').select('name, avatar, avatar_url').eq('id', user.id).single();
-    me = {
-      id: user.id, email: user.email,
-      name:       (data && data.name)       || user.email.split('@')[0],
-      avatar:     (data && data.avatar)     || '🦊',
-      avatar_url: (data && data.avatar_url) || null
-    };
+    const { data } = await sb.from('profiles').select('name,avatar,avatar_url').eq('id', user.id).single();
+    me = { id:user.id, email:user.email, name:(data&&data.name)||user.email.split('@')[0], avatar:(data&&data.avatar)||'🦊', avatar_url:(data&&data.avatar_url)||null };
     currentProfPicUrl = me.avatar_url;
   } catch(e) {
-    me = { id: user.id, email: user.email, name: user.email.split('@')[0], avatar: '🦊', avatar_url: null };
-    currentProfPicUrl = null;
+    me = { id:user.id, email:user.email, name:user.email.split('@')[0], avatar:'🦊', avatar_url:null };
   }
 }
 
@@ -572,10 +533,8 @@ window.setTab = t => {
   document.getElementById('pL').classList.toggle('on', t==='l');
   document.getElementById('pR').classList.toggle('on', t==='r');
 }
-
 window.doLogin = async function() {
-  const email=document.getElementById('lE').value.trim();
-  const pass=document.getElementById('lP').value;
+  const email=document.getElementById('lE').value.trim(), pass=document.getElementById('lP').value;
   const btn=document.getElementById('lBtn'), err=document.getElementById('lErr');
   hideE(err); if(!email||!pass){showE(err,'Enter your email and password');return;}
   btn.disabled=true; btn.textContent='Signing in...';
@@ -583,11 +542,8 @@ window.doLogin = async function() {
   if(error){ showE(err, friendlyErr(error.message)); btn.disabled=false; btn.textContent='SIGN IN →'; return; }
   await loadProfile(data.user); bootApp();
 }
-
 window.doReg = async function() {
-  const name=document.getElementById('rN').value.trim();
-  const email=document.getElementById('rE').value.trim();
-  const pass=document.getElementById('rP').value;
+  const name=document.getElementById('rN').value.trim(), email=document.getElementById('rE').value.trim(), pass=document.getElementById('rP').value;
   const btn=document.getElementById('rBtn'), err=document.getElementById('rErr');
   hideE(err);
   if(!name){showE(err,'Enter a display name');return;}
@@ -596,16 +552,11 @@ window.doReg = async function() {
   btn.disabled=true; btn.textContent='Creating...';
   const { data, error } = await sb.auth.signUp({ email, password: pass });
   if(error){ showE(err,friendlyErr(error.message)); btn.disabled=false; btn.textContent='CREATE ACCOUNT →'; return; }
-  if(!data.session){
-    showE(err,'Account created! Sign in with your email and password.');
-    btn.disabled=false; btn.textContent='CREATE ACCOUNT →';
-    setTab('l'); document.getElementById('lE').value=email; return;
-  }
-  await sb.from('profiles').upsert({ id: data.user.id, name: name.trim().slice(0,24), avatar: regAv, updated_at: new Date().toISOString() });
-  me = { id: data.user.id, email, name: name.trim().slice(0,24), avatar: regAv, avatar_url: null };
+  if(!data.session){ showE(err,'Account created! Sign in with your email and password.'); btn.disabled=false; btn.textContent='CREATE ACCOUNT →'; setTab('l'); document.getElementById('lE').value=email; return; }
+  await sb.from('profiles').upsert({ id:data.user.id, name:name.trim().slice(0,24), avatar:regAv, updated_at:new Date().toISOString() });
+  me = { id:data.user.id, email, name:name.trim().slice(0,24), avatar:regAv, avatar_url:null };
   bootApp();
 }
-
 window.doLogout = async function() {
   document.getElementById('drop').classList.remove('on');
   if(realtimeCh){ sb.removeChannel(realtimeCh); realtimeCh=null; }
@@ -613,14 +564,13 @@ window.doLogout = async function() {
   document.getElementById('lBtn').disabled=false; document.getElementById('lBtn').textContent='SIGN IN →';
   document.getElementById('rBtn').disabled=false; document.getElementById('rBtn').textContent='CREATE ACCOUNT →';
 }
-
-function friendlyErr(msg='') {
-  if(msg.includes('Invalid login'))   return 'Incorrect email or password';
+function friendlyErr(msg=''){
+  if(msg.includes('Invalid login')) return 'Incorrect email or password';
   if(msg.includes('already registered')||msg.includes('already exists')) return 'Email already registered';
-  if(msg.includes('Password'))        return 'Password must be 6+ characters';
-  if(msg.includes('valid email'))     return 'Enter a valid email address';
+  if(msg.includes('Password')) return 'Password must be 6+ characters';
+  if(msg.includes('valid email')) return 'Enter a valid email address';
   if(msg.includes('Email not confirmed')) return 'Check your email and confirm your account first';
-  return msg || 'Something went wrong';
+  return msg||'Something went wrong';
 }
 
 // ── BOOT ──
@@ -628,51 +578,57 @@ function bootApp() {
   try {
     hide('loading'); hide('auth');
     document.getElementById('app').classList.add('on');
-    updTopbar(); checkAdmin(); loadHistory(); subscribeRealtime();
-  } catch(e) { toast('App error: ' + e.message, 'error'); }
+    isAdmin = ADMIN_IDS.includes(me.id);
+    updTopbar();
+    if(isAdmin) {
+      document.getElementById('adminDropItem').style.display='flex';
+      document.getElementById('adminDropSep').style.display='block';
+      // Auto-open admin panel for admins
+      document.getElementById('adminCol').classList.add('visible');
+    }
+    loadHistory();
+    subscribeRealtime();
+  } catch(e){ toast('App error: '+e.message,'error'); }
 }
 
 function updTopbar() {
-  const avEl = document.getElementById('tbarAv');
-  if (me.avatar_url) {
-    avEl.innerHTML = `<img src="${me.avatar_url}" alt="">`;
-  } else {
-    avEl.textContent = me.avatar;
-  }
-  document.getElementById('tbarName').textContent = me.name;
+  const avEl=document.getElementById('tbarAv');
+  if(me.avatar_url) avEl.innerHTML=`<img src="${me.avatar_url}" alt="">`;
+  else avEl.textContent=me.avatar;
+  const nameEl=document.getElementById('tbarName');
+  nameEl.innerHTML = x(me.name) + (isAdmin?'<span class="admin-badge">ADMIN</span>':'');
+}
+
+// ── ADMIN PANEL TOGGLE ──
+window.toggleAdminPanel = function() {
+  document.getElementById('drop').classList.remove('on');
+  document.getElementById('adminCol').classList.toggle('visible');
 }
 
 // ── HISTORY ──
 async function loadHistory() {
   try {
-    const { data, error } = await sb.from('messages')
-      .select('*').order('created_at', { ascending: true }).limit(150);
+    const { data, error } = await sb.from('messages').select('*').order('created_at',{ascending:true}).limit(200);
     if(error){
-      if(error.code==='42P01'||error.message.includes('does not exist')){
-        document.getElementById('msgs').innerHTML='<div class="sys">⚠️ Database tables not set up yet — run the SQL in Supabase SQL Editor first</div>';
-      } else { toast('Could not load messages: '+error.message,'error'); }
+      if(error.code==='42P01'||error.message.includes('does not exist'))
+        document.getElementById('msgs').innerHTML='<div class="sys">⚠️ DB tables not set up — run the SQL setup first</div>';
+      else toast('Could not load messages: '+error.message,'error');
       return;
     }
     msgCache = (data||[]).map(dbToMsg);
     renderAll(); scrollBot();
-    setPill('live', onlineCount + ' online');
-  } catch(e) { toast('Load error: '+e.message,'error'); }
+    setPill('live', onlineCount+' online');
+    if(isAdmin) renderAdminPanel();
+  } catch(e){ toast('Load error: '+e.message,'error'); }
 }
 
 function dbToMsg(r) {
   return {
-    id:         r.id,
-    uid:        r.user_id,
-    name:       r.name,
-    avatar:     r.avatar || '🦊',
-    avatar_url: r.avatar_url || null,
-    type:       r.type || 'text',
-    content:    r.content || '',
-    fileName:   r.file_name,
-    fileSize:   r.file_size,
-    deleted:    r.deleted || false,
-    ts:         new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),
-    time:       new Date(r.created_at).getTime()
+    id:r.id, uid:r.user_id, name:r.name, avatar:r.avatar||'🦊', avatar_url:r.avatar_url||null,
+    type:r.type||'text', content:r.content||'', fileName:r.file_name, fileSize:r.file_size,
+    deleted:r.deleted||false,
+    ts:new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),
+    time:new Date(r.created_at).getTime()
   };
 }
 
@@ -680,173 +636,241 @@ function dbToMsg(r) {
 function subscribeRealtime() {
   if(realtimeCh) sb.removeChannel(realtimeCh);
   realtimeCh = sb.channel('global-chat')
-    .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload => {
-      const msg = dbToMsg(payload.new);
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'}, payload => {
+      const msg=dbToMsg(payload.new);
       if(msgCache.find(m=>m.id===msg.id)) return;
       msgCache.push(msg); appendMsg(msg);
       if(isNearBot()) scrollBot();
+      if(isAdmin) renderAdminPanel();
     })
-    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'messages' }, payload => {
-      // Handle soft-delete updates
-      const updated = payload.new;
-      const idx = msgCache.findIndex(m => m.id === updated.id);
-      if(idx >= 0) {
-        msgCache[idx].deleted = updated.deleted;
-        msgCache[idx].content = updated.content;
-        // Re-render just the affected bubble
-        const bubEl = document.querySelector(`.bub[data-id="${updated.id}"]`);
-        if(bubEl) {
-          if(updated.deleted) {
-            bubEl.classList.add('deleted');
-            bubEl.innerHTML = '🗑️ Message deleted';
-            // hide delete button
-            const wrap = bubEl.closest('.bub-wrap');
-            if(wrap) { const db = wrap.querySelector('.del-btn'); if(db) db.style.display='none'; }
-          }
-        }
-      }
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'messages'}, payload => {
+      const u=payload.new, idx=msgCache.findIndex(m=>m.id===u.id);
+      if(idx>=0){ msgCache[idx].deleted=u.deleted; msgCache[idx].content=u.content; }
+      const bubEl=document.querySelector(`.bub[data-id="${u.id}"]`);
+      if(bubEl&&u.deleted){ bubEl.classList.add('deleted'); bubEl.innerHTML='🗑️ Message deleted'; const w=bubEl.closest('.bub-wrap'); if(w){const db=w.querySelector('.del-btn');if(db)db.style.display='none';} }
+      if(isAdmin) renderAdminPanel();
     })
-    .on('broadcast', { event:'typing' }, ({ payload }) => {
-      if(payload.uid === me.id) return;
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'}, payload => {
+      msgCache=msgCache.filter(m=>m.id!==payload.old.id);
+      renderAll();
+      if(isAdmin) renderAdminPanel();
+    })
+    .on('broadcast',{event:'typing'},({payload}) => {
+      if(payload.uid===me.id) return;
       clearTimeout(typUsers[payload.uid]?.t);
-      if(payload.state==='start') {
-        typUsers[payload.uid] = { name: payload.name, t: setTimeout(()=>{ delete typUsers[payload.uid]; renderTy(); },4000) };
-      } else { delete typUsers[payload.uid]; }
+      if(payload.state==='start') typUsers[payload.uid]={name:payload.name,t:setTimeout(()=>{delete typUsers[payload.uid];renderTy();},4000)};
+      else delete typUsers[payload.uid];
       renderTy();
     })
-    .on('presence', { event:'sync' }, () => {
-      const state = realtimeCh.presenceState();
-      onlineCount = Object.keys(state).length;
-      setPill('live', `${onlineCount} online`);
-      document.getElementById('chatSub').textContent = `${onlineCount} user${onlineCount!==1?'s':''} online`;
+    .on('presence',{event:'sync'},() => {
+      const state=realtimeCh.presenceState();
+      onlineCount=Object.keys(state).length;
+      setPill('live',`${onlineCount} online`);
+      document.getElementById('chatSub').textContent=`${onlineCount} user${onlineCount!==1?'s':''} online`;
+      document.getElementById('apOnline').textContent=onlineCount;
     })
-    .on('presence', { event:'join' }, ({ newPresences }) => {
-      newPresences.forEach(p => { if(p.uid!==me.id) toast(`${p.avatar||'👤'} ${p.name} joined`,'info'); });
+    .on('presence',{event:'join'},({newPresences}) => {
+      newPresences.forEach(p=>{if(p.uid!==me.id) toast(`${p.avatar||'👤'} ${p.name} joined`,'info');});
     })
     .subscribe(async status => {
-      if(status==='SUBSCRIBED') {
-        await realtimeCh.track({ uid: me.id, name: me.name, avatar: me.avatar_url || me.avatar });
-        setPill('live', `${onlineCount} online`);
+      if(status==='SUBSCRIBED'){
+        await realtimeCh.track({uid:me.id,name:me.name,avatar:me.avatar_url||me.avatar});
+        setPill('live',`${onlineCount} online`);
       }
     });
 }
 
 // ── SEND ──
 window.sendMsg = async function() {
-  const ta=document.getElementById('mta');
-  const txt=ta.value.trim(); if(!txt) return;
+  const ta=document.getElementById('mta'), txt=ta.value.trim(); if(!txt) return;
   ta.value=''; ta.style.height='auto'; stopTyp();
-  const tempId = 'tmp_'+Date.now();
-  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, avatar_url:me.avatar_url, type:'text', content:txt, deleted:false, ts:nowTs(), time:Date.now() };
+  const tempId='tmp_'+Date.now();
+  const opt={id:tempId,uid:me.id,name:me.name,avatar:me.avatar,avatar_url:me.avatar_url,type:'text',content:txt,deleted:false,ts:nowTs(),time:Date.now()};
   msgCache.push(opt); appendMsg(opt); scrollBot();
-  const { data, error } = await sb.from('messages').insert({
-    user_id: me.id, name: me.name, avatar: me.avatar, avatar_url: me.avatar_url,
-    type: 'text', content: txt, deleted: false
-  }).select().single();
-  if(error){ toast('Failed to send','error'); msgCache=msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
-  const idx=msgCache.findIndex(m=>m.id===tempId);
-  if(idx>=0) msgCache[idx]=dbToMsg(data);
-  // Update data-id on the rendered bubble
-  const bubEl = document.querySelector(`.bub[data-id="${tempId}"]`);
-  if(bubEl) bubEl.dataset.id = data.id;
-  const wrapEl = document.querySelector(`.bub-wrap[data-id="${tempId}"]`);
-  if(wrapEl) wrapEl.dataset.id = data.id;
-}
-
-async function sendMedia(type, content, fileName, fileSize) {
-  const tempId = 'tmp_'+Date.now();
-  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, avatar_url:me.avatar_url, type, content, fileName, fileSize, deleted:false, ts:nowTs(), time:Date.now() };
-  msgCache.push(opt); appendMsg(opt); scrollBot();
-  const row = { user_id:me.id, name:me.name, avatar:me.avatar, avatar_url:me.avatar_url, type, content, deleted:false };
-  if(fileName) { row.file_name=fileName; row.file_size=fileSize; }
-  const { data, error } = await sb.from('messages').insert(row).select().single();
-  if(error){ toast('Failed to send','error'); msgCache=msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
+  const {data,error}=await sb.from('messages').insert({user_id:me.id,name:me.name,avatar:me.avatar,avatar_url:me.avatar_url,type:'text',content:txt,deleted:false}).select().single();
+  if(error){toast('Failed to send','error');msgCache=msgCache.filter(m=>m.id!==tempId);renderAll();return;}
   const idx=msgCache.findIndex(m=>m.id===tempId); if(idx>=0) msgCache[idx]=dbToMsg(data);
+  const bubEl=document.querySelector(`.bub[data-id="${tempId}"]`); if(bubEl) bubEl.dataset.id=data.id;
+  const wrapEl=document.querySelector(`.bub-wrap[data-id="${tempId}"]`); if(wrapEl) wrapEl.dataset.id=data.id;
+  if(isAdmin) renderAdminPanel();
+}
+async function sendMedia(type,content,fileName,fileSize) {
+  const tempId='tmp_'+Date.now();
+  const opt={id:tempId,uid:me.id,name:me.name,avatar:me.avatar,avatar_url:me.avatar_url,type,content,fileName,fileSize,deleted:false,ts:nowTs(),time:Date.now()};
+  msgCache.push(opt); appendMsg(opt); scrollBot();
+  const row={user_id:me.id,name:me.name,avatar:me.avatar,avatar_url:me.avatar_url,type,content,deleted:false};
+  if(fileName){row.file_name=fileName;row.file_size=fileSize;}
+  const {data,error}=await sb.from('messages').insert(row).select().single();
+  if(error){toast('Failed to send','error');msgCache=msgCache.filter(m=>m.id!==tempId);renderAll();return;}
+  const idx=msgCache.findIndex(m=>m.id===tempId); if(idx>=0) msgCache[idx]=dbToMsg(data);
+  if(isAdmin) renderAdminPanel();
 }
 
-// ── DELETE ──
-window.askDelete = function(id) {
-  pendingDeleteId = id;
-  document.getElementById('delMov').classList.add('on');
-}
-window.closeDelModal = function() {
-  pendingDeleteId = null;
-  document.getElementById('delMov').classList.remove('on');
-}
+// ── OWN MESSAGE DELETE ──
+window.askDelete = id => { pendingDeleteId=id; document.getElementById('delMov').classList.add('on'); }
+window.closeDelModal = () => { document.getElementById('delMov').classList.remove('on'); pendingDeleteId=null; }
 window.confirmDelete = async function() {
-  if(!pendingDeleteId) return;
-  const id = pendingDeleteId;
-  closeDelModal();
-  // Soft-delete: update content and set deleted=true
-  const { error } = await sb.from('messages').update({ deleted: true, content: '' }).eq('id', id).eq('user_id', me.id);
-  if(error){ toast('Could not delete message','error'); return; }
-  // Optimistic update locally
-  const idx = msgCache.findIndex(m=>m.id===id);
-  if(idx>=0){ msgCache[idx].deleted=true; msgCache[idx].content=''; }
-  const bubEl = document.querySelector(`.bub[data-id="${id}"]`);
-  if(bubEl){
-    bubEl.classList.add('deleted');
-    bubEl.innerHTML='🗑️ Message deleted';
-    const wrap = bubEl.closest('.bub-wrap');
-    if(wrap){ const db=wrap.querySelector('.del-btn'); if(db) db.style.display='none'; }
-  }
+  if(!pendingDeleteId) return; const id=pendingDeleteId; closeDelModal();
+  const {error}=await sb.from('messages').update({deleted:true,content:''}).eq('id',id).eq('user_id',me.id);
+  if(error){toast('Could not delete','error');return;}
+  const idx=msgCache.findIndex(m=>m.id===id); if(idx>=0){msgCache[idx].deleted=true;msgCache[idx].content='';}
+  const bubEl=document.querySelector(`.bub[data-id="${id}"]`);
+  if(bubEl){bubEl.classList.add('deleted');bubEl.innerHTML='🗑️ Message deleted';const w=bubEl.closest('.bub-wrap');if(w){const db=w.querySelector('.del-btn');if(db)db.style.display='none';}}
+  if(isAdmin) renderAdminPanel();
   toast('Message deleted','success');
+}
+
+// ── ADMIN: DELETE ONE MESSAGE (hard delete) ──
+window.adminDelMsg = function(id) {
+  const m = msgCache.find(m2=>m2.id===id); if(!m) return;
+  pendingAdminDelId = id;
+  document.getElementById('adminDelOneWarn').innerHTML = `<strong>TARGET MESSAGE</strong>From <b>${x(m.name)}</b> — "${x((m.content||'[media]').slice(0,80))}"`;
+  document.getElementById('adminDelOneMov').classList.add('on');
+}
+window.closeAdminDelOne = () => { document.getElementById('adminDelOneMov').classList.remove('on'); pendingAdminDelId=null; }
+window.confirmAdminDelOne = async function() {
+  if(!isAdmin||!pendingAdminDelId) return; const id=pendingAdminDelId; closeAdminDelOne();
+  const {error}=await sb.from('messages').delete().eq('id',id);
+  if(error){toast('Delete failed: '+error.message,'error');return;}
+  msgCache=msgCache.filter(m=>m.id!==id); renderAll();
+  renderAdminPanel();
+  toast('Message deleted','success');
+}
+
+// ── ADMIN: NUKE ALL ──
+window.askNukeAll = () => document.getElementById('nukeMov').classList.add('on');
+window.closeNuke = () => document.getElementById('nukeMov').classList.remove('on');
+window.confirmNuke = async function() {
+  if(!isAdmin) return; closeNuke();
+  const {error}=await sb.from('messages').delete().neq('id','00000000-0000-0000-0000-000000000000');
+  if(error){toast('Wipe failed: '+error.message,'error');return;}
+  msgCache=[]; renderAll(); renderAdminPanel();
+  toast('💥 Chat wiped — all messages deleted','success');
+}
+
+// ── ADMIN PANEL RENDER ──
+function renderAdminPanel() {
+  if(!isAdmin) return;
+  // update stats
+  const visible=msgCache.filter(m=>!m.deleted).length;
+  document.getElementById('apMsgCount').textContent=msgCache.length;
+  // render list
+  const list=document.getElementById('apMsgList');
+  const q=(apFilter||'').toLowerCase();
+  const filtered=msgCache.filter(m=>{
+    if(!q) return true;
+    return (m.name||'').toLowerCase().includes(q)||(m.content||'').toLowerCase().includes(q);
+  });
+  if(!filtered.length){ list.innerHTML=`<div class="ap-empty">${q?'NO MATCHES':'NO MESSAGES YET'}</div>`; return; }
+  list.innerHTML='';
+  // Show newest first in admin panel
+  [...filtered].reverse().forEach(m=>{
+    const div=document.createElement('div');
+    div.className='ap-msg'+(m.deleted?' is-deleted':'');
+    div.dataset.id=m.id;
+    const avHtml=m.avatar_url?`<div class="ap-msg-av"><img src="${m.avatar_url}" alt=""></div>`:`<div class="ap-msg-av">${m.avatar}</div>`;
+    let contentStr='';
+    if(m.deleted) contentStr='<i>deleted</i>';
+    else if(m.type==='image') contentStr='🖼️ [image]';
+    else if(m.type==='file') contentStr=`📎 ${x(m.fileName||'file')}`;
+    else contentStr=x(m.content);
+    div.innerHTML=`
+      ${avHtml}
+      <div class="ap-msg-body">
+        <div class="ap-msg-meta">
+          <span class="ap-msg-name">${x(m.name)}</span>
+          <span class="ap-msg-time">${m.ts}</span>
+        </div>
+        <div class="ap-msg-content">${contentStr}</div>
+      </div>
+      <button class="ap-msg-del" title="Hard delete" onclick="adminDelMsg('${m.id}')">🗑️</button>`;
+    list.appendChild(div);
+  });
+}
+
+window.filterApMsgs = function() {
+  apFilter=document.getElementById('apSearch').value;
+  renderAdminPanel();
 }
 
 // ── TYPING ──
 window.onTaIn = function() {
   const ta=document.getElementById('mta'); ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,120)+'px';
   if(!realtimeCh) return;
-  if(!isTyp){ isTyp=true; realtimeCh.send({type:'broadcast',event:'typing',payload:{uid:me.id,name:me.name,state:'start'}}); }
+  if(!isTyp){isTyp=true;realtimeCh.send({type:'broadcast',event:'typing',payload:{uid:me.id,name:me.name,state:'start'}});}
   clearTimeout(typTimer); typTimer=setTimeout(stopTyp,3500);
 }
-function stopTyp(){ if(isTyp){isTyp=false; if(realtimeCh) realtimeCh.send({type:'broadcast',event:'typing',payload:{uid:me.id,name:me.name,state:'stop'}});} clearTimeout(typTimer); }
+function stopTyp(){if(isTyp){isTyp=false;if(realtimeCh)realtimeCh.send({type:'broadcast',event:'typing',payload:{uid:me.id,name:me.name,state:'stop'}});}clearTimeout(typTimer);}
 window.onKey = e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} }
 function renderTy(){
-  const bar=document.getElementById('tybar'); const names=Object.values(typUsers).map(u=>u.name);
+  const bar=document.getElementById('tybar'), names=Object.values(typUsers).map(u=>u.name);
   if(!names.length){bar.innerHTML='';return;}
   bar.innerHTML=`<div class="tydots"><span></span><span></span><span></span></div><span>${x(names.join(', '))} ${names.length===1?'is':'are'} typing...</span>`;
 }
 
 // ── FILES ──
-document.getElementById('imgIn').addEventListener('change', function(){
+document.getElementById('imgIn').addEventListener('change',function(){
   const f=this.files[0]; if(!f) return;
   if(f.size>2097152){toast('Max 2MB for images','error');this.value='';return;}
-  const r=new FileReader(); r.onload=async e=>{ await sendMedia('image',e.target.result); toast('Image sent 🖼️','success'); };
+  const r=new FileReader(); r.onload=async e=>{await sendMedia('image',e.target.result);toast('Image sent 🖼️','success');};
   r.readAsDataURL(f); this.value='';
 });
-document.getElementById('fileIn').addEventListener('change', function(){
+document.getElementById('fileIn').addEventListener('change',function(){
   const f=this.files[0]; if(!f) return;
   if(f.size>4194304){toast('Max 4MB','error');this.value='';return;}
-  const r=new FileReader(); r.onload=async e=>{ await sendMedia('file',e.target.result,f.name,fmt(f.size)); toast('File shared 📎','success'); };
+  const r=new FileReader(); r.onload=async e=>{await sendMedia('file',e.target.result,f.name,fmt(f.size));toast('File shared 📎','success');};
   r.readAsDataURL(f); this.value='';
 });
 
-// ── PROFILE PICTURE ──
-function setupProfPicInput() {
-  document.getElementById('profPicIn').addEventListener('change', function(){
-    const f = this.files[0]; if(!f) return;
-    if(f.size > 1048576){ toast('Max 1MB for profile picture','error'); this.value=''; return; }
-    const r = new FileReader();
-    r.onload = e => {
-      pendingProfPic = e.target.result;
-      // Show preview in modal
-      const prev = document.getElementById('profPicPreview');
-      prev.innerHTML = `<img src="${pendingProfPic}" alt=""><div class="av-overlay">📷</div>`;
-      prev.onclick = () => document.getElementById('profPicIn').click();
-    };
-    r.readAsDataURL(f);
-    this.value='';
+// ── PROFILE ──
+function setupProfPicInput(){
+  document.getElementById('profPicIn').addEventListener('change',function(){
+    const f=this.files[0]; if(!f) return;
+    if(f.size>1048576){toast('Max 1MB for profile picture','error');this.value='';return;}
+    const r=new FileReader(); r.onload=e=>{pendingProfPic=e.target.result;const prev=document.getElementById('profPicPreview');prev.innerHTML=`<img src="${pendingProfPic}" alt=""><div class="av-overlay">📷</div>`;prev.onclick=()=>document.getElementById('profPicIn').click();};
+    r.readAsDataURL(f); this.value='';
   });
 }
+window.clearProfPic = function(e){if(e)e.stopPropagation();pendingProfPic='CLEAR';const prev=document.getElementById('profPicPreview');prev.innerHTML=`<span id="profPicEmoji">${editAv}</span><div class="av-overlay">📷</div>`;prev.onclick=()=>document.getElementById('profPicIn').click();toast('Photo removed — save to confirm','info');}
+window.openProf = () => {
+  document.getElementById('profN').value=me.name; editAv=me.avatar; pendingProfPic=null;
+  document.querySelectorAll('#editAv .avo').forEach(el=>el.classList.toggle('on',el.dataset.e===me.avatar));
+  const prev=document.getElementById('profPicPreview');
+  if(me.avatar_url) prev.innerHTML=`<img src="${me.avatar_url}" alt=""><div class="av-overlay">📷</div>`;
+  else prev.innerHTML=`<span id="profPicEmoji">${me.avatar}</span><div class="av-overlay">📷</div>`;
+  prev.onclick=()=>document.getElementById('profPicIn').click();
+  document.getElementById('profMov').classList.add('on');
+  document.getElementById('drop').classList.remove('on');
+}
+window.closeProf = () => { document.getElementById('profMov').classList.remove('on'); pendingProfPic=null; }
+window.saveProf = async function(){
+  const name=document.getElementById('profN').value.trim(); if(!name){toast('Enter a name','error');return;}
+  let newUrl=me.avatar_url;
+  if(pendingProfPic==='CLEAR') newUrl=null;
+  else if(pendingProfPic&&pendingProfPic.startsWith('data:')) newUrl=pendingProfPic;
+  me.name=name; me.avatar=editAv; me.avatar_url=newUrl; currentProfPicUrl=newUrl;
+  await sb.from('profiles').upsert({id:me.id,name,avatar:editAv,avatar_url:newUrl,updated_at:new Date().toISOString()});
+  if(realtimeCh) await realtimeCh.track({uid:me.id,name,avatar:newUrl||editAv});
+  updTopbar(); closeProf(); toast('Profile updated ✨','success');
+}
+window.togDrop = () => document.getElementById('drop').classList.toggle('on');
 
-window.clearProfPic = function(e) {
-  if(e) e.stopPropagation();
-  pendingProfPic = 'CLEAR';
-  const prev = document.getElementById('profPicPreview');
-  prev.innerHTML = `<span id="profPicEmoji">${editAv}</span><div class="av-overlay">📷</div>`;
-  prev.onclick = () => document.getElementById('profPicIn').click();
-  toast('Photo removed — save to confirm','info');
+// ── EMOJI ──
+function buildEmojis(){
+  const b=document.getElementById('embox'); b.innerHTML='';
+  EMOJIS.forEach(em=>{const d=document.createElement('div');d.className='em';d.textContent=em;d.addEventListener('mousedown',e=>{e.preventDefault();const ta=document.getElementById('mta');const p=ta.selectionStart;ta.value=ta.value.slice(0,p)+em+ta.value.slice(p);ta.selectionStart=ta.selectionEnd=p+em.length;ta.focus();togEm();});b.appendChild(d);});
+}
+window.togEm = () => { emOpen=!emOpen; document.getElementById('embox').style.display=emOpen?'flex':'none'; }
+
+// ── AVATAR PICKERS ──
+function setupAvPickers(){
+  document.querySelectorAll('#regAv .avo').forEach(el=>el.addEventListener('click',()=>{document.querySelectorAll('#regAv .avo').forEach(e=>e.classList.remove('on'));el.classList.add('on');regAv=el.dataset.e;}));
+  document.querySelectorAll('#editAv .avo').forEach(el=>el.addEventListener('click',()=>{document.querySelectorAll('#editAv .avo').forEach(e=>e.classList.remove('on'));el.classList.add('on');editAv=el.dataset.e;if(!pendingProfPic||pendingProfPic==='CLEAR'){const prev=document.getElementById('profPicPreview');prev.innerHTML=`<span id="profPicEmoji">${editAv}</span><div class="av-overlay">📷</div>`;prev.onclick=()=>document.getElementById('profPicIn').click();}}));
+}
+function bindKeys(){
+  document.getElementById('lE').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('lP').focus();});
+  document.getElementById('lP').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+  document.getElementById('rP').addEventListener('keydown',e=>{if(e.key==='Enter')doReg();});
 }
 
 // ── RENDER ──
@@ -855,17 +879,14 @@ function renderAll(){
   if(!msgCache.length){el.innerHTML='<div class="sys">Be the first to say hello 👋</div>';return;}
   grp(msgCache).forEach(g=>renderGrp(g,el));
 }
-
 function appendMsg(m){
   const el=document.getElementById('msgs');
-  const ph=el.querySelector('.sys');if(ph)ph.remove();
+  const ph=el.querySelector('.sys'); if(ph) ph.remove();
   if(m.type==='system'){const d=document.createElement('div');d.className='sys';d.textContent=m.content;el.appendChild(d);return;}
   const last=el.querySelector('.mg:last-child');
-  if(last&&last.dataset.uid===m.uid&&m.time-parseInt(last.dataset.t||0)<90000){
-    renderBub(m,last);last.dataset.t=m.time;
-  } else { grp([m]).forEach(g=>renderGrp(g,el)); }
+  if(last&&last.dataset.uid===m.uid&&m.time-parseInt(last.dataset.t||0)<90000){renderBub(m,last);last.dataset.t=m.time;}
+  else{grp([m]).forEach(g=>renderGrp(g,el));}
 }
-
 function grp(msgs){
   const out=[];let cur=null;
   msgs.forEach(m=>{
@@ -875,132 +896,35 @@ function grp(msgs){
   });
   if(cur)out.push(cur);return out;
 }
-
 function renderGrp(g,container){
   if(g.sys){const d=document.createElement('div');d.className='sys';d.textContent=g.content;container.appendChild(d);return;}
   const mine=g.uid===me.id;
-  const grpEl=document.createElement('div');grpEl.className=`mg ${mine?'me':'them'}`;grpEl.dataset.uid=g.uid;grpEl.dataset.t=g.lt;
-  const hdr=document.createElement('div');hdr.className='mmeta';
-  const avHtml = g.avatar_url ? `<div class="mav"><img src="${g.avatar_url}" alt=""></div>` : `<div class="mav">${g.avatar}</div>`;
+  const grpEl=document.createElement('div'); grpEl.className=`mg ${mine?'me':'them'}`; grpEl.dataset.uid=g.uid; grpEl.dataset.t=g.lt;
+  const hdr=document.createElement('div'); hdr.className='mmeta';
+  const avHtml=g.avatar_url?`<div class="mav"><img src="${g.avatar_url}" alt=""></div>`:`<div class="mav">${g.avatar}</div>`;
   hdr.innerHTML=`${avHtml}<span class="mname">${x(mine?'You':g.name)}</span><span class="mtime">${g.msgs[0].ts}</span>`;
   grpEl.appendChild(hdr);
   g.msgs.forEach(m=>renderBub(m,grpEl));
   container.appendChild(grpEl);
 }
-
-function renderBub(m, grp){
-  const mine = m.uid === me.id;
+function renderBub(m,grp){
+  const mine=m.uid===me.id;
   if(m.type==='text'){
-    const wrap = document.createElement('div');
-    wrap.className='bub-wrap';
-    wrap.dataset.id = m.id;
-    const b=document.createElement('div');
-    b.className='bub' + (m.deleted?' deleted':'');
-    b.dataset.id = m.id;
-    b.innerHTML = m.deleted ? '🗑️ Message deleted' : linkify(x(m.content));
-    // Only show delete button for own non-deleted messages
-    if(mine && !m.deleted){
-      const db=document.createElement('button');
-      db.className='del-btn';db.title='Delete';db.textContent='🗑️';
-      db.onclick=()=>askDelete(m.id);
-      wrap.appendChild(db);
-    }
-    wrap.appendChild(b);
-    grp.appendChild(wrap);
-  }
-  else if(m.type==='image'){
-    const w=document.createElement('div');w.className='mimg';
-    const img=document.createElement('img');img.src=m.content;img.loading='lazy';img.onclick=()=>openLb(m.content);
-    w.appendChild(img);grp.appendChild(w);
-  }
-  else if(m.type==='file'){
-    const f=document.createElement('div');f.className='mfile';
+    const wrap=document.createElement('div'); wrap.className='bub-wrap'; wrap.dataset.id=m.id;
+    const b=document.createElement('div'); b.className='bub'+(m.deleted?' deleted':''); b.dataset.id=m.id;
+    b.innerHTML=m.deleted?'🗑️ Message deleted':linkify(x(m.content));
+    if(mine&&!m.deleted){const db=document.createElement('button');db.className='del-btn';db.title='Delete';db.textContent='🗑️';db.onclick=()=>askDelete(m.id);wrap.appendChild(db);}
+    wrap.appendChild(b); grp.appendChild(wrap);
+  } else if(m.type==='image'){
+    const w=document.createElement('div'); w.className='mimg';
+    const img=document.createElement('img'); img.src=m.content; img.loading='lazy'; img.onclick=()=>openLb(m.content);
+    w.appendChild(img); grp.appendChild(w);
+  } else if(m.type==='file'){
+    const f=document.createElement('div'); f.className='mfile';
     f.innerHTML=`<div class="fic">📄</div><div><div class="fnm">${x(m.fileName||'')}</div><div class="fsz">${m.fileSize||''}</div></div>`;
     f.onclick=()=>{const a=document.createElement('a');a.href=m.content;a.download=m.fileName;a.click();};
     grp.appendChild(f);
   }
-}
-
-// ── PROFILE ──
-window.openProf = () => {
-  const n = document.getElementById('profN'); n.value = me.name;
-  editAv = me.avatar;
-  pendingProfPic = null;
-  document.querySelectorAll('#editAv .avo').forEach(el=>el.classList.toggle('on',el.dataset.e===me.avatar));
-  // Restore preview
-  const prev = document.getElementById('profPicPreview');
-  if(me.avatar_url){
-    prev.innerHTML = `<img src="${me.avatar_url}" alt=""><div class="av-overlay">📷</div>`;
-  } else {
-    prev.innerHTML = `<span id="profPicEmoji">${me.avatar}</span><div class="av-overlay">📷</div>`;
-  }
-  prev.onclick = () => document.getElementById('profPicIn').click();
-  document.getElementById('profMov').classList.add('on');
-  document.getElementById('drop').classList.remove('on');
-}
-window.closeProf = () => { document.getElementById('profMov').classList.remove('on'); pendingProfPic=null; }
-
-window.saveProf = async function(){
-  const name=document.getElementById('profN').value.trim();
-  if(!name){toast('Enter a name','error');return;}
-
-  let newAvatarUrl = me.avatar_url;
-
-  if(pendingProfPic === 'CLEAR'){
-    newAvatarUrl = null;
-  } else if(pendingProfPic && pendingProfPic.startsWith('data:')){
-    // Store base64 directly in profile (for simplicity — for large scale use Supabase Storage)
-    newAvatarUrl = pendingProfPic;
-  }
-
-  me.name = name; me.avatar = editAv; me.avatar_url = newAvatarUrl;
-  currentProfPicUrl = newAvatarUrl;
-
-  await sb.from('profiles').upsert({
-    id: me.id, name, avatar: editAv, avatar_url: newAvatarUrl,
-    updated_at: new Date().toISOString()
-  });
-  if(realtimeCh) await realtimeCh.track({ uid:me.id, name, avatar: newAvatarUrl || editAv });
-  updTopbar(); closeProf(); toast('Profile updated ✨','success');
-}
-
-window.togDrop = () => document.getElementById('drop').classList.toggle('on');
-
-// ── EMOJI ──
-function buildEmojis(){
-  const b=document.getElementById('embox');b.innerHTML='';
-  EMOJIS.forEach(em=>{
-    const d=document.createElement('div');d.className='em';d.textContent=em;
-    d.addEventListener('mousedown',e=>{
-      e.preventDefault();const ta=document.getElementById('mta');
-      const p=ta.selectionStart;ta.value=ta.value.slice(0,p)+em+ta.value.slice(p);
-      ta.selectionStart=ta.selectionEnd=p+em.length;ta.focus();togEm();
-    });
-    b.appendChild(d);
-  });
-}
-window.togEm = () => {emOpen=!emOpen;document.getElementById('embox').style.display=emOpen?'flex':'none';}
-
-// ── AVATAR PICKERS ──
-function setupAvPickers(){
-  document.querySelectorAll('#regAv .avo').forEach(el=>el.addEventListener('click',()=>{
-    document.querySelectorAll('#regAv .avo').forEach(e=>e.classList.remove('on'));el.classList.add('on');regAv=el.dataset.e;
-  }));
-  document.querySelectorAll('#editAv .avo').forEach(el=>el.addEventListener('click',()=>{
-    document.querySelectorAll('#editAv .avo').forEach(e=>e.classList.remove('on'));el.classList.add('on');editAv=el.dataset.e;
-    // Update preview if no image selected
-    if(!pendingProfPic || pendingProfPic==='CLEAR'){
-      const prev=document.getElementById('profPicPreview');
-      prev.innerHTML=`<span id="profPicEmoji">${editAv}</span><div class="av-overlay">📷</div>`;
-      prev.onclick=()=>document.getElementById('profPicIn').click();
-    }
-  }));
-}
-
-function bindKeys(){
-  document.getElementById('lE').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('lP').focus();});
-  document.getElementById('lP').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
-  document.getElementById('rP').addEventListener('keydown',e=>{if(e.key==='Enter')doReg();});
 }
 
 // ── LIGHTBOX ──
@@ -1008,8 +932,8 @@ window.openLb = s => { document.getElementById('lbImg').src=s; document.getEleme
 window.closeLb = () => document.getElementById('lb').classList.remove('on');
 
 // ── TOAST ──
-window.toast = function(msg, type='info'){
-  const w=document.getElementById('tw');const el=document.createElement('div');el.className='toast';
+window.toast = function(msg,type='info'){
+  const w=document.getElementById('tw'); const el=document.createElement('div'); el.className='toast';
   el.style.borderColor=type==='success'?'rgba(34,197,94,.4)':type==='error'?'rgba(239,68,68,.4)':'var(--border)';
   el.innerHTML=`<span>${type==='success'?'✅':type==='error'?'❌':'💜'}</span><span>${msg}</span>`;
   w.appendChild(el);
@@ -1017,199 +941,49 @@ window.toast = function(msg, type='info'){
 }
 
 // ── UTILS ──
-function setPill(state,txt){ const p=document.getElementById('pill');p.className='pill '+state;document.getElementById('pillTxt').textContent=txt; }
-function isNearBot(){ const c=document.getElementById('msgs');return c.scrollHeight-c.scrollTop-c.clientHeight<120; }
-function scrollBot(){ const c=document.getElementById('msgs');requestAnimationFrame(()=>c.scrollTop=c.scrollHeight); }
-function x(s=''){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function linkify(t){ return t.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/@(\w+)/g,'<span class="mention">@$1</span>'); }
-function fmt(b){ if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB'; }
+function setPill(state,txt){const p=document.getElementById('pill');p.className='pill '+state;document.getElementById('pillTxt').textContent=txt;}
+function isNearBot(){const c=document.getElementById('msgs');return c.scrollHeight-c.scrollTop-c.clientHeight<120;}
+function scrollBot(){const c=document.getElementById('msgs');requestAnimationFrame(()=>c.scrollTop=c.scrollHeight);}
+function x(s=''){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function linkify(t){return t.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/@(\w+)/g,'<span class="mention">@$1</span>');}
+function fmt(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
 function showE(el,msg){el.textContent=msg;el.classList.add('on');}
 function hideE(el){el.classList.remove('on');}
-function nowTs(){ const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); }
-function hide(id){ const el=document.getElementById(id);if(!el)return;el.style.display='none';el.classList&&el.classList.remove('on'); }
-function show(id){ const el=document.getElementById(id);el.style.display='flex';el.classList&&el.classList.add('on'); }
-function setLoadLbl(t){ document.getElementById('loadLbl').textContent=t; }
+function nowTs(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
+function hide(id){const el=document.getElementById(id);if(!el)return;el.style.display='none';el.classList&&el.classList.remove('on');}
+function show(id){const el=document.getElementById(id);el.style.display='flex';el.classList&&el.classList.add('on');}
+function setLoadLbl(t){document.getElementById('loadLbl').textContent=t;}
 
-document.addEventListener('click', e => {
-  if(emOpen&&!e.target.closest('.iwrap')&&!e.target.closest('#emBtn')){ emOpen=false;document.getElementById('embox').style.display='none'; }
+document.addEventListener('click',e=>{
+  if(emOpen&&!e.target.closest('.iwrap')&&!e.target.closest('#emBtn')){emOpen=false;document.getElementById('embox').style.display='none';}
   if(!e.target.closest('.tbar-user')) document.getElementById('drop').classList.remove('on');
 });
-
-// ── ADMIN ──────────────────────────────────────────────
-const ADMIN_IDS = [
-  'af8060a4-1af3-4f89-94e2-939c3e001b43',
-  'ef732c5f-625b-4334-b4eb-f456b79beae2'
-];
-let isAdmin = false;
-let pendingAdminAction = null;
-let pendingUserWipe = null; // { id, name }
-
-function checkAdmin() {
-  isAdmin = me && ADMIN_IDS.includes(me.id);
-  const item = document.getElementById('adminDropItem');
-  const sep  = document.getElementById('adminDropSep');
-  if(item) item.style.display = isAdmin ? 'flex' : 'none';
-  if(sep)  sep.style.display  = isAdmin ? 'block' : 'none';
-  // Show admin badge on topbar name
-  const nameEl = document.getElementById('tbarName');
-  if(isAdmin && nameEl && !nameEl.querySelector('.admin-badge')) {
-    nameEl.innerHTML = me.name + ' <span class="admin-badge">ADMIN</span>';
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    closeLb(); closeProf(); closeDelModal();
+    closeAdminDelOne(); closeNuke();
+    document.getElementById('drop').classList.remove('on');
   }
-}
-
-window.openAdmin = function() {
-  if(!isAdmin) return;
-  document.getElementById('drop').classList.remove('on');
-  document.getElementById('adminPanel').classList.add('open');
-  document.getElementById('adminOverlay').classList.add('on');
-  loadAdminStats();
-  loadAdminUsers();
-}
-
-window.closeAdmin = function() {
-  document.getElementById('adminPanel').classList.remove('open');
-  document.getElementById('adminOverlay').classList.remove('on');
-}
-
-async function loadAdminStats() {
-  try {
-    const { count: msgCount } = await sb.from('messages').select('*', { count: 'exact', head: true });
-    const { count: userCount } = await sb.from('profiles').select('*', { count: 'exact', head: true });
-    document.getElementById('apMsgCount').textContent = msgCount ?? '?';
-    document.getElementById('apUserCount').textContent = userCount ?? '?';
-  } catch(e) {
-    document.getElementById('apMsgCount').textContent = 'ERR';
-    document.getElementById('apUserCount').textContent = 'ERR';
-  }
-}
-
-window.loadAdminUsers = async function() {
-  const list = document.getElementById('apUserList');
-  list.innerHTML = '<div class="ap-loading">LOADING...</div>';
-  try {
-    const { data, error } = await sb.from('profiles').select('id, name, avatar, avatar_url').order('name');
-    if(error) throw error;
-    if(!data || !data.length) { list.innerHTML = '<div class="ap-empty">No users found</div>'; return; }
-    list.innerHTML = '';
-    data.forEach(u => {
-      const div = document.createElement('div');
-      div.className = 'ap-user';
-      const avHtml = u.avatar_url
-        ? `<div class="ap-user-av"><img src="${u.avatar_url}" alt=""></div>`
-        : `<div class="ap-user-av">${u.avatar || '🦊'}</div>`;
-      const isYou = u.id === me.id;
-      const isAdminUser = ADMIN_IDS.includes(u.id);
-      div.innerHTML = `
-        ${avHtml}
-        <div class="ap-user-info">
-          <div class="ap-user-name">${x(u.name)}${isYou?' <span style="font-size:10px;opacity:.5">(you)</span>':''}${isAdminUser?' <span class="admin-badge">ADMIN</span>':''}</div>
-          <div class="ap-user-meta">${u.id.slice(0,18)}...</div>
-        </div>
-        <div class="ap-user-actions">
-          ${!isYou ? `<button class="ap-ubtn" title="Wipe all messages from this user" onclick="askUserWipe('${u.id}','${x(u.name)}')">🗑️</button>` : ''}
-        </div>`;
-      list.appendChild(div);
-    });
-  } catch(e) {
-    list.innerHTML = `<div class="ap-empty">Error: ${e.message}</div>`;
-  }
-}
-
-// ── ADMIN ACTIONS ──
-window.adminAction = function(action) {
-  pendingAdminAction = action;
-  const confMov = document.getElementById('adminConfMov');
-  const title   = document.getElementById('adminConfTitle');
-  const warn    = document.getElementById('adminConfWarn');
-
-  if(action === 'wipe_all') {
-    title.textContent = '☢️ Wipe Entire Chat';
-    warn.innerHTML = '<strong>⚠️ NUCLEAR OPTION</strong>This will permanently and irreversibly delete EVERY message in the chat for ALL users. This action is immediate and cannot be rolled back.';
-  } else if(action === 'clear_deleted') {
-    title.textContent = '🧹 Purge Deleted Messages';
-    warn.innerHTML = '<strong>⚠️ PERMANENT ACTION</strong>All soft-deleted messages will be hard-deleted from the database. This frees storage but is permanent.';
-  }
-  confMov.classList.add('on');
-}
-
-window.closeAdminConf = function() {
-  document.getElementById('adminConfMov').classList.remove('on');
-  pendingAdminAction = null;
-}
-
-window.executeAdminAction = async function() {
-  if(!isAdmin || !pendingAdminAction) return;
-  closeAdminConf();
-
-  if(pendingAdminAction === 'wipe_all') {
-    try {
-      // Delete all messages — using gt filter on a timestamp that everything is older than
-      const { error } = await sb.from('messages').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      if(error) throw error;
-      msgCache = [];
-      renderAll();
-      loadAdminStats();
-      toast('💥 Chat wiped — all messages deleted', 'success');
-    } catch(e) {
-      toast('Wipe failed: ' + e.message, 'error');
-    }
-  } else if(pendingAdminAction === 'clear_deleted') {
-    try {
-      const { error } = await sb.from('messages').delete().eq('deleted', true);
-      if(error) throw error;
-      msgCache = msgCache.filter(m => !m.deleted);
-      renderAll();
-      loadAdminStats();
-      toast('🧹 Purged all soft-deleted messages', 'success');
-    } catch(e) {
-      toast('Purge failed: ' + e.message, 'error');
-    }
-  }
-  pendingAdminAction = null;
-}
-
-// ── USER WIPE ──
-window.askUserWipe = function(uid, uname) {
-  pendingUserWipe = { id: uid, name: uname };
-  document.getElementById('userWipeWarn').innerHTML = `<strong>⚠️ TARGET USER</strong>All messages sent by <b>${x(uname)}</b> will be permanently deleted from the global chat.`;
-  document.getElementById('userWipeMov').classList.add('on');
-}
-
-window.closeUserWipe = function() {
-  document.getElementById('userWipeMov').classList.remove('on');
-  pendingUserWipe = null;
-}
-
-window.executeUserWipe = async function() {
-  if(!isAdmin || !pendingUserWipe) return;
-  const { id, name } = pendingUserWipe;
-  closeUserWipe();
-  try {
-    const { error } = await sb.from('messages').delete().eq('user_id', id);
-    if(error) throw error;
-    msgCache = msgCache.filter(m => m.uid !== id);
-    renderAll();
-    loadAdminStats();
-    toast(`🗑️ Wiped all messages from ${name}`, 'success');
-  } catch(e) {
-    toast('User wipe failed: ' + e.message, 'error');
-  }
-  pendingUserWipe = null;
-}
-
-document.addEventListener('keydown', e => {
-  if(e.key==='Escape'){ closeLb(); closeProf(); closeDelModal(); closeAdmin(); closeAdminConf(); closeUserWipe(); document.getElementById('drop').classList.remove('on'); }
 });
 </script>
 
-<!-- ═══════════════════════════════════════════════
-  SUPABASE SQL — run this in your Supabase SQL Editor
-  to add the required columns if not already present:
+<!--
+  ═══════════════════════════════════════════════
+  SUPABASE SQL — run in your Supabase SQL Editor:
 
   ALTER TABLE profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
   ALTER TABLE messages ADD COLUMN IF NOT EXISTS avatar_url TEXT;
   ALTER TABLE messages ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
 
-═══════════════════════════════════════════════ -->
+  -- RLS policy so admins can hard-delete any message:
+  CREATE POLICY "Admins can delete any message" ON messages
+  FOR DELETE USING (
+    auth.uid() IN (
+      'af8060a4-1af3-4f89-94e2-939c3e001b43',
+      'ef732c5f-625b-4334-b4eb-f456b79beae2'
+    )
+  );
+  ═══════════════════════════════════════════════
+-->
 </body>
 </html>
