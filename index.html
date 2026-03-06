@@ -222,7 +222,7 @@ nav{height:56px;display:flex;align-items:center;padding:0 32px;border-bottom:1px
       <div class="proxy-content">
         <div class="proxy-home" id="proxyHome">
           <div class="proxy-home-title">NEXUS PROXY</div>
-          <div class="proxy-home-sub">POWERED BY HOLY UNBLOCKER</div>
+          <div class="proxy-home-sub">POWERED BY INTERSTELLAR PROXY</div>
           <div class="proxy-chips">
             <div class="proxy-chip" onclick="proxySearch('clash royale')">🃏 Clash Royale</div>
             <div class="proxy-chip" onclick="proxySearch('brawl stars')">⭐ Brawl Stars</div>
@@ -234,9 +234,9 @@ nav{height:56px;display:flex;align-items:center;padding:0 32px;border-bottom:1px
             <div class="proxy-chip" onclick="proxySearch('free online games no download')">🎮 Free Games</div>
           </div>
           <div class="proxy-setup-box" id="proxySetupBox">
-            <h3>🔓 HOLY UNBLOCKER PROXY</h3>
-            <p>Uses <strong>Holy Unblocker</strong> by Titanium Network — no setup needed.<br>
-            Just type any URL or search term above and hit GO.</p>
+            <h3>🔓 INTERSTELLAR PROXY</h3>
+            <p>Uses <strong>Interstellar</strong> — a public UV proxy, no setup needed.<br>
+            Type any URL or search term above and hit GO.</p>
             <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
               <span class="uv-status ok"><span class="uv-dot"></span>PROXY READY</span>
             </div>
@@ -252,40 +252,39 @@ nav{height:56px;display:flex;align-items:center;padding:0 32px;border-bottom:1px
 
 <script>
 // ── GAMES DATA (now.gg embeds — actually work!) ──
+// CrazyGames official embed URLs — these are whitelisted for iframe embedding
 const GAMES = [
-  { id:'clashroyale',  name:'Clash Royale',    tag:'STRATEGY',  ic:'🃏', url:'https://now.gg/play/supercell/2693/clash-royale' },
-  { id:'clashofclans', name:'Clash of Clans',  tag:'STRATEGY',  ic:'⚔️', url:'https://now.gg/play/supercell/2432/clash-of-clans' },
-  { id:'brawlstars',   name:'Brawl Stars',     tag:'ACTION',    ic:'⭐', url:'https://now.gg/play/supercell/3902/brawl-stars' },
-  { id:'roblox',       name:'Roblox',          tag:'PLATFORM',  ic:'🟥', url:'https://now.gg/play/roblox-corporation/5349/roblox' },
-  { id:'subwaysurf',   name:'Subway Surfers',  tag:'RUNNER',    ic:'🏃', url:'https://now.gg/play/sybo-games/2359/subway-surfers' },
-  { id:'freefire',     name:'Free Fire',       tag:'BATTLE ROY',ic:'🔥', url:'https://now.gg/play/garena-international-i-private/2593/garena-free-fire' },
-  { id:'mobilelegends',name:'Mobile Legends',  tag:'MOBA',      ic:'⚡', url:'https://now.gg/play/moonton/2711/mobile-legends-bang-bang' },
-  { id:'parchisi',     name:'Parchisi STAR',   tag:'BOARD',     ic:'🎲', url:'https://now.gg/play/softgames/4276/parchisi-star-online' },
-  { id:'8ball',        name:'8 Ball Pool',     tag:'SPORTS',    ic:'🎱', url:'https://now.gg/play/miniclip.com/2445/8-ball-pool' },
-  { id:'angrybirds',   name:'Angry Birds',     tag:'CASUAL',    ic:'🐦', url:'https://now.gg/play/rovio-entertainment/3997/angry-birds-reloaded' },
-  { id:'candycrush',   name:'Candy Crush',     tag:'PUZZLE',    ic:'🍬', url:'https://now.gg/play/king/2832/candy-crush-saga' },
-  { id:'amongus',      name:'Among Us',        tag:'SOCIAL',    ic:'🔴', url:'https://now.gg/play/innersloth-llc/4847/among-us' },
-  // Browser games that actually allow iframes
-  { id:'slope',        name:'Slope',           tag:'ARCADE',    ic:'🏔️', url:'https://slope-game.github.io/' },
-  { id:'2048',         name:'2048',            tag:'PUZZLE',    ic:'🔢', url:'https://play2048.co/' },
-  { id:'shellshock',   name:'Shell Shockers',  tag:'SHOOTER',   ic:'🥚', url:'https://shellshock.io' },
-  { id:'krunker',      name:'Krunker.io',      tag:'FPS',       ic:'🎯', url:'https://krunker.io' },
-  { id:'slither',      name:'Slither.io',      tag:'IO',        ic:'🐍', url:'https://slither.io' },
-  { id:'agar',         name:'Agar.io',         tag:'IO',        ic:'🔵', url:'https://agar.io' },
-  { id:'crazygames',   name:'CrazyGames',      tag:'PORTAL',    ic:'🎰', url:'https://www.crazygames.com' },
-  { id:'poki',         name:'Poki',            tag:'PORTAL',    ic:'🌐', url:'https://poki.com' },
+  { id:'subway',      name:'Subway Surfers',   tag:'RUNNER',   ic:'🏃', url:'https://games.crazygames.com/en_US/subway-surfers/index.html' },
+  { id:'8ball',       name:'8 Ball Pool',      tag:'SPORTS',   ic:'🎱', url:'https://games.crazygames.com/en_US/8-ball-billiards-classic/index.html' },
+  { id:'slope',       name:'Slope',            tag:'ARCADE',   ic:'🏔️', url:'https://games.crazygames.com/en_US/slope/index.html' },
+  { id:'moto',        name:'Moto X3M',         tag:'RACING',   ic:'🏍️', url:'https://games.crazygames.com/en_US/moto-x3m/index.html' },
+  { id:'krunker',     name:'Krunker.io',       tag:'FPS',      ic:'🎯', url:'https://games.crazygames.com/en_US/krunker/index.html' },
+  { id:'shellshock',  name:'Shell Shockers',   tag:'SHOOTER',  ic:'🥚', url:'https://games.crazygames.com/en_US/shell-shockers/index.html' },
+  { id:'agar',        name:'Agar.io',          tag:'IO',       ic:'🔵', url:'https://games.crazygames.com/en_US/agario/index.html' },
+  { id:'slither',     name:'Slither.io',       tag:'IO',       ic:'🐍', url:'https://games.crazygames.com/en_US/slither-io/index.html' },
+  { id:'zombs',       name:'Zombs Royale',     tag:'BATTLE',   ic:'💀', url:'https://games.crazygames.com/en_US/zombsroyale-io/index.html' },
+  { id:'paper',       name:'Paper.io 2',       tag:'IO',       ic:'📄', url:'https://games.crazygames.com/en_US/paper-io-2/index.html' },
+  { id:'minecraft2d', name:'Minecraft Classic', tag:'SANDBOX', ic:'⛏️', url:'https://games.crazygames.com/en_US/minecraft-classic/index.html' },
+  { id:'amongus',     name:'Among Us Online',  tag:'SOCIAL',   ic:'🔴', url:'https://games.crazygames.com/en_US/among-us-online-edition/index.html' },
+  { id:'2048',        name:'2048',             tag:'PUZZLE',   ic:'🔢', url:'https://games.crazygames.com/en_US/2048/index.html' },
+  { id:'tetris',      name:'Tetris',           tag:'PUZZLE',   ic:'🧱', url:'https://games.crazygames.com/en_US/tetris/index.html' },
+  { id:'snake',       name:'Snake',            tag:'CLASSIC',  ic:'🐍', url:'https://games.crazygames.com/en_US/snake/index.html' },
+  { id:'fnf',         name:'Friday Night Funkin', tag:'RHYTHM',ic:'🎵', url:'https://games.crazygames.com/en_US/friday-night-funkin/index.html' },
+  { id:'stickman',    name:'Stickman Hook',    tag:'ARCADE',   ic:'🕴️', url:'https://games.crazygames.com/en_US/stickman-hook/index.html' },
+  { id:'driftboss',   name:'Drift Boss',       tag:'RACING',   ic:'🚗', url:'https://games.crazygames.com/en_US/drift-boss/index.html' },
+  { id:'rooftop',     name:'Rooftop Snipers',  tag:'ACTION',   ic:'🔫', url:'https://games.crazygames.com/en_US/rooftop-snipers/index.html' },
+  { id:'getaway',     name:'Getaway Shootout', tag:'ACTION',   ic:'💨', url:'https://games.crazygames.com/en_US/getaway-shootout/index.html' },
 ];
 
 let activeGame = null;
 let chatLoaded_flag = false;
-// Holy Unblocker instances (Titanium Network) — tries each in order
-const HU_INSTANCES = [
-  'https://holyubofficial.net',
-  'https://holy-unblocker.vercel.app',
-  'https://www.titaniumnetwork.org',
+// Interstellar proxy instances — public, no setup needed
+const PROXY_INSTANCES = [
+  'https://interstellar.lunasea.app',
+  'https://interstellar-two.vercel.app',
+  'https://astro.lunasea.app',
 ];
-let activeHuInstance = localStorage.getItem('nexus_hu_instance') || HU_INSTANCES[0];
-// Keep uvBaseUrl for legacy compat
+let activeProxy = localStorage.getItem('nexus_proxy') || PROXY_INSTANCES[0];
 let uvBaseUrl = '';
 
 // ── PANELS ──
@@ -356,9 +355,9 @@ function loadGame(g) {
   activeGame = g.id;
   document.querySelectorAll('.game-item').forEach(el => el.classList.toggle('active', el.dataset.id===g.id));
   document.getElementById('gameTitle').textContent = g.name;
-  document.getElementById('gameSub').textContent = g.tag + ' · now.gg';
+  document.getElementById('gameSub').textContent = g.tag + ' · CrazyGames';
   const wrap = document.getElementById('gameFrameWrap');
-  wrap.innerHTML = `<iframe src="${g.url}" allowfullscreen allow="fullscreen;autoplay" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation" id="gameFrame"></iframe>`;
+  wrap.innerHTML = `<iframe src="${g.url}" allowfullscreen allow="fullscreen; autoplay; gamepad" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation allow-downloads" id="gameFrame"></iframe>`;
 }
 window.reloadGame = function() { const f=document.getElementById('gameFrame'); if(f) f.src=f.src; }
 window.fullscreenGame = function() {
@@ -401,7 +400,7 @@ function proxyLoad(query) {
   // Route through Holy Unblocker Ultraviolet service
   // HU uses /~/uv/service/ + base64url-encoded target URL
   const b64 = btoa(targetUrl).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
-  const iframeSrc = `${activeHuInstance}/~/uv/service/${b64}`;
+  const iframeSrc = `${activeProxy}/~/uv/service/${b64}`;
 
   document.getElementById('proxyHome').style.display = 'none';
   const frame = document.getElementById('proxyFrame');
@@ -415,16 +414,16 @@ function proxyLoad(query) {
 }
 
 function tryNextInstance(targetUrl) {
-  const idx = HU_INSTANCES.indexOf(activeHuInstance);
-  const next = HU_INSTANCES[(idx + 1) % HU_INSTANCES.length];
-  if(next === activeHuInstance) {
+  const idx = PROXY_INSTANCES.indexOf(activeProxy);
+  const next = PROXY_INSTANCES[(idx + 1) % PROXY_INSTANCES.length];
+  if(next === activeProxy) {
     // All failed — fall back to opening in new tab
     toast('⚠️ Proxy blocked — opening in new tab instead');
     window.open(targetUrl, '_blank');
     return;
   }
-  activeHuInstance = next;
-  localStorage.setItem('nexus_hu_instance', next);
+  activeProxy = next;
+  localStorage.setItem('nexus_proxy', next);
   toast('↻ Trying alternate proxy instance...');
   proxyLoad(targetUrl);
 }
