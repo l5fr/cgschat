@@ -7,7 +7,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
-   NEXUS — Enhanced Chat with Admin Controls
+   NEXUS — black & purple global chat
+   Deploys to Vercel. Powered by Supabase.
 ═══════════════════════════════════════════ */
 :root{
   --bg:#050508;
@@ -29,7 +30,6 @@
   --border2:rgba(124,58,237,.07);
   --green:#22c55e;
   --red:#ef4444;
-  --yellow:#eab308;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow:hidden;}
@@ -81,52 +81,29 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .aerr.on{display:block;}
 
 /* ── APP ── */
-#app{display:none;flex-direction:row;height:100vh;position:relative;z-index:1;}
+#app{display:none;flex-direction:column;height:100vh;position:relative;z-index:1;}
 #app.on{display:flex;}
 
 /* topbar */
-.tbar{height:54px;background:rgba(8,8,16,.94);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 20px;gap:14px;backdrop-filter:blur(24px);flex-shrink:0;z-index:50;position:relative;grid-column:1/-1;}
+.tbar{height:54px;background:rgba(8,8,16,.94);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 20px;gap:14px;backdrop-filter:blur(24px);flex-shrink:0;z-index:50;}
 .tbar-logo{font-size:16px;font-weight:800;letter-spacing:6px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
 .pill{display:flex;align-items:center;gap:7px;border-radius:20px;padding:3px 12px;font-size:11px;font-family:'JetBrains Mono',monospace;transition:all .3s;}
 .pill.live{background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);color:#4ade80;}
 .pill.wait{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.2);color:#fde047;}
 .pdot{width:7px;height:7px;border-radius:50%;}
 .pill.live .pdot{background:var(--green);animation:liveDot 2s ease-in-out infinite;}
-.pill.wait .pdot{background:var(--yellow);}
+.pill.wait .pdot{background:var(--yellow,#eab308);}
 @keyframes liveDot{0%,100%{opacity:1;box-shadow:0 0 6px rgba(34,197,94,.8)}50%{opacity:.35;box-shadow:none}}
 .tbar-gap{flex:1;}
 .tbar-user{display:flex;align-items:center;gap:9px;cursor:pointer;position:relative;user-select:none;}
 .tbar-av{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid var(--purple);background:var(--bg3);}
 .tbar-name{font-size:13px;font-weight:600;color:var(--text2);}
-.owner-badge{font-size:9px;background:rgba(239,68,68,.2);color:#fca5a5;padding:1px 6px;border-radius:4px;margin-left:4px;}
 .drop{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg3);border:1px solid var(--border);border-radius:13px;padding:7px;min-width:175px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none;z-index:200;animation:slideUp .18s ease both;}
 .drop.on{display:block;}
 .ditem{padding:9px 12px;border-radius:8px;font-size:13px;color:var(--text2);cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:9px;}
 .ditem:hover{background:var(--dim);color:var(--text);}
 .ditem.red:hover{background:rgba(239,68,68,.1);color:var(--red);}
 .dsep{height:1px;background:var(--border2);margin:4px 0;}
-
-/* admin panel sidebar */
-.admin-panel{width:280px;background:rgba(8,8,16,.7);border-right:1px solid var(--border2);display:none;flex-direction:column;overflow:hidden;backdrop-filter:blur(14px);}
-.admin-panel.on{display:flex;}
-.admin-panel-head{padding:16px;border-bottom:1px solid var(--border2);font-size:12px;font-weight:700;letter-spacing:2px;color:var(--text3);}
-.admin-panel-content{flex:1;overflow-y:auto;padding:12px;}
-.admin-section{margin-bottom:16px;}
-.admin-section-title{font-size:11px;letter-spacing:2px;color:var(--text3);margin-bottom:8px;text-transform:uppercase;}
-.admin-users{display:flex;flex-direction:column;gap:6px;max-height:300px;overflow-y:auto;}
-.admin-user-item{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border2);font-size:12px;cursor:pointer;transition:all .2s;}
-.admin-user-item:hover{border-color:var(--purple2);background:var(--bg4);}
-.admin-user-av{font-size:14px;}
-.admin-user-name{flex:1;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.admin-user-actions{display:flex;gap:4px;}
-.admin-btn-small{width:24px;height:24px;border-radius:5px;background:var(--dim);border:none;color:var(--accent);font-size:11px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
-.admin-btn-small:hover{background:rgba(239,68,68,.2);color:var(--red);}
-.admin-actions{display:flex;flex-direction:column;gap:6px;}
-.admin-btn{width:100%;background:var(--dim);border:1px solid var(--border);border-radius:8px;padding:8px;color:var(--accent);font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;}
-.admin-btn:hover{background:rgba(239,68,68,.2);border-color:var(--red);color:var(--red);}
-
-/* chat container */
-.chat-container{flex:1;display:flex;flex-direction:column;overflow:hidden;}
 
 /* chat */
 .chat{flex:1;display:flex;flex-direction:column;overflow:hidden;}
@@ -136,39 +113,19 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .chat-sub{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:1px;}
 .msgs{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:2px;}
 
-/* search bar */
-.search-bar{padding:10px 20px;background:rgba(8,8,16,.6);border-bottom:1px solid var(--border2);display:flex;gap:8px;}
-.search-input{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-size:13px;outline:none;font-family:'Syne',sans-serif;}
-.search-input:focus{border-color:var(--purple);}
-.search-input::placeholder{color:var(--text3);}
-.search-btn{background:var(--dim);border:1px solid var(--border);border-radius:8px;padding:8px 16px;color:var(--accent);cursor:pointer;font-size:12px;font-weight:600;transition:all .2s;}
-.search-btn:hover{background:var(--purple);color:#fff;}
-
 /* message groups */
-.mg{display:flex;flex-direction:column;margin-bottom:16px;position:relative;}
+.mg{display:flex;flex-direction:column;margin-bottom:16px;}
 .mg.me{align-items:flex-end;}
 .mg.them{align-items:flex-start;}
 .mmeta{display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:0 2px;}
 .mg.me .mmeta{flex-direction:row-reverse;}
-.mav{width:26px;height:26px;border-radius:7px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;cursor:pointer;}
+.mav{width:26px;height:26px;border-radius:7px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
 .mname{font-size:12px;font-weight:600;color:var(--text2);}
 .mtime{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
-.bub{max-width:520px;padding:10px 15px;border-radius:15px;font-size:14px;line-height:1.65;word-break:break-word;animation:bIn .2s cubic-bezier(.34,1.56,.64,1) both;position:relative;transition:all .2s;}
+.bub{max-width:520px;padding:10px 15px;border-radius:15px;font-size:14px;line-height:1.65;word-break:break-word;animation:bIn .2s cubic-bezier(.34,1.56,.64,1) both;}
 @keyframes bIn{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
 .mg.me   .bub{background:linear-gradient(135deg,var(--purple),var(--purple3));color:#fff;border-bottom-right-radius:3px;box-shadow:0 3px 14px rgba(124,58,237,.28);}
 .mg.them .bub{background:var(--bg3);color:var(--text);border-bottom-left-radius:3px;border:1px solid var(--border2);}
-.bub:hover{box-shadow:0 0 0 1px var(--purple);}
-.bub-actions{display:none;position:absolute;top:-32px;right:0;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:4px;gap:4px;flex-direction:row;z-index:10;}
-.bub:hover .bub-actions{display:flex;}
-.bub-action-btn{width:24px;height:24px;border-radius:5px;background:transparent;border:none;color:var(--text3);cursor:pointer;font-size:12px;transition:all .15s;display:flex;align-items:center;justify-content:center;}
-.bub-action-btn:hover{background:var(--dim);color:var(--accent);}
-.bub-action-btn.delete:hover{background:rgba(239,68,68,.2);color:var(--red);}
-.bub-edited{font-size:10px;color:var(--text3);margin-top:4px;font-style:italic;}
-.reactions-bar{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;}
-.reaction{background:var(--bg4);border:1px solid var(--border2);border-radius:16px;padding:2px 8px;font-size:12px;display:flex;align-items:center;gap:4px;cursor:pointer;transition:all .15s;}
-.reaction:hover{border-color:var(--purple);background:var(--dim);}
-.reaction-count{font-size:10px;color:var(--text3);}
-.reaction.reacted{border-color:var(--accent);background:rgba(192,132,252,.1);}
 .mimg{max-width:280px;border-radius:13px;overflow:hidden;cursor:pointer;transition:transform .2s;animation:bIn .2s cubic-bezier(.34,1.56,.64,1) both;}
 .mimg:hover{transform:scale(1.02);}
 .mimg img{width:100%;display:block;}
@@ -233,7 +190,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 a{color:var(--accent);}
 .mention{color:var(--accent);font-weight:600;}
 input[type=file]{display:none;}
-@media(max-width:600px){.auth-card{padding:30px 20px;}.admin-panel{width:0;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}}
+@media(max-width:600px){.auth-card{padding:30px 20px;}.setup-box{padding:30px 20px;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}}
 </style>
 </head>
 <body>
@@ -295,10 +252,7 @@ input[type=file]{display:none;}
     <div class="tbar-gap"></div>
     <div class="tbar-user" id="tbarUser" onclick="togDrop()">
       <div class="tbar-av" id="tbarAv">🦊</div>
-      <div style="display:flex;align-items:center;">
-        <div class="tbar-name" id="tbarName">User</div>
-        <div class="owner-badge" id="ownerBadge" style="display:none;">OWNER</div>
-      </div>
+      <div class="tbar-name" id="tbarName">User</div>
       <span style="color:var(--text3);font-size:11px;margin-left:2px;">▾</span>
       <div class="drop" id="drop">
         <div class="ditem" onclick="openProf()">✏️ Edit Profile</div>
@@ -308,82 +262,28 @@ input[type=file]{display:none;}
     </div>
   </div>
 
-  <!-- ADMIN PANEL -->
-  <div class="admin-panel" id="adminPanel">
-    <div class="admin-panel-head">⚙️ ADMIN PANEL</div>
-    <div class="admin-panel-content">
-      <div class="admin-section">
-        <div class="admin-section-title">Online Users</div>
-        <div class="admin-users" id="adminUsers"></div>
-      </div>
-      <div class="admin-section">
-        <div class="admin-section-title">Moderation</div>
-        <div class="admin-actions">
-          <button class="admin-btn" onclick="serverCommand('clear_chat')">🗑️ Clear Chat</button>
-          <button class="admin-btn" style="background:rgba(239,68,68,.2);" onclick="serverCommand('toggle_mute')">🚫 Mute All</button>
-          <button class="admin-btn" style="background:rgba(239,68,68,.3);" onclick="serverCommand('nuke_chat')">🔞 NUKE CHAT</button>
-        </div>
-      </div>
-      <div class="admin-section">
-        <div class="admin-section-title">🎭 Chaos</div>
-        <div class="admin-actions">
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('jumpscare')">🎭 JUMPSCARE</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('screen_shake')">🎬 Screen Shake</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('rainbow_mode')">🌈 Rainbow Mode</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('invert_colors')">💀 Invert Colors</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('spin_mode')">🔀 Spin Mode</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('ghost_mode')">👻 Ghost Mode</button>
-        </div>
-      </div>
-      <div class="admin-section">
-        <div class="admin-section-title">💬 Messages</div>
-        <div class="admin-actions">
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('all_caps')">🔊 ALL CAPS</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('reverse')">🔄 Reverse</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('spam_messages')">💬 Spam</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('emoji_spam')">😂 Emoji Spam</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('uwu_speak')">OwO OwO Speak</button>
-        </div>
-      </div>
-      <div class="admin-section">
-        <div class="admin-section-title">👤 Users</div>
-        <div class="admin-actions">
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('rename_all')">👤 Rename Users</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('rainbow_avatars')">🎨 Rainbow Avatars</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('spam_notifs')">📢 Spam Notifs</button>
-        </div>
+  <div class="chat">
+    <div class="chat-head">
+      <div class="chat-ic">🌐</div>
+      <div>
+        <div class="chat-nm">Global Chat</div>
+        <div class="chat-sub" id="chatSub">—</div>
       </div>
     </div>
-  </div>
-
-  <div class="chat-container">
-    <div class="chat">
-      <div class="chat-head">
-        <div class="chat-ic">🌐</div>
-        <div>
-          <div class="chat-nm">Global Chat</div>
-          <div class="chat-sub" id="chatSub">—</div>
-        </div>
+    <div class="msgs" id="msgs"></div>
+    <div class="tybar" id="tybar"></div>
+    <div class="iarea">
+      <div class="itb">
+        <div class="tbb" onclick="document.getElementById('imgIn').click()">🖼️ Image</div>
+        <div class="tbb" onclick="document.getElementById('fileIn').click()">📎 File</div>
+        <div class="tbb" onclick="togEm()" id="emBtn">😊 Emoji</div>
       </div>
-      <div class="search-bar">
-        <input type="text" id="searchInput" class="search-input" placeholder="Search messages...">
-        <button class="search-btn" onclick="searchMessages()">Search</button>
-      </div>
-      <div class="msgs" id="msgs"></div>
-      <div class="tybar" id="tybar"></div>
-      <div class="iarea">
-        <div class="itb">
-          <div class="tbb" onclick="document.getElementById('imgIn').click()">🖼️ Image</div>
-          <div class="tbb" onclick="document.getElementById('fileIn').click()">📎 File</div>
-          <div class="tbb" onclick="togEm()" id="emBtn">😊 Emoji</div>
+      <div class="irow">
+        <div class="iwrap">
+          <div class="embox" id="embox" style="display:none;"></div>
+          <textarea class="mta" id="mta" placeholder="Message everyone on NEXUS..." rows="1" onkeydown="onKey(event)" oninput="onTaIn()"></textarea>
         </div>
-        <div class="irow">
-          <div class="iwrap">
-            <div class="embox" id="embox" style="display:none;"></div>
-            <textarea class="mta" id="mta" placeholder="Message everyone on NEXUS..." rows="1" onkeydown="onKey(event)" oninput="onTaIn()"></textarea>
-          </div>
-          <button class="sbtn" onclick="sendMsg()">➤</button>
-        </div>
+        <button class="sbtn" onclick="sendMsg()">➤</button>
       </div>
     </div>
   </div>
@@ -408,56 +308,31 @@ input[type=file]{display:none;}
   </div>
 </div>
 
-<!-- USER PROFILE MODAL -->
-<div class="mov" id="userProfileMov">
-  <div class="modal" style="width:420px;">
-    <h3 id="userProfileName">User Profile</h3>
-    <p id="userProfileJoin">Joined today</p>
-    <div style="background:var(--bg2);border-radius:12px;padding:16px;margin:15px 0;text-align:center;">
-      <div style="font-size:48px;margin-bottom:10px;" id="userProfileAvatar">🦊</div>
-      <div style="font-size:14px;font-weight:700;margin-bottom:4px;" id="userProfileDisplayName">User</div>
-      <div style="font-size:11px;color:var(--text3);" id="userProfileStats">0 messages</div>
-    </div>
-    <div class="mbtns">
-      <button class="bcnl" onclick="closeUserProfile()">Close</button>
-    </div>
-  </div>
-</div>
-
 <div class="lb" id="lb" onclick="closeLb()"><img id="lbImg" src="" alt=""></div>
 <div class="tw" id="tw"></div>
 
 <!-- ════════════════════════════════════════════
-     SUPABASE JS (loaded from CDN)
+     SUPABASE JS (loaded from CDN — no npm needed)
 ════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ══════════════════════════════════════════════════
-   NEXUS — Enhanced Chat with Server-Sided Admin Commands
-   All admin commands are processed through the server
-   and broadcast to all clients for maximum chaos!
+   NEXUS — Supabase-powered global chat
+   Single HTML file. Deploys to Vercel as-is.
+   Messages sync in real time across every device.
 ══════════════════════════════════════════════════ */
 
 // ── CONFIG ──
 const SB_URL = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5c3R4c2dneHZua2p4cnZxbm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDExMjY4NzAsImV4cCI6MjA1NjcwMjg3MH0.OuppEyMVGpfqFAuTIuX_EA_kojCNZ39NfTBLWq64sYg';
-const OWNER_IDS = [
-  'ef732c5f-625b-4334-b4eb-f456b79beae2',
-  'af8060a4-1af3-4f89-94e2-939c3e001b43'
-]; // Array of owner user IDs - both accounts will have admin access
-let sb = null;
-let me = null;
+const SB_KEY = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
+let sb = null;   // supabase client
+let me = null;   // { id, name, avatar, email }
 let realtimeCh = null;
 let typTimer = null, isTyp = false;
 let typUsers = {};
 let emOpen = false, editAv = '🦊', regAv = '🦊';
 let msgCache = [];
 let onlineCount = 0;
-let onlineUsers = {};
-let isOwner = false;
-let editingMsgId = null;
-let searchResults = [];
-let activeEffects = {};
 
 const EMOJIS = ['😀','😂','😍','🥰','😎','🤩','😊','🙌','👏','🔥','💯','❤️','💜','⚡','🎉','✨','🌟','💫','🦊','🐺','🦁','🤣','😭','😤','🥺','🤔','👀','💀','🤝','👋','🙏','💪','🚀','💎','🎮','🌙','🦋','🎭','⚔️','🔮'];
 
@@ -473,9 +348,10 @@ function initSupabase() {
   sb = supabase.createClient(SB_URL, SB_KEY);
   setLoadLbl('CHECKING SESSION...');
 
+  // Check existing session
   sb.auth.getSession().then(({ data: { session } }) => {
     if (session) {
-      loadProfile(session.user).then(async () => await bootApp());
+      loadProfile(session.user).then(() => bootApp());
     } else {
       hide('loading'); show('auth');
     }
@@ -484,6 +360,7 @@ function initSupabase() {
     toast('Could not connect to Supabase — check your internet connection','error');
   });
 
+  // Listen for auth changes
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
       me = null; msgCache = [];
@@ -502,10 +379,9 @@ async function loadProfile(user) {
       name:   (data && data.name)  || user.email.split('@')[0],
       avatar: (data && data.avatar) || '🦊'
     };
-    isOwner = OWNER_IDS.includes(me.id);
   } catch(e) {
+    // Profile table may not exist yet — still let them in with defaults
     me = { id: user.id, email: user.email, name: user.email.split('@')[0], avatar: '🦊' };
-    isOwner = OWNER_IDS.includes(me.id);
   }
 }
 
@@ -543,6 +419,7 @@ window.doReg = async function() {
   const { data, error } = await sb.auth.signUp({ email, password: pass });
   if(error){ showE(err,friendlyErr(error.message)); btn.disabled=false; btn.textContent='CREATE ACCOUNT →'; return; }
 
+  // Email confirmation may be enabled — handle gracefully
   if(!data.session){
     showE(err,'Account created! Sign in with your email and password.');
     btn.disabled=false; btn.textContent='CREATE ACCOUNT →';
@@ -559,6 +436,7 @@ window.doLogout = async function() {
   document.getElementById('drop').classList.remove('on');
   if(realtimeCh){ sb.removeChannel(realtimeCh); realtimeCh=null; }
   await sb.auth.signOut();
+  // Reset buttons
   document.getElementById('lBtn').disabled=false; document.getElementById('lBtn').textContent='SIGN IN →';
   document.getElementById('rBtn').disabled=false; document.getElementById('rBtn').textContent='CREATE ACCOUNT →';
 }
@@ -573,15 +451,13 @@ function friendlyErr(msg='') {
 }
 
 // ── BOOT APP ──────────────────────────────────────
-async function bootApp() {
+function bootApp() {
   try {
-    hide('loading'); hide('auth');
+    hide('loading'); hide('auth'); hide('setup');
     document.getElementById('app').classList.add('on');
     updTopbar();
-    if(isOwner) document.getElementById('adminPanel').classList.add('on');
-    await loadHistory();
+    loadHistory();
     subscribeRealtime();
-    subscribeToEvents();
   } catch(e) {
     console.error('bootApp error:', e);
     toast('App error: ' + e.message, 'error');
@@ -591,63 +467,31 @@ async function bootApp() {
 function updTopbar() {
   document.getElementById('tbarAv').textContent   = me.avatar;
   document.getElementById('tbarName').textContent = me.name;
-  if(isOwner) document.getElementById('ownerBadge').style.display = 'inline-block';
 }
 
 // ── HISTORY ───────────────────────────────────────
 async function loadHistory() {
   try {
-    setLoadLbl('LOADING MESSAGES...');
-    await new Promise(r => setTimeout(r, 100));
-    
     const { data, error } = await sb.from('messages')
-      .select('*')
-      .order('created_at', { ascending: true });
-    
+      .select('*').order('created_at', { ascending: true }).limit(150);
     if(error){
-      console.error('Load error:', error);
       if(error.code === '42P01' || error.message.includes('does not exist')){
         document.getElementById('msgs').innerHTML = '<div class="sys">⚠️ Database tables not set up yet — run the SQL in Supabase SQL Editor first</div>';
-      } else if(error.message.includes('permission') || error.message.includes('denied')){
-        document.getElementById('msgs').innerHTML = '<div class="sys">⚠️ RLS policies not set up — check SETUP_GUIDE.md and enable proper permissions</div>';
       } else {
         toast('Could not load messages: ' + error.message, 'error');
-        console.error('Full error:', error);
       }
       return;
     }
-    
-    if(!data || data.length === 0) {
-      msgCache = [];
-      renderAll();
-      return;
-    }
-    
-    msgCache = data.map(dbToMsg);
+    msgCache = (data||[]).map(dbToMsg);
     renderAll();
     scrollBot();
     setPill('live', onlineCount + ' online');
   } catch(e) {
-    console.error('Load error:', e);
     toast('Load error: ' + e.message, 'error');
   }
 }
 
 function dbToMsg(r) {
-  let reactions = {};
-  if(r.reactions) {
-    if(typeof r.reactions === 'string') {
-      try {
-        reactions = JSON.parse(r.reactions);
-      } catch(e) {
-        console.error('Error parsing reactions:', r.reactions, e);
-        reactions = {};
-      }
-    } else {
-      reactions = r.reactions;
-    }
-  }
-  
   return {
     id:       r.id,
     uid:      r.user_id,
@@ -657,8 +501,6 @@ function dbToMsg(r) {
     content:  r.content || '',
     fileName: r.file_name,
     fileSize: r.file_size,
-    edited:   r.edited,
-    reactions: reactions,
     ts:       new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),
     time:     new Date(r.created_at).getTime()
   };
@@ -666,38 +508,16 @@ function dbToMsg(r) {
 
 // ── REALTIME ──────────────────────────────────────
 function subscribeRealtime() {
-  console.log('Starting realtime subscription...');
-  if(realtimeCh) { 
-    console.log('Removing old channel');
-    sb.removeChannel(realtimeCh); 
-  }
+  if(realtimeCh) { sb.removeChannel(realtimeCh); }
 
   realtimeCh = sb.channel('global-chat')
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload => {
-      console.log('✅ NEW MESSAGE EVENT RECEIVED:', payload.new);
       const msg = dbToMsg(payload.new);
-      if(msgCache.find(m=>m.id===msg.id)) {
-        console.log('Message already in cache, skipping duplicate');
-        return;
-      }
-      console.log('Adding message to cache and rendering');
+      // Deduplicate (we may have already added optimistically)
+      if(msgCache.find(m=>m.id===msg.id)) return;
       msgCache.push(msg);
       appendMsg(msg);
       if(isNearBot()) scrollBot();
-    })
-    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'messages' }, payload => {
-      console.log('📝 MESSAGE UPDATED:', payload.new.id);
-      const idx = msgCache.findIndex(m=>m.id===payload.new.id);
-      if(idx>=0) {
-        msgCache[idx] = dbToMsg(payload.new);
-        renderAll();
-        if(isNearBot()) scrollBot();
-      }
-    })
-    .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, payload => {
-      console.log('🗑️ MESSAGE DELETED:', payload.old.id);
-      msgCache = msgCache.filter(m=>m.id!==payload.old.id);
-      renderAll();
     })
     .on('broadcast', { event:'typing' }, ({ payload }) => {
       if(payload.uid === me.id) return;
@@ -710,526 +530,55 @@ function subscribeRealtime() {
     .on('presence', { event:'sync' }, () => {
       const state = realtimeCh.presenceState();
       onlineCount = Object.keys(state).length;
-      onlineUsers = {};
-      Object.values(state).forEach(p=>p.forEach(u=>onlineUsers[u.uid]={name:u.name,avatar:u.avatar}));
       setPill('live', `${onlineCount} online`);
       document.getElementById('chatSub').textContent = `${onlineCount} user${onlineCount!==1?'s':''} online`;
-      if(isOwner) updateAdminPanel();
     })
     .on('presence', { event:'join' }, ({ newPresences }) => {
       newPresences.forEach(p => { if(p.uid!==me.id) toast(`${p.avatar} ${p.name} joined`,'info'); });
     })
-    .subscribe((status) => {
-      console.log('🔌 Realtime subscription status:', status);
+    .subscribe(async status => {
       if(status==='SUBSCRIBED') {
-        console.log('✅ Successfully subscribed to realtime channel');
-        realtimeCh.track({ uid: me.id, name: me.name, avatar: me.avatar });
+        await realtimeCh.track({ uid: me.id, name: me.name, avatar: me.avatar });
         setPill('live', `${onlineCount} online`);
-        toast('Real-time connection established ✓', 'success');
-      } else if(status==='CLOSED') {
-        console.warn('⚠️ Realtime channel closed');
-        toast('Lost real-time connection - will try to reconnect', 'error');
-        setTimeout(() => {
-          console.log('Retrying realtime subscription...');
-          subscribeRealtime();
-        }, 3000);
-      } else if(status==='CHANNEL_ERROR') {
-        console.error('❌ Realtime channel error');
-        toast('Real-time error - check browser console (F12)', 'error');
       }
     });
 }
 
-// ── ADMIN PANEL ──────────────────────────────────
-function updateAdminPanel() {
-  const panel = document.getElementById('adminUsers');
-  const users = Object.values(onlineUsers);
-  panel.innerHTML = '';
-  users.forEach(u => {
-    const el = document.createElement('div');
-    el.className = 'admin-user-item';
-    el.innerHTML = `
-      <div class="admin-user-av">${u.avatar}</div>
-      <div class="admin-user-name">${x(u.name)}</div>
-      <div class="admin-user-actions">
-        <button class="admin-btn-small delete" onclick="serverCommand('delete_user_msgs', '${u.name}')">×</button>
-      </div>
-    `;
-    panel.appendChild(el);
-  });
-}
-
-// ── SERVER-SIDED COMMANDS ─────────────────────────
-// This is the MAIN function that processes all admin commands server-side
-// All commands go through the database so EVERYONE sees the effects
-window.serverCommand = async function(cmd, param = '') {
-  if(!isOwner) {
-    toast('❌ Only the owner can use admin commands', 'error');
-    return;
-  }
-
-  // Confirmation for destructive commands
-  const destructiveCmds = ['clear_chat', 'nuke_chat', 'delete_user_msgs'];
-  if(destructiveCmds.includes(cmd)) {
-    if(!confirm(`⚠️ Are you sure you want to execute ${cmd}? This affects EVERYONE!`)) return;
-  } else {
-    if(!confirm(`🎮 Execute ${cmd} for everyone?`)) return;
-  }
-
-  try {
-    // Insert the command into the events table
-    // This will trigger for ALL connected clients
-    const { error } = await sb.from('admin_commands').insert({
-      command: cmd,
-      parameter: param,
-      triggered_by: me.id,
-      triggered_by_name: me.name,
-      executed_at: new Date().toISOString()
-    });
-
-    if(error) {
-      console.error('Command error:', error);
-      toast('Failed to execute command: ' + error.message, 'error');
-      return;
-    }
-
-    toast(`✅ Command ${cmd} executed for everyone!`, 'success');
-  } catch(e) {
-    console.error('Command error:', e);
-    toast('Error: ' + e.message, 'error');
-  }
-}
-
-// ── EVENT LISTENER FOR ALL ADMIN COMMANDS ─────────
-// This listens for admin commands from the database and executes them
-// EVERY client receives these and executes the effects together
-function subscribeToEvents() {
-  // First, make sure the admin_commands table exists
-  // We'll handle this by showing an error if it doesn't exist
-  
-  const eventCh = sb.channel('admin-commands')
-    .on('postgres_changes', { 
-      event: 'INSERT', 
-      schema: 'public', 
-      table: 'admin_commands' 
-    }, payload => {
-      const cmd = payload.new;
-      console.log('🎮 ADMIN COMMAND RECEIVED:', cmd.command, 'from', cmd.triggered_by_name);
-      
-      // Don't trigger on our own commands (we already saw the effect)
-      if(cmd.triggered_by === me.id) return;
-      
-      // Show a toast that an admin command is happening
-      toast(`🎮 ${cmd.triggered_by_name} used: ${cmd.command}`, 'info');
-      
-      // Execute the appropriate effect based on the command
-      executeEffect(cmd.command, cmd.parameter);
-    })
-    .subscribe((status) => {
-      if(status === 'SUBSCRIBED') {
-        console.log('✅ Subscribed to admin commands');
-      } else if(status === 'CHANNEL_ERROR') {
-        console.error('❌ Failed to subscribe to admin commands');
-        // Try creating the table if it doesn't exist
-        createAdminCommandsTable();
-      }
-    });
-}
-
-// Create the admin_commands table if it doesn't exist
-async function createAdminCommandsTable() {
-  try {
-    // This is a one-time setup - we'll try to create the table via SQL
-    // But Supabase doesn't allow arbitrary SQL from the client
-    // So we'll show instructions
-    toast('⚠️ Admin commands table not found. Please run the SQL in the console.', 'error');
-    console.log(`
-      -- Run this SQL in your Supabase SQL Editor:
-      CREATE TABLE IF NOT EXISTS admin_commands (
-        id BIGSERIAL PRIMARY KEY,
-        command TEXT NOT NULL,
-        parameter TEXT,
-        triggered_by UUID NOT NULL,
-        triggered_by_name TEXT NOT NULL,
-        executed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-      );
-      
-      -- Enable RLS
-      ALTER TABLE admin_commands ENABLE ROW LEVEL SECURITY;
-      
-      -- Allow inserts from authenticated users
-      CREATE POLICY "Allow inserts for authenticated users" ON admin_commands
-        FOR INSERT WITH CHECK (auth.role() = 'authenticated');
-      
-      -- Allow reads for everyone
-      CREATE POLICY "Allow reads for all" ON admin_commands
-        FOR SELECT USING (true);
-      
-      -- Enable realtime
-      alter publication supabase_realtime add table admin_commands;
-    `);
-  } catch(e) {
-    console.error('Table creation error:', e);
-  }
-}
-
-// Execute the visual effects for all clients
-function executeEffect(cmd, param) {
-  switch(cmd) {
-    // Moderation
-    case 'clear_chat':
-      clearChatEffect();
-      break;
-    case 'toggle_mute':
-      toggleMuteEffect();
-      break;
-    case 'nuke_chat':
-      nukeChatEffect();
-      break;
-      
-    // Chaos
-    case 'jumpscare':
-      jumpscareEffect();
-      break;
-    case 'screen_shake':
-      screenShakeEffect();
-      break;
-    case 'rainbow_mode':
-      rainbowModeEffect();
-      break;
-    case 'invert_colors':
-      invertColorsEffect();
-      break;
-    case 'spin_mode':
-      spinModeEffect();
-      break;
-    case 'ghost_mode':
-      ghostModeEffect();
-      break;
-      
-    // Messages
-    case 'all_caps':
-      allCapsEffect();
-      break;
-    case 'reverse':
-      reverseEffect();
-      break;
-    case 'spam_messages':
-      spamMessagesEffect();
-      break;
-    case 'emoji_spam':
-      emojiSpamEffect();
-      break;
-    case 'uwu_speak':
-      uwuSpeakEffect();
-      break;
-      
-    // Users
-    case 'rename_all':
-      renameAllEffect();
-      break;
-    case 'rainbow_avatars':
-      rainbowAvatarsEffect();
-      break;
-    case 'spam_notifs':
-      spamNotifsEffect();
-      break;
-    case 'delete_user_msgs':
-      deleteUserMsgsEffect(param);
-      break;
-      
-    default:
-      console.log('Unknown command:', cmd);
-  }
-}
-
-// ── EFFECT IMPLEMENTATIONS ────────────────────────
-// These functions run on EVERY client when a command is received
-
-function clearChatEffect() {
-  // Clear all messages
-  msgCache = [];
-  renderAll();
-  toast('🗑️ Chat cleared by admin', 'success');
-}
-
-let muteAllActive = false;
-function toggleMuteEffect() {
-  muteAllActive = !muteAllActive;
-  const ta = document.getElementById('mta');
-  ta.disabled = muteAllActive;
-  ta.placeholder = muteAllActive ? '🤐 MUTED BY ADMIN' : 'Message everyone on NEXUS...';
-  toast(muteAllActive ? '🚫 Everyone is MUTED' : '🔓 Unmuted!', 'success');
-}
-
-function nukeChatEffect() {
-  msgCache = [];
-  renderAll();
-  jumpscareEffect();
-  toast('💣 CHAT NUKED', 'error');
-}
-
-function jumpscareEffect() {
-  const jumpscare = document.createElement('div');
-  jumpscare.style.cssText = `
-    position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;
-    animation:jumpscare-in 0.1s ease-out;
-  `;
-  jumpscare.innerHTML = `
-    <style>
-      @keyframes jumpscare-in {0% { opacity:0 } 50% { opacity:1 } 100% { opacity:1 }}
-      @keyframes jumpscare-out {0% { opacity:1 } 100% { opacity:0 }}
-      .jumpscare-img {max-width:90vw;max-height:90vh;animation:jumpscare-out 0.3s ease-in 2.7s forwards;}
-    </style>
-    <img class="jumpscare-img" src="https://media.tenor.com/images/8e78b89a5a3bfdc81c7065fa6c6f620d/tenor.gif" alt="">
-  `;
-  document.body.appendChild(jumpscare);
-  const audio = new Audio('data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==');
-  audio.play().catch(()=>{});
-  setTimeout(() => jumpscare.remove(), 3000);
-}
-
-function screenShakeEffect() {
-  const app = document.getElementById('app');
-  for(let i = 0; i < 20; i++) {
-    setTimeout(() => {
-      app.style.transform = `translate(${Math.random()*20-10}px, ${Math.random()*20-10}px)`;
-    }, i * 30);
-  }
-  setTimeout(() => { app.style.transform = 'none'; }, 600);
-}
-
-function rainbowModeEffect() {
-  const colors = ['#ff0000','#ff7f00','#ffff00','#00ff00','#0000ff','#4b0082','#9400d3'];
-  let idx = 0;
-  const interval = setInterval(() => {
-    document.body.style.background = colors[idx % colors.length];
-    idx++;
-    if(idx > 20) { 
-      clearInterval(interval); 
-      document.body.style.background = 'var(--bg)'; 
-    }
-  }, 100);
-}
-
-function invertColorsEffect() {
-  const app = document.getElementById('app');
-  app.style.filter = 'invert(1)';
-  setTimeout(() => { app.style.filter = 'none'; }, 5000);
-}
-
-function spinModeEffect() {
-  const app = document.getElementById('app');
-  app.style.transition = 'transform 3s ease-in-out';
-  app.style.transform = 'rotate(720deg)';
-  setTimeout(() => { app.style.transform = 'rotate(0)'; }, 3000);
-}
-
-function ghostModeEffect() {
-  const msgs = document.querySelectorAll('.bub');
-  msgs.forEach(msg => {
-    const interval = setInterval(() => {
-      if(!msg.parentElement) clearInterval(interval);
-      msg.style.opacity = Math.random() > 0.5 ? '0.2' : '1';
-    }, 500);
-    setTimeout(() => {
-      clearInterval(interval);
-      msg.style.opacity = '1';
-    }, 8000);
-  });
-}
-
-function allCapsEffect() {
-  msgCache.forEach(msg => {
-    if(msg.type === 'text') {
-      msg.content = msg.content.toUpperCase();
-    }
-  });
-  renderAll();
-}
-
-function reverseEffect() {
-  msgCache.forEach(msg => {
-    if(msg.type === 'text') {
-      msg.content = msg.content.split('').reverse().join('');
-    }
-  });
-  renderAll();
-}
-
-function spamMessagesEffect() {
-  const spamMsgs = ['SPAM SPAM SPAM 🚨', 'THIS IS SPAM 📢', 'HEHEHEHE 😂', 'TROLL DETECTED 🎭', 'GOTTEM 🎯'];
-  spamMsgs.forEach(content => {
-    msgCache.push({
-      id: 'spam-' + Date.now() + Math.random(),
-      uid: 'admin',
-      name: '🎮 ADMIN',
-      avatar: '🤖',
-      type: 'text',
-      content: content,
-      reactions: {},
-      ts: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),
-      time: Date.now()
-    });
-  });
-  renderAll();
-}
-
-function emojiSpamEffect() {
-  const emojis = ['😂', '💀', '🤣', '👀', '🔥', '⚡', '💯', '🎉'];
-  msgCache.forEach(msg => {
-    if(msg.type === 'text') {
-      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-      msg.content = msg.content + ' ' + emoji.repeat(3);
-    }
-  });
-  renderAll();
-}
-
-function uwuSpeakEffect() {
-  msgCache.forEach(msg => {
-    if(msg.type === 'text') {
-      let uwu = msg.content
-        .replace(/l/g, 'w')
-        .replace(/L/g, 'W')
-        .replace(/r/g, 'w')
-        .replace(/R/g, 'W');
-      msg.content = uwu + ' OwO';
-    }
-  });
-  renderAll();
-}
-
-function renameAllEffect() {
-  const names = ['Sigma','Skibidi','Rizz','NoCapFr','PogChamp','Based','ඞ Sus ඞ','GOAT','Ratio','Cope'];
-  const users = [...new Set(msgCache.map(m=>m.uid))];
-  users.forEach((uid, i) => {
-    const newName = names[i % names.length];
-    msgCache.filter(m=>m.uid===uid).forEach(m=>m.name=newName);
-  });
-  renderAll();
-}
-
-function rainbowAvatarsEffect() {
-  const avs = ['🦊','🐺','🦁','🐉','👾','🤖','👻','🌟','🎭','🔮','💀','🤡','👹','🧛','🧟'];
-  const users = [...new Set(msgCache.map(m=>m.uid))];
-  users.forEach((uid, i) => {
-    const newAv = avs[i % avs.length];
-    msgCache.filter(m=>m.uid===uid).forEach(m=>m.avatar=newAv);
-  });
-  renderAll();
-}
-
-function spamNotifsEffect() {
-  const notifs = [
-    '✨ You won a free iPhone!',
-    '🎉 Congratulations, you\'re the 1000th visitor!',
-    '⚠️ Your account has suspicious activity',
-    '💰 Claim your free Robux!',
-    '🔔 You have 999+ unread messages',
-    '🎁 SPECIAL OFFER JUST FOR YOU',
-    '⏰ Your subscription is about to expire',
-    '🚨 CRITICAL SECURITY ALERT',
-    '🏆 You\'ve unlocked an achievement!',
-    '💎 LIMITED TIME: Get premium for FREE'
-  ];
-  for(let i = 0; i < 10; i++) {
-    setTimeout(() => {
-      const n = notifs[Math.floor(Math.random()*notifs.length)];
-      toast(n, 'info');
-    }, i * 300);
-  }
-}
-
-function deleteUserMsgsEffect(userName) {
-  if(!userName) return;
-  msgCache = msgCache.filter(m => m.name !== userName);
-  renderAll();
-  toast(`🗑️ Deleted all messages from ${userName}`, 'success');
-}
-
-// ── ADMIN PANEL UPDATE ──────────────────────────
-window.deleteUserMessages = async function(userName) {
-  if(!isOwner) return;
-  if(!confirm(`Delete all messages from ${userName}?`)) return;
-  serverCommand('delete_user_msgs', userName);
-}
+function subscribePresence() {} // handled inside subscribeRealtime
 
 // ── SEND ──────────────────────────────────────────
 window.sendMsg = async function() {
   const ta=document.getElementById('mta');
   const txt=ta.value.trim(); if(!txt) return;
-  
-  if(editingMsgId) {
-    const msg = msgCache.find(m=>m.id===editingMsgId);
-    if(!msg) return;
-    ta.value=''; ta.style.height='auto'; stopTyp();
-    const { error } = await sb.from('messages').update({ content: txt, edited: true }).eq('id', editingMsgId);
-    if(error) { 
-      console.error('Edit error:', error);
-      toast('Failed to edit: ' + error.message,'error'); 
-      return; 
-    }
-    editingMsgId = null;
-    toast('Message edited ✓', 'success');
-  } else {
-    ta.value=''; ta.style.height='auto'; stopTyp();
-    const tempId = 'tmp_'+Date.now();
-    const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type:'text', content:txt, reactions:{}, ts:nowTs(), time:Date.now() };
-    msgCache.push(opt); appendMsg(opt); scrollBot();
+  ta.value=''; ta.style.height='auto'; stopTyp();
 
-    const { data, error } = await sb.from('messages').insert({
-      user_id: me.id, name: me.name, avatar: me.avatar,
-      type: 'text', content: txt, reactions: '{}'
-    }).select().single();
+  // Optimistic: show immediately
+  const tempId = 'tmp_'+Date.now();
+  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type:'text', content:txt, ts:nowTs(), time:Date.now() };
+  msgCache.push(opt); appendMsg(opt); scrollBot();
 
-    if(error) { 
-      console.error('Send error:', error);
-      toast('Failed to send: ' + error.message,'error'); 
-      msgCache = msgCache.filter(m=>m.id!==tempId); 
-      renderAll(); 
-      return; 
-    }
-    const idx = msgCache.findIndex(m=>m.id===tempId);
-    if(idx>=0) msgCache[idx] = dbToMsg(data);
-  }
+  const { data, error } = await sb.from('messages').insert({
+    user_id: me.id, name: me.name, avatar: me.avatar,
+    type: 'text', content: txt
+  }).select().single();
+
+  if(error) { toast('Failed to send','error'); msgCache = msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
+  // Replace temp with real
+  const idx = msgCache.findIndex(m=>m.id===tempId);
+  if(idx>=0) msgCache[idx] = dbToMsg(data);
 }
 
 async function sendMedia(type, content, fileName, fileSize) {
   const tempId = 'tmp_'+Date.now();
-  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type, content, fileName, fileSize, reactions:{}, ts:nowTs(), time:Date.now() };
+  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type, content, fileName, fileSize, ts:nowTs(), time:Date.now() };
   msgCache.push(opt); appendMsg(opt); scrollBot();
 
-  const row = { user_id:me.id, name:me.name, avatar:me.avatar, type, content, reactions: '{}' };
+  const row = { user_id:me.id, name:me.name, avatar:me.avatar, type, content };
   if(fileName) { row.file_name=fileName; row.file_size=fileSize; }
 
   const { data, error } = await sb.from('messages').insert(row).select().single();
   if(error) { toast('Failed to send','error'); msgCache=msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
   const idx=msgCache.findIndex(m=>m.id===tempId); if(idx>=0) msgCache[idx]=dbToMsg(data);
-}
-
-async function deleteMessage(msgId, uid) {
-  if(!isOwner && uid !== me.id) return;
-  const { error } = await sb.from('messages').delete().eq('id', msgId);
-  if(error) { toast('Failed to delete','error'); return; }
-  msgCache = msgCache.filter(m=>m.id!==msgId);
-  renderAll();
-  toast('Message deleted ✓', 'success');
-}
-
-async function addReaction(msgId, emoji) {
-  const msg = msgCache.find(m=>m.id===msgId);
-  if(!msg) return;
-  if(!msg.reactions) msg.reactions = {};
-  const key = `${emoji}:${me.id}`;
-  if(msg.reactions[key]) {
-    delete msg.reactions[key];
-  } else {
-    msg.reactions[key] = true;
-  }
-  const { error } = await sb.from('messages').update({ reactions: JSON.stringify(msg.reactions) }).eq('id', msgId);
-  if(error) return;
-  renderAll();
 }
 
 // ── TYPING ────────────────────────────────────────
@@ -1261,19 +610,6 @@ document.getElementById('fileIn').addEventListener('change', function(){
   const r=new FileReader(); r.onload=async e=>{ await sendMedia('file',e.target.result,f.name,fmt(f.size)); toast('File shared 📎','success'); };
   r.readAsDataURL(f); this.value='';
 });
-
-// ── SEARCH ───────────────────────────────────────
-window.searchMessages = function() {
-  const q = document.getElementById('searchInput').value.trim().toLowerCase();
-  if(!q) { renderAll(); return; }
-  searchResults = msgCache.filter(m => 
-    m.type === 'text' && m.content.toLowerCase().includes(q) ||
-    m.name.toLowerCase().includes(q)
-  );
-  const el=document.getElementById('msgs'); el.innerHTML='';
-  if(!searchResults.length){el.innerHTML='<div class="sys">No messages found</div>';return;}
-  grp(searchResults).forEach(g=>renderGrp(g,el));
-}
 
 // ── RENDER ────────────────────────────────────────
 function renderAll(){
@@ -1307,120 +643,17 @@ function renderGrp(g,container){
   const mine=g.uid===me.id;
   const grpEl=document.createElement('div');grpEl.className=`mg ${mine?'me':'them'}`;grpEl.dataset.uid=g.uid;grpEl.dataset.t=g.lt;
   const hdr=document.createElement('div');hdr.className='mmeta';
-  const avEl = document.createElement('div');
-  avEl.className='mav';
-  avEl.textContent=g.avatar;
-  avEl.style.cursor='pointer';
-  avEl.onclick=()=>showUserProfile(g.uid, g.name, g.avatar);
-  hdr.appendChild(avEl);
-  const nameSpan = document.createElement('span');
-  nameSpan.className='mname';
-  nameSpan.textContent=x(mine?'You':g.name);
-  nameSpan.style.cursor='pointer';
-  nameSpan.onclick=()=>showUserProfile(g.uid, g.name, g.avatar);
-  hdr.appendChild(nameSpan);
-  const timeSpan = document.createElement('span');
-  timeSpan.className='mtime';
-  timeSpan.textContent=g.msgs[0].ts;
-  hdr.appendChild(timeSpan);
+  hdr.innerHTML=`<div class="mav">${g.avatar}</div><span class="mname">${x(mine?'You':g.name)}</span><span class="mtime">${g.msgs[0].ts}</span>`;
   grpEl.appendChild(hdr);
   g.msgs.forEach(m=>renderBub(m,grpEl));
   container.appendChild(grpEl);
 }
 
 function renderBub(m,grp){
-  if(m.type==='text'){
-    const b=document.createElement('div');
-    b.className='bub';
-    const content = document.createElement('div');
-    content.innerHTML=linkify(x(m.content));
-    b.appendChild(content);
-    if(m.edited) {
-      const ed = document.createElement('div');
-      ed.className='bub-edited';
-      ed.textContent='(edited)';
-      b.appendChild(ed);
-    }
-    if(isOwner || me.id === m.uid) {
-      const actions = document.createElement('div');
-      actions.className = 'bub-actions';
-      if(me.id === m.uid) {
-        const editBtn = document.createElement('button');
-        editBtn.className = 'bub-action-btn';
-        editBtn.innerHTML = '✏️';
-        editBtn.onclick = ()=>editMsg(m.id);
-        actions.appendChild(editBtn);
-      }
-      const delBtn = document.createElement('button');
-      delBtn.className = 'bub-action-btn delete';
-      delBtn.innerHTML = '×';
-      delBtn.onclick = ()=>deleteMessage(m.id, m.uid);
-      actions.appendChild(delBtn);
-      b.appendChild(actions);
-    }
-    const reacs = document.createElement('div');
-    reacs.className = 'reactions-bar';
-    if(m.reactions && Object.keys(m.reactions).length > 0) {
-      const emojis = {};
-      Object.keys(m.reactions).forEach(k => {
-        const emoji = k.split(':')[0];
-        emojis[emoji] = (emojis[emoji] || 0) + 1;
-      });
-      Object.entries(emojis).forEach(([emoji, count]) => {
-        const reac = document.createElement('div');
-        reac.className = 'reaction';
-        if(Object.keys(m.reactions).find(k=>k.startsWith(emoji+':'+me.id))) {
-          reac.classList.add('reacted');
-        }
-        reac.innerHTML = `<span>${emoji}</span><span class="reaction-count">${count}</span>`;
-        reac.onclick = ()=>addReaction(m.id, emoji);
-        reacs.appendChild(reac);
-      });
-    }
-    const addReacBtn = document.createElement('div');
-    addReacBtn.className = 'reaction';
-    addReacBtn.innerHTML = '➕';
-    addReacBtn.style.cursor = 'pointer';
-    addReacBtn.onclick = ()=>showEmojiPicker(m.id);
-    reacs.appendChild(addReacBtn);
-    b.appendChild(reacs);
-    grp.appendChild(b);
-  }
-  else if(m.type==='image'){
-    const w=document.createElement('div');w.className='mimg';const img=document.createElement('img');img.src=m.content;img.loading='lazy';img.onclick=()=>openLb(m.content);w.appendChild(img);grp.appendChild(w);
-  }
-  else if(m.type==='file'){
-    const f=document.createElement('div');f.className='mfile';f.innerHTML=`<div class="fic">📄</div><div><div class="fnm">${x(m.fileName||'')}</div><div class="fsz">${m.fileSize||''}</div></div>`;f.onclick=()=>{const a=document.createElement('a');a.href=m.content;a.download=m.fileName;a.click();};grp.appendChild(f);
-  }
+  if(m.type==='text'){const b=document.createElement('div');b.className='bub';b.innerHTML=linkify(x(m.content));grp.appendChild(b);}
+  else if(m.type==='image'){const w=document.createElement('div');w.className='mimg';const img=document.createElement('img');img.src=m.content;img.loading='lazy';img.onclick=()=>openLb(m.content);w.appendChild(img);grp.appendChild(w);}
+  else if(m.type==='file'){const f=document.createElement('div');f.className='mfile';f.innerHTML=`<div class="fic">📄</div><div><div class="fnm">${x(m.fileName||'')}</div><div class="fsz">${m.fileSize||''}</div></div>`;f.onclick=()=>{const a=document.createElement('a');a.href=m.content;a.download=m.fileName;a.click();};grp.appendChild(f);}
 }
-
-function editMsg(msgId) {
-  const msg = msgCache.find(m=>m.id===msgId);
-  if(!msg) return;
-  editingMsgId = msgId;
-  document.getElementById('mta').value = msg.content;
-  document.getElementById('mta').focus();
-  toast('Edit mode: press Enter to save', 'info');
-}
-
-function showEmojiPicker(msgId) {
-  const emojis = ['😀','😂','❤️','🔥','👍','😍','🥰','😎'];
-  const picker = prompt('Reaction: ' + emojis.join(' '), '');
-  if(picker) addReaction(msgId, picker);
-}
-
-function showUserProfile(uid, name, avatar) {
-  const userMsgs = msgCache.filter(m=>m.uid===uid);
-  const joinDate = userMsgs.length > 0 ? new Date(userMsgs[0].time).toLocaleDateString() : 'unknown';
-  document.getElementById('userProfileName').textContent = name;
-  document.getElementById('userProfileAvatar').textContent = avatar;
-  document.getElementById('userProfileDisplayName').textContent = name;
-  document.getElementById('userProfileJoin').textContent = `Joined: ${joinDate}`;
-  document.getElementById('userProfileStats').textContent = `${userMsgs.length} messages`;
-  document.getElementById('userProfileMov').classList.add('on');
-}
-
-window.closeUserProfile = ()=>document.getElementById('userProfileMov').classList.remove('on');
 
 // ── PROFILE ───────────────────────────────────────
 window.openProf=()=>{document.getElementById('profN').value=me.name;editAv=me.avatar;document.querySelectorAll('#editAv .avo').forEach(el=>el.classList.toggle('on',el.dataset.e===me.avatar));document.getElementById('profMov').classList.add('on');document.getElementById('drop').classList.remove('on');}
@@ -1429,6 +662,7 @@ window.saveProf=async function(){
   const name=document.getElementById('profN').value.trim();if(!name){toast('Enter a name','error');return;}
   me.name=name;me.avatar=editAv;
   await sb.from('profiles').upsert({id:me.id,name,avatar:editAv,updated_at:new Date().toISOString()});
+  // Re-track presence with new info
   if(realtimeCh) await realtimeCh.track({uid:me.id,name,avatar:editAv});
   updTopbar();closeProf();toast('Profile updated ✨','success');
 }
@@ -1483,7 +717,7 @@ document.addEventListener('click',e=>{
   if(!e.target.closest('.tbar-user')) document.getElementById('drop').classList.remove('on');
 });
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeLb();closeProf();closeUserProfile();document.getElementById('drop').classList.remove('on');}
+  if(e.key==='Escape'){closeLb();closeProf();document.getElementById('drop').classList.remove('on');}
 });
 </script>
 </body>
