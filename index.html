@@ -7,171 +7,144 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#050508; --bg2:#0a0a12; --bg3:#0f0f1a;
-  --purple:#7c3aed; --purple2:#9d5bf7; --purple3:#5b21b6;
-  --glow:rgba(124,58,237,.5); --dim:rgba(124,58,237,.12);
-  --accent:#c084fc; --accent2:#e879f9;
-  --text:#f0eeff; --text2:#a89fc7; --text3:#5f5680;
-  --border:rgba(124,58,237,.22); --border2:rgba(124,58,237,.08);
+  --bg:#050508;--bg2:#0a0a12;--bg3:#0f0f1a;
+  --purple:#7c3aed;--purple2:#9d5bf7;--purple3:#5b21b6;
+  --glow:rgba(124,58,237,.5);--dim:rgba(124,58,237,.12);
+  --accent:#c084fc;--accent2:#e879f9;
+  --text:#f0eeff;--text2:#a89fc7;--text3:#5f5680;
+  --border:rgba(124,58,237,.22);--border2:rgba(124,58,237,.08);
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow:hidden;}
-::-webkit-scrollbar{width:4px;}
-::-webkit-scrollbar-thumb{background:var(--purple3);border-radius:2px;}
-
-/* animated grid bg */
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--purple3);border-radius:2px;}
 body::before{content:'';position:fixed;inset:0;
-  background-image:linear-gradient(rgba(124,58,237,.04) 1px,transparent 1px),
-  linear-gradient(90deg,rgba(124,58,237,.04) 1px,transparent 1px);
-  background-size:48px 48px;
-  animation:gridDrift 20s linear infinite;
-  pointer-events:none;z-index:0;}
+  background-image:linear-gradient(rgba(124,58,237,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.04) 1px,transparent 1px);
+  background-size:48px 48px;animation:gridDrift 20s linear infinite;pointer-events:none;z-index:0;}
 @keyframes gridDrift{from{background-position:0 0}to{background-position:48px 48px}}
-
-/* glow orbs */
 body::after{content:'';position:fixed;inset:0;
-  background:
-    radial-gradient(ellipse 60% 50% at 20% 50%,rgba(124,58,237,.12) 0%,transparent 60%),
-    radial-gradient(ellipse 50% 40% at 80% 20%,rgba(192,132,252,.08) 0%,transparent 55%),
-    radial-gradient(ellipse 40% 60% at 60% 80%,rgba(91,33,182,.1) 0%,transparent 60%);
+  background:radial-gradient(ellipse 60% 50% at 20% 50%,rgba(124,58,237,.12) 0%,transparent 60%),
+  radial-gradient(ellipse 50% 40% at 80% 20%,rgba(192,132,252,.08) 0%,transparent 55%),
+  radial-gradient(ellipse 40% 60% at 60% 80%,rgba(91,33,182,.1) 0%,transparent 60%);
   pointer-events:none;z-index:0;}
 
-/* ── WRAPPER ── */
 #wrapper{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;}
 
-/* ── NAV ── */
-nav{height:60px;display:flex;align-items:center;padding:0 40px;border-bottom:1px solid var(--border2);background:rgba(5,5,8,.7);backdrop-filter:blur(20px);flex-shrink:0;gap:32px;}
-.nav-logo{font-size:18px;font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;flex-shrink:0;}
+/* NAV */
+nav{height:56px;display:flex;align-items:center;padding:0 32px;border-bottom:1px solid var(--border2);background:rgba(5,5,8,.75);backdrop-filter:blur(20px);flex-shrink:0;gap:8px;}
+.nav-logo{font-size:17px;font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;flex-shrink:0;margin-right:16px;}
 .nav-gap{flex:1;}
-.nav-tabs{display:flex;gap:4px;}
-.nav-tab{padding:7px 18px;border-radius:9px;border:1px solid transparent;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;background:transparent;color:var(--text3);}
+.nav-tabs{display:flex;gap:3px;}
+.nav-tab{padding:6px 16px;border-radius:8px;border:1px solid transparent;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;cursor:pointer;transition:all .2s;background:transparent;color:var(--text3);}
 .nav-tab:hover{color:var(--text2);background:var(--dim);}
 .nav-tab.active{background:var(--dim);border-color:var(--border);color:var(--accent);}
 
-/* ── PANELS ── */
-.panel{display:none;flex:1;overflow:hidden;}
-.panel.active{display:flex;flex-direction:column;}
+.panel{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.panel.active{display:flex;animation:fadeIn .25s ease both;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
-/* ══════════════════════════
-   HOME PANEL
-══════════════════════════ */
-#homePanel{align-items:center;justify-content:center;overflow:hidden;}
-.home-inner{text-align:center;position:relative;padding:20px;}
-
-.home-logo-wrap{margin-bottom:40px;position:relative;display:inline-block;}
-.home-logo-ring{width:110px;height:110px;border-radius:30px;background:linear-gradient(135deg,var(--purple),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:50px;margin:0 auto 20px;box-shadow:0 0 60px rgba(124,58,237,.5),0 0 120px rgba(124,58,237,.2);animation:logoPulse 3s ease-in-out infinite;}
-@keyframes logoPulse{0%,100%{box-shadow:0 0 40px rgba(124,58,237,.4),0 0 80px rgba(124,58,237,.15)}50%{box-shadow:0 0 80px rgba(124,58,237,.7),0 0 160px rgba(124,58,237,.25),0 0 240px rgba(124,58,237,.1)}}
-
-.home-title{font-size:clamp(52px,8vw,96px);font-weight:900;letter-spacing:16px;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:12px;}
-.home-sub{font-size:12px;letter-spacing:5px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:56px;}
-
-.home-cards{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
-.home-card{width:200px;background:linear-gradient(145deg,rgba(20,14,40,.9),rgba(10,8,22,.95));border:1px solid var(--border);border-radius:20px;padding:28px 20px;cursor:pointer;transition:all .3s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;text-decoration:none;display:block;}
+/* HOME */
+#homePanel{align-items:center;justify-content:center;}
+.home-inner{text-align:center;padding:20px;}
+.home-logo-ring{width:100px;height:100px;border-radius:28px;background:linear-gradient(135deg,var(--purple),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:46px;margin:0 auto 22px;animation:logoPulse 3s ease-in-out infinite;}
+@keyframes logoPulse{0%,100%{box-shadow:0 0 40px rgba(124,58,237,.4)}50%{box-shadow:0 0 80px rgba(124,58,237,.7),0 0 160px rgba(124,58,237,.2)}}
+.home-title{font-size:clamp(48px,8vw,88px);font-weight:900;letter-spacing:14px;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--accent2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:10px;}
+.home-sub{font-size:11px;letter-spacing:5px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-bottom:50px;}
+.home-cards{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;}
+.home-card{width:190px;background:linear-gradient(145deg,rgba(20,14,40,.9),rgba(10,8,22,.95));border:1px solid var(--border);border-radius:20px;padding:26px 20px 22px;cursor:pointer;transition:all .3s cubic-bezier(.34,1.56,.64,1);position:relative;overflow:hidden;}
 .home-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--dim),transparent);opacity:0;transition:opacity .3s;border-radius:20px;}
-.home-card:hover{transform:translateY(-8px) scale(1.03);border-color:var(--purple2);box-shadow:0 20px 60px rgba(124,58,237,.3),0 0 0 1px rgba(124,58,237,.15);}
+.home-card:hover{transform:translateY(-8px) scale(1.03);border-color:var(--purple2);box-shadow:0 20px 60px rgba(124,58,237,.3);}
 .home-card:hover::before{opacity:1;}
 .home-card:active{transform:scale(.97);}
-.card-ic{font-size:42px;margin-bottom:14px;display:block;filter:drop-shadow(0 0 12px rgba(192,132,252,.4));}
-.card-title{font-size:15px;font-weight:800;letter-spacing:3px;color:var(--text);margin-bottom:6px;}
-.card-desc{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:1.5;}
-.card-arrow{position:absolute;bottom:18px;right:18px;font-size:14px;color:var(--purple2);opacity:0;transition:all .2s;transform:translateX(-6px);}
+.card-ic{font-size:40px;margin-bottom:12px;display:block;}
+.card-title{font-size:14px;font-weight:800;letter-spacing:3px;color:var(--text);margin-bottom:5px;}
+.card-desc{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:1.5;}
+.card-arrow{position:absolute;bottom:16px;right:16px;font-size:13px;color:var(--purple2);opacity:0;transition:all .2s;transform:translateX(-4px);}
 .home-card:hover .card-arrow{opacity:1;transform:translateX(0);}
 
-/* floating particles */
-.particle{position:fixed;border-radius:50%;pointer-events:none;z-index:0;animation:floatP linear infinite;}
-@keyframes floatP{from{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:.6}to{transform:translateY(-10vh) rotate(720deg);opacity:0}}
-
-/* ══════════════════════════
-   CHAT PANEL — iframe
-══════════════════════════ */
+/* CHAT */
 #chatPanel iframe{flex:1;border:none;width:100%;height:100%;}
-.panel-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;flex:1;}
-.panel-loading .spin{width:36px;height:36px;border-radius:50%;border:2.5px solid var(--dim);border-top-color:var(--purple);animation:spin .7s linear infinite;}
+.panel-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;flex:1;}
+.panel-loading .spin{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--dim);border-top-color:var(--purple);animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
-.panel-loading p{font-size:11px;letter-spacing:3px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+.panel-loading p{font-size:10px;letter-spacing:3px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
 
-/* ══════════════════════════
-   GAMES PANEL
-══════════════════════════ */
-#gamesPanel{overflow:hidden;}
+/* GAMES */
 .games-layout{flex:1;display:flex;overflow:hidden;}
-
-/* sidebar game list */
-.games-sidebar{width:220px;flex-shrink:0;border-right:1px solid var(--border2);background:rgba(8,6,16,.7);display:flex;flex-direction:column;overflow:hidden;}
-.games-sidebar-head{padding:16px 16px 10px;font-size:9px;letter-spacing:3px;color:var(--text3);font-family:'JetBrains Mono',monospace;border-bottom:1px solid var(--border2);}
-.games-list{flex:1;overflow-y:auto;padding:8px;}
-.game-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:3px;}
+.games-sidebar{width:210px;flex-shrink:0;border-right:1px solid var(--border2);background:rgba(8,6,16,.7);display:flex;flex-direction:column;overflow:hidden;}
+.games-sidebar-head{padding:14px 14px 8px;font-size:9px;letter-spacing:3px;color:var(--text3);font-family:'JetBrains Mono',monospace;border-bottom:1px solid var(--border2);}
+.games-list{flex:1;overflow-y:auto;padding:7px;}
+.game-item{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:9px;cursor:pointer;transition:all .15s;border:1px solid transparent;margin-bottom:2px;}
 .game-item:hover{background:var(--dim);border-color:var(--border);}
-.game-item.active{background:var(--dim);border-color:var(--purple);box-shadow:0 0 12px rgba(124,58,237,.15);}
-.game-item-ic{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:17px;background:var(--bg3);flex-shrink:0;}
-.game-item.active .game-item-ic{background:linear-gradient(135deg,var(--purple3),var(--purple));box-shadow:0 0 10px rgba(124,58,237,.4);}
+.game-item.active{background:var(--dim);border-color:var(--purple);box-shadow:0 0 10px rgba(124,58,237,.12);}
+.game-item-ic{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;background:var(--bg3);flex-shrink:0;}
+.game-item.active .game-item-ic{background:linear-gradient(135deg,var(--purple3),var(--purple));}
 .game-item-name{font-size:12px;font-weight:700;color:var(--text2);}
 .game-item-tag{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:1px;}
-
-/* game viewport */
 .game-view{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.game-topbar{height:46px;border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 20px;gap:12px;background:rgba(8,6,16,.5);flex-shrink:0;}
-.game-topbar-title{font-size:13px;font-weight:700;color:var(--text);}
+.game-topbar{height:44px;border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 18px;gap:10px;background:rgba(8,6,16,.5);flex-shrink:0;}
+.game-topbar-title{font-size:13px;font-weight:700;}
 .game-topbar-sub{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
 .game-topbar-gap{flex:1;}
-.game-topbar-btn{padding:5px 14px;border-radius:7px;border:1px solid var(--border);background:var(--dim);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all .15s;}
-.game-topbar-btn:hover{background:rgba(124,58,237,.2);}
-.game-frame-wrap{flex:1;position:relative;overflow:hidden;}
+.gtb-btn{padding:5px 12px;border-radius:7px;border:1px solid var(--border);background:var(--dim);color:var(--accent);font-family:'JetBrains Mono',monospace;font-size:10px;cursor:pointer;transition:all .15s;}
+.gtb-btn:hover{background:rgba(124,58,237,.2);}
+.game-frame-wrap{flex:1;position:relative;overflow:hidden;background:#000;}
 .game-frame-wrap iframe{width:100%;height:100%;border:none;}
-.game-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:16px;color:var(--text3);}
-.game-placeholder .gp-ic{font-size:56px;opacity:.3;filter:grayscale(1);}
-.game-placeholder p{font-size:12px;font-family:'JetBrains Mono',monospace;letter-spacing:2px;}
+.game-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;}
+.game-placeholder .gp-ic{font-size:52px;opacity:.2;}
+.game-placeholder p{font-size:11px;font-family:'JetBrains Mono',monospace;letter-spacing:2px;color:var(--text3);}
 
-/* ══════════════════════════
-   PROXY PANEL
-══════════════════════════ */
-#proxyPanel{overflow:hidden;}
+/* PROXY */
 .proxy-layout{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-.proxy-bar{padding:12px 16px;border-bottom:1px solid var(--border2);background:rgba(8,6,16,.7);display:flex;gap:10px;align-items:center;flex-shrink:0;}
-.proxy-back{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
-.proxy-back:hover{background:var(--dim);color:var(--accent);}
+.proxy-bar{padding:10px 14px;border-bottom:1px solid var(--border2);background:rgba(8,6,16,.75);display:flex;gap:8px;align-items:center;flex-shrink:0;}
+.proxy-nav-btn{width:30px;height:30px;border-radius:7px;border:1px solid var(--border);background:var(--bg3);color:var(--text3);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.proxy-nav-btn:hover{background:var(--dim);color:var(--accent);}
 .proxy-url-wrap{flex:1;position:relative;}
-.proxy-url-wrap input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:9px 14px 9px 36px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:all .2s;}
+.proxy-url-wrap input{width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:8px 14px 8px 34px;color:var(--text);font-family:'JetBrains Mono',monospace;font-size:12px;outline:none;transition:all .2s;}
 .proxy-url-wrap input:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--dim);}
 .proxy-url-wrap input::placeholder{color:var(--text3);}
-.proxy-url-ic{position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;opacity:.4;pointer-events:none;}
-.proxy-go{padding:9px 18px;border-radius:10px;background:linear-gradient(135deg,var(--purple),var(--purple2));border:none;color:#fff;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;}
+.proxy-url-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;opacity:.35;pointer-events:none;}
+.proxy-go{padding:8px 16px;border-radius:9px;background:linear-gradient(135deg,var(--purple),var(--purple2));border:none;color:#fff;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap;letter-spacing:1px;}
 .proxy-go:hover{box-shadow:0 4px 16px rgba(124,58,237,.5);transform:translateY(-1px);}
-.proxy-frame-wrap{flex:1;position:relative;overflow:hidden;}
-.proxy-frame-wrap iframe{width:100%;height:100%;border:none;}
-.proxy-home{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:28px;padding:40px;}
-.proxy-home-logo{font-size:36px;letter-spacing:8px;font-weight:900;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-.proxy-home-sub{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:3px;}
-.proxy-suggestions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:600px;}
-.proxy-chip{padding:7px 16px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:12px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .2s;}
+.proxy-content{flex:1;overflow:hidden;position:relative;}
+.proxy-content iframe{width:100%;height:100%;border:none;position:absolute;inset:0;}
+.proxy-home{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:24px;padding:40px;position:absolute;inset:0;background:var(--bg);}
+.proxy-home-title{font-size:32px;font-weight:900;letter-spacing:8px;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.proxy-home-sub{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:4px;}
+.proxy-chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:620px;}
+.proxy-chip{padding:7px 15px;border-radius:20px;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .2s;}
 .proxy-chip:hover{background:var(--dim);border-color:var(--purple2);color:var(--accent);}
-.proxy-note{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;text-align:center;max-width:500px;line-height:1.7;opacity:.6;}
+.proxy-setup-box{background:rgba(124,58,237,.06);border:1px solid var(--border);border-radius:14px;padding:20px 24px;max-width:560px;text-align:center;}
+.proxy-setup-box h3{font-size:14px;font-weight:800;letter-spacing:2px;margin-bottom:8px;color:var(--accent);}
+.proxy-setup-box p{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:1.7;}
+.proxy-setup-box code{background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:2px 8px;font-size:11px;color:var(--accent2);font-family:'JetBrains Mono',monospace;}
+.proxy-setup-box a{color:var(--accent);text-decoration:none;}
+.proxy-setup-box a:hover{text-decoration:underline;}
+.uv-status{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:10px;font-family:'JetBrains Mono',monospace;margin-top:8px;}
+.uv-status.ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:#4ade80;}
+.uv-status.warn{background:rgba(234,179,8,.1);border:1px solid rgba(234,179,8,.3);color:#fde047;}
+.uv-dot{width:6px;height:6px;border-radius:50%;background:currentColor;}
 
-@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-.panel.active{animation:fadeIn .3s ease both;}
+.particle{position:fixed;border-radius:50%;pointer-events:none;z-index:0;animation:floatP linear infinite;}
+@keyframes floatP{from{transform:translateY(100vh) rotate(0deg);opacity:0}10%{opacity:1}90%{opacity:.5}to{transform:translateY(-10vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
-
 <div id="wrapper">
-  <!-- NAV -->
   <nav>
     <div class="nav-logo">NEXUS</div>
     <div class="nav-gap"></div>
     <div class="nav-tabs">
-      <button class="nav-tab active" onclick="showPanel('home')">HOME</button>
-      <button class="nav-tab" onclick="showPanel('chat')">CHAT</button>
-      <button class="nav-tab" onclick="showPanel('games')">GAMES</button>
-      <button class="nav-tab" onclick="showPanel('proxy')">PROXY</button>
+      <button class="nav-tab active" onclick="showPanel('home')">⚡ HOME</button>
+      <button class="nav-tab" onclick="showPanel('chat')">💬 CHAT</button>
+      <button class="nav-tab" onclick="showPanel('games')">🎮 GAMES</button>
+      <button class="nav-tab" onclick="showPanel('proxy')">🌐 PROXY</button>
     </div>
   </nav>
 
-  <!-- ── HOME ── -->
+  <!-- HOME -->
   <div class="panel active" id="homePanel">
     <div class="home-inner">
-      <div class="home-logo-wrap">
-        <div class="home-logo-ring">⚡</div>
-      </div>
+      <div class="home-logo-ring">⚡</div>
       <div class="home-title">NEXUS</div>
       <div class="home-sub">YOUR PORTAL TO EVERYTHING</div>
       <div class="home-cards">
@@ -184,30 +157,29 @@ nav{height:60px;display:flex;align-items:center;padding:0 40px;border-bottom:1px
         <div class="home-card" onclick="showPanel('games')">
           <span class="card-ic">🎮</span>
           <div class="card-title">GAMES</div>
-          <div class="card-desc">Play browser games — unblocked and instant</div>
+          <div class="card-desc">Play Clash Royale, Brawl Stars & more via now.gg</div>
           <span class="card-arrow">→</span>
         </div>
         <div class="home-card" onclick="showPanel('proxy')">
           <span class="card-ic">🌐</span>
           <div class="card-title">PROXY</div>
-          <div class="card-desc">Browse the web through DuckDuckGo</div>
+          <div class="card-desc">Browse freely with Ultraviolet web proxy</div>
           <span class="card-arrow">→</span>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- ── CHAT ── -->
+  <!-- CHAT -->
   <div class="panel" id="chatPanel">
     <div class="panel-loading" id="chatLoading">
       <div class="spin"></div>
       <p>LOADING CHAT...</p>
     </div>
-    <!-- iframe loads nexus-chat.html — update src to your deployed URL -->
-    <iframe id="chatFrame" src="" style="display:none;" onload="chatLoaded()"></iframe>
+    <iframe id="chatFrame" src="" style="display:none;" onload="onChatLoad()" onerror="onChatError()"></iframe>
   </div>
 
-  <!-- ── GAMES ── -->
+  <!-- GAMES -->
   <div class="panel" id="gamesPanel">
     <div class="games-layout">
       <div class="games-sidebar">
@@ -218,11 +190,11 @@ nav{height:60px;display:flex;align-items:center;padding:0 40px;border-bottom:1px
         <div class="game-topbar">
           <div>
             <div class="game-topbar-title" id="gameTitle">Select a Game</div>
-            <div class="game-topbar-sub" id="gameSub">Choose from the library</div>
+            <div class="game-topbar-sub" id="gameSub">Choose from the sidebar</div>
           </div>
           <div class="game-topbar-gap"></div>
-          <button class="game-topbar-btn" onclick="reloadGame()">↺ RELOAD</button>
-          <button class="game-topbar-btn" onclick="fullscreenGame()">⛶ FULLSCREEN</button>
+          <button class="gtb-btn" onclick="reloadGame()">↺ RELOAD</button>
+          <button class="gtb-btn" onclick="fullscreenGame()">⛶ FULLSCREEN</button>
         </div>
         <div class="game-frame-wrap" id="gameFrameWrap">
           <div class="game-placeholder">
@@ -234,90 +206,137 @@ nav{height:60px;display:flex;align-items:center;padding:0 40px;border-bottom:1px
     </div>
   </div>
 
-  <!-- ── PROXY ── -->
+  <!-- PROXY -->
   <div class="panel" id="proxyPanel">
     <div class="proxy-layout">
       <div class="proxy-bar">
-        <button class="proxy-back" onclick="proxyBack()" title="Back">←</button>
-        <button class="proxy-back" onclick="proxyForward()" title="Forward">→</button>
-        <button class="proxy-back" onclick="proxyReload()" title="Reload">↺</button>
+        <button class="proxy-nav-btn" onclick="proxyBack()" title="Back">←</button>
+        <button class="proxy-nav-btn" onclick="proxyForward()" title="Forward">→</button>
+        <button class="proxy-nav-btn" onclick="proxyReload()" title="Reload">↺</button>
         <div class="proxy-url-wrap">
           <span class="proxy-url-ic">🔍</span>
-          <input type="text" id="proxyInput" placeholder="Search DuckDuckGo or enter a URL..." onkeydown="proxyKey(event)">
+          <input type="text" id="proxyInput" placeholder="Search or enter URL..." onkeydown="proxyKey(event)">
         </div>
         <button class="proxy-go" onclick="proxyGo()">GO →</button>
       </div>
-      <div class="proxy-frame-wrap">
+      <div class="proxy-content">
         <div class="proxy-home" id="proxyHome">
-          <div class="proxy-home-logo">NEXUS PROXY</div>
-          <div class="proxy-home-sub">POWERED BY DUCKDUCKGO</div>
-          <div class="proxy-suggestions">
-            <div class="proxy-chip" onclick="proxySearch('Clash Royale online')">🃏 Clash Royale</div>
-            <div class="proxy-chip" onclick="proxySearch('Clash of Clans online')">⚔️ Clash of Clans</div>
-            <div class="proxy-chip" onclick="proxySearch('free online games')">🎮 Free Games</div>
-            <div class="proxy-chip" onclick="proxySearch('Brawl Stars online')">🌟 Brawl Stars</div>
-            <div class="proxy-chip" onclick="proxySearch('YouTube')">📺 YouTube</div>
-            <div class="proxy-chip" onclick="proxySearch('Reddit')">📋 Reddit</div>
+          <div class="proxy-home-title">NEXUS PROXY</div>
+          <div class="proxy-home-sub">POWERED BY HOLY UNBLOCKER</div>
+          <div class="proxy-chips">
+            <div class="proxy-chip" onclick="proxySearch('clash royale')">🃏 Clash Royale</div>
+            <div class="proxy-chip" onclick="proxySearch('brawl stars')">⭐ Brawl Stars</div>
+            <div class="proxy-chip" onclick="proxySearch('clash of clans')">⚔️ Clash of Clans</div>
+            <div class="proxy-chip" onclick="proxySearch('roblox')">🟥 Roblox</div>
+            <div class="proxy-chip" onclick="proxySearch('youtube')">📺 YouTube</div>
+            <div class="proxy-chip" onclick="proxySearch('reddit')">📋 Reddit</div>
             <div class="proxy-chip" onclick="proxySearch('unblocked games')">🔓 Unblocked Games</div>
-            <div class="proxy-chip" onclick="proxySearch('Roblox')">🟥 Roblox</div>
+            <div class="proxy-chip" onclick="proxySearch('free online games no download')">🎮 Free Games</div>
           </div>
-          <div class="proxy-note">
-            Type anything in the search bar above to search DuckDuckGo, or click a suggestion.<br>
-            Note: Some sites block iframe embedding — if a site won't load, try searching for it instead.
+          <div class="proxy-setup-box" id="proxySetupBox">
+            <h3>🔓 HOLY UNBLOCKER PROXY</h3>
+            <p>Uses <strong>Holy Unblocker</strong> by Titanium Network — no setup needed.<br>
+            Just type any URL or search term above and hit GO.</p>
+            <div style="margin-top:10px;display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+              <span class="uv-status ok"><span class="uv-dot"></span>PROXY READY</span>
+            </div>
           </div>
         </div>
-        <iframe id="proxyFrame" src="" style="display:none;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation"></iframe>
+        <iframe id="proxyFrame" src="" style="display:none;"
+          sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation allow-downloads"
+          allow="fullscreen;autoplay"></iframe>
       </div>
     </div>
   </div>
 </div>
 
 <script>
-// ── GAMES DATA ──
+// ── GAMES DATA (now.gg embeds — actually work!) ──
 const GAMES = [
-  { id:'slope',      name:'Slope',          tag:'ARCADE',    ic:'🏔️', url:'https://slope-game.github.io/' },
-  { id:'1v1lol',     name:'1v1.LOL',        tag:'SHOOTER',   ic:'🔫', url:'https://1v1.lol' },
-  { id:'krunker',    name:'Krunker.io',     tag:'FPS',       ic:'🎯', url:'https://krunker.io' },
-  { id:'agar',       name:'Agar.io',        tag:'IO GAME',   ic:'🔵', url:'https://agar.io' },
-  { id:'slither',    name:'Slither.io',     tag:'IO GAME',   ic:'🐍', url:'https://slither.io' },
-  { id:'diep',       name:'Diep.io',        tag:'IO GAME',   ic:'💥', url:'https://diep.io' },
-  { id:'paper',      name:'Paper.io',       tag:'IO GAME',   ic:'📄', url:'https://paper-io.com' },
-  { id:'mope',       name:'Mope.io',        tag:'IO GAME',   ic:'🦁', url:'https://mope.io' },
-  { id:'wormate',    name:'Wormate.io',     tag:'IO GAME',   ic:'🪱', url:'https://wormate.io' },
-  { id:'shell',      name:'Shell Shockers', tag:'SHOOTER',   ic:'🥚', url:'https://shellshock.io' },
-  { id:'crazy',      name:'Crazy Games',    tag:'PORTAL',    ic:'🎰', url:'https://www.crazygames.com' },
-  { id:'poki',       name:'Poki',           tag:'PORTAL',    ic:'🌐', url:'https://poki.com' },
-  { id:'miniclip',   name:'Miniclip',       tag:'PORTAL',    ic:'🎪', url:'https://www.miniclip.com' },
-  { id:'coolmath',   name:'Cool Math Games',tag:'PORTAL',    ic:'🧮', url:'https://www.coolmathgames.com' },
+  { id:'clashroyale',  name:'Clash Royale',    tag:'STRATEGY',  ic:'🃏', url:'https://now.gg/play/supercell/2693/clash-royale' },
+  { id:'clashofclans', name:'Clash of Clans',  tag:'STRATEGY',  ic:'⚔️', url:'https://now.gg/play/supercell/2432/clash-of-clans' },
+  { id:'brawlstars',   name:'Brawl Stars',     tag:'ACTION',    ic:'⭐', url:'https://now.gg/play/supercell/3902/brawl-stars' },
+  { id:'roblox',       name:'Roblox',          tag:'PLATFORM',  ic:'🟥', url:'https://now.gg/play/roblox-corporation/5349/roblox' },
+  { id:'subwaysurf',   name:'Subway Surfers',  tag:'RUNNER',    ic:'🏃', url:'https://now.gg/play/sybo-games/2359/subway-surfers' },
+  { id:'freefire',     name:'Free Fire',       tag:'BATTLE ROY',ic:'🔥', url:'https://now.gg/play/garena-international-i-private/2593/garena-free-fire' },
+  { id:'mobilelegends',name:'Mobile Legends',  tag:'MOBA',      ic:'⚡', url:'https://now.gg/play/moonton/2711/mobile-legends-bang-bang' },
+  { id:'parchisi',     name:'Parchisi STAR',   tag:'BOARD',     ic:'🎲', url:'https://now.gg/play/softgames/4276/parchisi-star-online' },
+  { id:'8ball',        name:'8 Ball Pool',     tag:'SPORTS',    ic:'🎱', url:'https://now.gg/play/miniclip.com/2445/8-ball-pool' },
+  { id:'angrybirds',   name:'Angry Birds',     tag:'CASUAL',    ic:'🐦', url:'https://now.gg/play/rovio-entertainment/3997/angry-birds-reloaded' },
+  { id:'candycrush',   name:'Candy Crush',     tag:'PUZZLE',    ic:'🍬', url:'https://now.gg/play/king/2832/candy-crush-saga' },
+  { id:'amongus',      name:'Among Us',        tag:'SOCIAL',    ic:'🔴', url:'https://now.gg/play/innersloth-llc/4847/among-us' },
+  // Browser games that actually allow iframes
+  { id:'slope',        name:'Slope',           tag:'ARCADE',    ic:'🏔️', url:'https://slope-game.github.io/' },
+  { id:'2048',         name:'2048',            tag:'PUZZLE',    ic:'🔢', url:'https://play2048.co/' },
+  { id:'shellshock',   name:'Shell Shockers',  tag:'SHOOTER',   ic:'🥚', url:'https://shellshock.io' },
+  { id:'krunker',      name:'Krunker.io',      tag:'FPS',       ic:'🎯', url:'https://krunker.io' },
+  { id:'slither',      name:'Slither.io',      tag:'IO',        ic:'🐍', url:'https://slither.io' },
+  { id:'agar',         name:'Agar.io',         tag:'IO',        ic:'🔵', url:'https://agar.io' },
+  { id:'crazygames',   name:'CrazyGames',      tag:'PORTAL',    ic:'🎰', url:'https://www.crazygames.com' },
+  { id:'poki',         name:'Poki',            tag:'PORTAL',    ic:'🌐', url:'https://poki.com' },
 ];
 
 let activeGame = null;
 let chatLoaded_flag = false;
-let proxyFrameHistory = [];
+// Holy Unblocker instances (Titanium Network) — tries each in order
+const HU_INSTANCES = [
+  'https://holyubofficial.net',
+  'https://holy-unblocker.vercel.app',
+  'https://www.titaniumnetwork.org',
+];
+let activeHuInstance = localStorage.getItem('nexus_hu_instance') || HU_INSTANCES[0];
+// Keep uvBaseUrl for legacy compat
+let uvBaseUrl = '';
 
 // ── PANELS ──
+const PANEL_ORDER = ['home','chat','games','proxy'];
 function showPanel(id) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach((t,i) => t.classList.toggle('active', PANEL_ORDER[i]===id));
   document.getElementById(id+'Panel').classList.add('active');
-  const tabs = document.querySelectorAll('.nav-tab');
-  const order = ['home','chat','games','proxy'];
-  tabs[order.indexOf(id)].classList.add('active');
-
   if(id==='chat' && !chatLoaded_flag) loadChat();
   if(id==='games') buildGamesList();
+  if(id==='proxy') initProxy();
 }
 
 // ── CHAT ──
 function loadChat() {
   const frame = document.getElementById('chatFrame');
-  // Point this to your deployed nexus-chat.html URL or relative path
-  frame.src = 'nexus-chat.html';
+  // Try /nexus-chat first (Vercel clean URL), fall back to nexus-chat.html
+  frame.src = '/nexus-chat';
+  // If that 404s within 3s, try the .html extension
+  window._chatFallbackTimer = setTimeout(() => {
+    if(!chatLoaded_flag) {
+      frame.src = '/nexus-chat.html';
+    }
+  }, 2500);
 }
-window.chatLoaded = function() {
-  document.getElementById('chatLoading').style.display = 'none';
-  document.getElementById('chatFrame').style.display = 'block';
+window.onChatLoad = function() {
+  clearTimeout(window._chatFallbackTimer);
+  const frame = document.getElementById('chatFrame');
+  // Check if Vercel returned a 404 page inside the iframe
+  try {
+    const title = frame.contentDocument && frame.contentDocument.title;
+    if(title && (title.includes('404') || title.includes('Not Found'))) {
+      onChatError(); return;
+    }
+  } catch(e){}
+  document.getElementById('chatLoading').style.display='none';
+  frame.style.display='block';
   chatLoaded_flag = true;
+}
+window.onChatError = function() {
+  clearTimeout(window._chatFallbackTimer);
+  const loading = document.getElementById('chatLoading');
+  loading.innerHTML = `
+    <div style="text-align:center;padding:30px;">
+      <div style="font-size:36px;margin-bottom:16px;">⚠️</div>
+      <div style="font-size:13px;font-weight:700;letter-spacing:2px;margin-bottom:8px;">CHAT FILE NOT FOUND</div>
+      <div style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:1.7;max-width:380px;">
+        Make sure <code style="background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--accent2);">nexus-chat.html</code> is uploaded to your Vercel project root.<br><br>
+        In your GitHub repo, both files should be at the <strong>root level</strong> — not inside any folder.
+      </div>
+    </div>`;
 }
 
 // ── GAMES ──
@@ -333,93 +352,111 @@ function buildGamesList() {
     list.appendChild(el);
   });
 }
-
 function loadGame(g) {
   activeGame = g.id;
   document.querySelectorAll('.game-item').forEach(el => el.classList.toggle('active', el.dataset.id===g.id));
   document.getElementById('gameTitle').textContent = g.name;
-  document.getElementById('gameSub').textContent = g.tag + ' · ' + g.url;
+  document.getElementById('gameSub').textContent = g.tag + ' · now.gg';
   const wrap = document.getElementById('gameFrameWrap');
-  wrap.innerHTML = `<iframe src="${g.url}" allowfullscreen sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation" id="gameFrame"></iframe>`;
+  wrap.innerHTML = `<iframe src="${g.url}" allowfullscreen allow="fullscreen;autoplay" sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-top-navigation" id="gameFrame"></iframe>`;
 }
-
-window.reloadGame = function() {
-  const f = document.getElementById('gameFrame');
-  if(f) { f.src = f.src; }
-}
-
+window.reloadGame = function() { const f=document.getElementById('gameFrame'); if(f) f.src=f.src; }
 window.fullscreenGame = function() {
-  const f = document.getElementById('gameFrame');
+  const f=document.getElementById('gameFrame');
   if(f && f.requestFullscreen) f.requestFullscreen();
   else if(f && f.webkitRequestFullscreen) f.webkitRequestFullscreen();
 }
 
 // ── PROXY ──
+function initProxy() {
+  // Nothing to init — Holy Unblocker is ready out of the box
+}
+
 window.proxyGo = function() {
   const val = document.getElementById('proxyInput').value.trim();
   if(!val) return;
   proxyLoad(val);
 }
-
-window.proxyKey = function(e) { if(e.key==='Enter') proxyGo(); }
-
+window.proxyKey = e => { if(e.key==='Enter') proxyGo(); }
 window.proxySearch = function(q) {
   document.getElementById('proxyInput').value = q;
   proxyLoad(q);
+  showPanel('proxy');
 }
 
 function proxyLoad(query) {
-  const frame = document.getElementById('proxyFrame');
-  const home = document.getElementById('proxyHome');
-
-  // Decide if it's a URL or a search
-  let url;
+  // Resolve what the user typed
+  let targetUrl;
   if(/^https?:\/\//i.test(query)) {
-    url = query;
+    targetUrl = query;
   } else if(/^[\w-]+\.[\w.-]+/.test(query) && !query.includes(' ')) {
-    url = 'https://' + query;
+    targetUrl = 'https://' + query;
   } else {
-    // DuckDuckGo search
-    url = 'https://duckduckgo.com/?q=' + encodeURIComponent(query) + '&ia=web';
+    // Search term — use DuckDuckGo
+    targetUrl = 'https://duckduckgo.com/?q=' + encodeURIComponent(query) + '&ia=web';
   }
 
-  document.getElementById('proxyInput').value = url;
-  home.style.display = 'none';
+  document.getElementById('proxyInput').value = targetUrl;
+
+  // Route through Holy Unblocker Ultraviolet service
+  // HU uses /~/uv/service/ + base64url-encoded target URL
+  const b64 = btoa(targetUrl).replace(/\+/g,'-').replace(/\//g,'_').replace(/=/g,'');
+  const iframeSrc = `${activeHuInstance}/~/uv/service/${b64}`;
+
+  document.getElementById('proxyHome').style.display = 'none';
+  const frame = document.getElementById('proxyFrame');
   frame.style.display = 'block';
-  frame.src = url;
-  proxyFrameHistory.push(url);
+  frame.src = iframeSrc;
+
+  // If it fails to load in 6s, try next instance
+  clearTimeout(window._proxyTimer);
+  window._proxyTimer = setTimeout(() => tryNextInstance(targetUrl), 6000);
+  frame.onload = () => clearTimeout(window._proxyTimer);
 }
 
-window.proxyBack = function() {
-  const frame = document.getElementById('proxyFrame');
-  try { frame.contentWindow.history.back(); } catch(e) {}
-}
-window.proxyForward = function() {
-  const frame = document.getElementById('proxyFrame');
-  try { frame.contentWindow.history.forward(); } catch(e) {}
-}
-window.proxyReload = function() {
-  const frame = document.getElementById('proxyFrame');
-  if(frame.src && frame.src !== 'about:blank') frame.src = frame.src;
-}
-
-// ── FLOATING PARTICLES ──
-function spawnParticles() {
-  for(let i=0; i<18; i++){
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const size = Math.random()*3+1;
-    p.style.cssText = `
-      width:${size}px;height:${size}px;
-      left:${Math.random()*100}vw;
-      background:rgba(${Math.random()>.5?'124,58,237':'192,132,252'},${Math.random()*.4+.1});
-      animation-duration:${Math.random()*20+15}s;
-      animation-delay:-${Math.random()*20}s;
-    `;
-    document.body.appendChild(p);
+function tryNextInstance(targetUrl) {
+  const idx = HU_INSTANCES.indexOf(activeHuInstance);
+  const next = HU_INSTANCES[(idx + 1) % HU_INSTANCES.length];
+  if(next === activeHuInstance) {
+    // All failed — fall back to opening in new tab
+    toast('⚠️ Proxy blocked — opening in new tab instead');
+    window.open(targetUrl, '_blank');
+    return;
   }
+  activeHuInstance = next;
+  localStorage.setItem('nexus_hu_instance', next);
+  toast('↻ Trying alternate proxy instance...');
+  proxyLoad(targetUrl);
 }
-spawnParticles();
+
+window.proxyBack = function() { try { document.getElementById('proxyFrame').contentWindow.history.back(); } catch(e){} }
+window.proxyForward = function() { try { document.getElementById('proxyFrame').contentWindow.history.forward(); } catch(e){} }
+window.proxyReload = function() {
+  const f = document.getElementById('proxyFrame');
+  const h = document.getElementById('proxyHome');
+  if(f.style.display !== 'none') f.src = f.src;
+  else { h.style.display='flex'; f.style.display='none'; }
+}
+
+// ── TOAST ──
+function toast(msg) {
+  const el = document.createElement('div');
+  el.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#0f0f1a;border:1px solid rgba(124,58,237,.3);border-radius:10px;padding:10px 18px;font-size:12px;color:#f0eeff;font-family:Syne,sans-serif;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.5);transition:all .3s;';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => { el.style.opacity='0'; el.style.transform='translateX(-50%) translateY(10px)'; setTimeout(()=>el.remove(),300); }, 2500);
+}
+
+// ── PARTICLES ──
+for(let i=0;i<16;i++){
+  const p=document.createElement('div'); p.className='particle';
+  const s=Math.random()*3+1;
+  p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}vw;background:rgba(${Math.random()>.5?'124,58,237':'192,132,252'},${Math.random()*.35+.1});animation-duration:${Math.random()*18+14}s;animation-delay:-${Math.random()*18}s;`;
+  document.body.appendChild(p);
+}
+
+// Init proxy status on load
+// proxy ready on load — no setup needed
 </script>
 </body>
 </html>
