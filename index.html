@@ -317,8 +317,40 @@ input[type=file]{display:none;}
         <div class="admin-users" id="adminUsers"></div>
       </div>
       <div class="admin-section">
+        <div class="admin-section-title">Moderation</div>
         <div class="admin-actions">
-          <button class="admin-btn" onclick="clearAllChat()">🗑️ Clear All Chat</button>
+          <button class="admin-btn" onclick="clearAllChat()">🗑️ Clear Chat</button>
+          <button class="admin-btn" style="background:rgba(239,68,68,.2);" onclick="toggleMuteAll()">🚫 Mute All</button>
+          <button class="admin-btn" style="background:rgba(239,68,68,.3);" onclick="nukeChat()">🔞 NUKE CHAT</button>
+        </div>
+      </div>
+      <div class="admin-section">
+        <div class="admin-section-title">🎭 Chaos</div>
+        <div class="admin-actions">
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="jumpscare()">🎭 JUMPSCARE</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="screenShake()">🎬 Screen Shake</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="rainbowMode()">🌈 Rainbow Mode</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="invertColors()">💀 Invert Colors</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="spinMode()">🔀 Spin Mode</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="ghostMode()">👻 Ghost Mode</button>
+        </div>
+      </div>
+      <div class="admin-section">
+        <div class="admin-section-title">💬 Messages</div>
+        <div class="admin-actions">
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="trollAllCaps()">🔊 ALL CAPS</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="trollReverse()">🔄 Reverse</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="trollSpam()">💬 Spam</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="trollEmoji()">😂 Emoji Spam</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="trollUwU()">OwO OwO Speak</button>
+        </div>
+      </div>
+      <div class="admin-section">
+        <div class="admin-section-title">👤 Users</div>
+        <div class="admin-actions">
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="renameAllUsers()">👤 Rename Users</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="rainbowAvatars()">🎨 Rainbow Avatars</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="spamNotifications()">📢 Spam Notifs</button>
         </div>
       </div>
     </div>
@@ -547,6 +579,7 @@ async function bootApp() {
     if(isOwner) document.getElementById('adminPanel').classList.add('on');
     await loadHistory();
     subscribeRealtime();
+    subscribeToEvents();
   } catch(e) {
     console.error('bootApp error:', e);
     toast('App error: ' + e.message, 'error');
@@ -754,6 +787,340 @@ window.clearAllChat = async function() {
     console.error('Clear chat error:', e);
     toast('Error: ' + e.message, 'error');
   }
+}
+
+// ── TROLL COMMANDS ───────────────────────────────
+window.trollAllCaps = async function() {
+  if(!isOwner) return;
+  if(!confirm('Make ALL messages ALL CAPS? 🔊')) return;
+  try {
+    for(const msg of msgCache) {
+      if(msg.type === 'text') {
+        await sb.from('messages').update({ content: msg.content.toUpperCase() }).eq('id', msg.id);
+        msg.content = msg.content.toUpperCase();
+      }
+    }
+    renderAll();
+    toast('ALL CAPS ACTIVATED 🔊', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+window.trollReverse = async function() {
+  if(!isOwner) return;
+  if(!confirm('Reverse all messages? 🔄')) return;
+  try {
+    for(const msg of msgCache) {
+      if(msg.type === 'text') {
+        const reversed = msg.content.split('').reverse().join('');
+        await sb.from('messages').update({ content: reversed }).eq('id', msg.id);
+        msg.content = reversed;
+      }
+    }
+    renderAll();
+    toast('Messages reversed! 🔄', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+window.trollSpam = async function() {
+  if(!isOwner) return;
+  if(!confirm('SPAM SPAM SPAM? 💬')) return;
+  const spamMsgs = ['SPAM SPAM SPAM 🚨', 'THIS IS SPAM 📢', 'HEHEHEHE 😂', 'TROLL DETECTED 🎭', 'GOTTEM 🎯'];
+  try {
+    for(let i = 0; i < 5; i++) {
+      const msg = spamMsgs[Math.floor(Math.random() * spamMsgs.length)];
+      await sb.from('messages').insert({
+        user_id: me.id, name: me.name, avatar: '🤖', type: 'text', content: msg, reactions: '{}'
+      });
+    }
+    await loadHistory();
+    toast('SPAM SPAM SPAM 📢', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+window.trollEmoji = async function() {
+  if(!isOwner) return;
+  if(!confirm('Add emoji spam to all messages? 😂')) return;
+  const emojis = ['😂', '💀', '🤣', '👀', '🔥', '⚡', '💯', '🎉'];
+  try {
+    for(const msg of msgCache) {
+      if(msg.type === 'text') {
+        const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+        const newContent = msg.content + ' ' + emoji.repeat(3);
+        await sb.from('messages').update({ content: newContent }).eq('id', msg.id);
+        msg.content = newContent;
+      }
+    }
+    renderAll();
+    toast('EMOJI SPAM ACTIVATED 😂😂😂', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+window.trollUwU = async function() {
+  if(!isOwner) return;
+  if(!confirm('Convert all messages to OwO speak? OwO')) return;
+  try {
+    for(const msg of msgCache) {
+      if(msg.type === 'text') {
+        let uwu = msg.content
+          .replace(/l/g, 'w')
+          .replace(/L/g, 'W')
+          .replace(/r/g, 'w')
+          .replace(/R/g, 'W');
+        uwu = uwu + ' OwO';
+        await sb.from('messages').update({ content: uwu }).eq('id', msg.id);
+        msg.content = uwu;
+      }
+    }
+    renderAll();
+    toast('OwO speak activated! OwO', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+// ── CHAOS COMMANDS ──────────────────────────────
+let muteAll = false;
+
+window.toggleMuteAll = async function() {
+  if(!isOwner) return;
+  muteAll = !muteAll;
+  const ta = document.getElementById('mta');
+  if(muteAll) {
+    ta.disabled = true;
+    ta.placeholder = '🤐 MUTED BY ADMIN';
+    toast('🚫 Everyone is MUTED', 'success');
+    await sendEvent('mute_all', { muted: true });
+  } else {
+    ta.disabled = false;
+    ta.placeholder = 'Message everyone on NEXUS...';
+    toast('🔓 Unmuted!', 'success');
+    await sendEvent('mute_all', { muted: false });
+  }
+}
+
+window.jumpscare = async function() {
+  if(!isOwner) return;
+  if(!confirm('🎭 JUMPSCARE EVERYONE? MWAHAHAHA')) return;
+  await sendEvent('jumpscare', { image: 'https://media.tenor.com/images/8e78b89a5a3bfdc81c7065fa6c6f620d/tenor.gif' });
+  await new Promise(r => setTimeout(r, 100));
+  triggerJumpscare();
+}
+
+function triggerJumpscare() {
+  const jumpscare = document.createElement('div');
+  jumpscare.style.cssText = `
+    position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;
+    animation:jumpscare-in 0.1s ease-out;
+  `;
+  jumpscare.innerHTML = `
+    <style>
+      @keyframes jumpscare-in {0% { opacity:0 } 50% { opacity:1 } 100% { opacity:1 }}
+      @keyframes jumpscare-out {0% { opacity:1 } 100% { opacity:0 }}
+      .jumpscare-img {max-width:90vw;max-height:90vh;animation:jumpscare-out 0.3s ease-in 2.7s forwards;}
+    </style>
+    <img class="jumpscare-img" src="https://media.tenor.com/images/8e78b89a5a3bfdc81c7065fa6c6f620d/tenor.gif" alt="">
+  `;
+  document.body.appendChild(jumpscare);
+  const audio = new Audio('data:audio/wav;base64,UklGRiYAAABXQVZFZm10IBAAAAABAAEAQB8AAAB9AAACABAAZGF0YQIAAAAAAA==');
+  audio.play().catch(()=>{});
+  setTimeout(() => jumpscare.remove(), 3000);
+}
+
+window.screenShake = async function() {
+  if(!isOwner) return;
+  if(!confirm('🎬 SCREEN SHAKE?')) return;
+  await sendEvent('screen_shake', {});
+  triggerScreenShake();
+}
+
+function triggerScreenShake() {
+  const app = document.getElementById('app');
+  for(let i = 0; i < 20; i++) {
+    setTimeout(() => {
+      app.style.transform = `translate(${Math.random()*20-10}px, ${Math.random()*20-10}px)`;
+    }, i * 30);
+  }
+  setTimeout(() => { app.style.transform = 'none'; }, 600);
+}
+
+window.rainbowMode = async function() {
+  if(!isOwner) return;
+  if(!confirm('🌈 RAINBOW MODE ACTIVATED?')) return;
+  await sendEvent('rainbow_mode', {});
+  triggerRainbowMode();
+}
+
+function triggerRainbowMode() {
+  const colors = ['#ff0000','#ff7f00','#ffff00','#00ff00','#0000ff','#4b0082','#9400d3'];
+  let idx = 0;
+  const interval = setInterval(() => {
+    document.body.style.background = colors[idx % colors.length];
+    idx++;
+    if(idx > 20) { clearInterval(interval); document.body.style.background = 'var(--bg)'; }
+  }, 100);
+}
+
+window.invertColors = async function() {
+  if(!isOwner) return;
+  if(!confirm('💀 INVERT COLORS?')) return;
+  await sendEvent('invert_colors', {});
+  triggerInvertColors();
+}
+
+function triggerInvertColors() {
+  const app = document.getElementById('app');
+  app.style.filter = 'invert(1)';
+  setTimeout(() => { app.style.filter = 'none'; }, 5000);
+}
+
+window.spinMode = async function() {
+  if(!isOwner) return;
+  if(!confirm('🔀 SPIN SPIN SPIN?')) return;
+  await sendEvent('spin_mode', {});
+  triggerSpinMode();
+}
+
+function triggerSpinMode() {
+  const app = document.getElementById('app');
+  app.style.transition = 'transform 3s ease-in-out';
+  app.style.transform = 'rotate(720deg)';
+  setTimeout(() => { app.style.transform = 'rotate(0)'; }, 3000);
+}
+
+window.ghostMode = async function() {
+  if(!isOwner) return;
+  if(!confirm('👻 GHOST MODE - Messages randomly appear/disappear?')) return;
+  await sendEvent('ghost_mode', {});
+  triggerGhostMode();
+}
+
+function triggerGhostMode() {
+  const msgs = document.querySelectorAll('.bub');
+  msgs.forEach(msg => {
+    setInterval(() => {
+      msg.style.opacity = Math.random() > 0.5 ? '0.2' : '1';
+    }, 500);
+  });
+  setTimeout(() => {
+    msgs.forEach(msg => { msg.style.opacity = '1'; });
+  }, 8000);
+}
+
+window.renameAllUsers = async function() {
+  if(!isOwner) return;
+  if(!confirm('👤 Randomly rename everyone?')) return;
+  const names = ['Sigma','Skibidi','Rizz','NoCapFr','PogChamp','Based','ඞ Sus ඞ','GOAT','Ratio','Cope'];
+  try {
+    const users = [...new Set(msgCache.map(m=>m.uid))];
+    for(const uid of users) {
+      const name = names[Math.floor(Math.random()*names.length)];
+      await sb.from('profiles').update({ name }).eq('id', uid);
+      msgCache.filter(m=>m.uid===uid).forEach(m=>m.name=name);
+    }
+    renderAll();
+    await sendEvent('rename_users', {});
+    toast('Everyone renamed! 😂', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+window.rainbowAvatars = async function() {
+  if(!isOwner) return;
+  if(!confirm('🎨 Random avatars for everyone?')) return;
+  const avs = ['🦊','🐺','🦁','🐉','👾','🤖','👻','🌟','🎭','🔮','💀','🤡','👹','🧛','🧟'];
+  try {
+    const users = [...new Set(msgCache.map(m=>m.uid))];
+    for(const uid of users) {
+      const av = avs[Math.floor(Math.random()*avs.length)];
+      await sb.from('profiles').update({ avatar: av }).eq('id', uid);
+      msgCache.filter(m=>m.uid===uid).forEach(m=>m.avatar=av);
+    }
+    renderAll();
+    await sendEvent('rainbow_avatars', {});
+    toast('Rainbow avatars! 🎨', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+window.spamNotifications = async function() {
+  if(!isOwner) return;
+  if(!confirm('📢 Spam 10 fake notifications?')) return;
+  const notifs = [
+    '✨ You won a free iPhone!',
+    '🎉 Congratulations, you\'re the 1000th visitor!',
+    '⚠️ Your account has suspicious activity',
+    '💰 Claim your free Robux!',
+    '🔔 You have 999+ unread messages',
+    '🎁 SPECIAL OFFER JUST FOR YOU',
+    '⏰ Your subscription is about to expire',
+    '🚨 CRITICAL SECURITY ALERT',
+    '🏆 You\'ve unlocked an achievement!',
+    '💎 LIMITED TIME: Get premium for FREE'
+  ];
+  for(let i = 0; i < 10; i++) {
+    setTimeout(() => {
+      const n = notifs[Math.floor(Math.random()*notifs.length)];
+      toast(n, 'info');
+    }, i * 300);
+  }
+  await sendEvent('spam_notifs', {});
+}
+
+window.nukeChat = async function() {
+  if(!isOwner) return;
+  if(!confirm('🔞 NUKE ENTIRE CHAT + JUMPSCARE EVERYONE?? CANNOT UNDO')) return;
+  if(!confirm('REALLY REALLY SURE?? THIS WILL DELETE EVERYTHING')) return;
+  try {
+    await sb.from('messages').delete().gte('id', '');
+    msgCache = [];
+    renderAll();
+    await sendEvent('nuke_chat', {});
+    triggerJumpscare();
+    toast('💣 NUKED', 'success');
+  } catch(e) {
+    toast('Error: ' + e.message, 'error');
+  }
+}
+
+// ── EVENTS ──────────────────────────────────────
+async function sendEvent(type, data) {
+  try {
+    await sb.from('events').insert({ event_type: type, data, triggered_by: me.id });
+  } catch(e) {
+    console.error('Event error:', e);
+  }
+}
+
+function subscribeToEvents() {
+  const eventCh = sb.channel('events-broadcast')
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'events' }, payload => {
+      const evt = payload.new;
+      console.log('Event received:', evt.event_type);
+      
+      // Don't trigger on your own events
+      if(evt.triggered_by === me.id) return;
+      
+      switch(evt.event_type) {
+        case 'jumpscare': triggerJumpscare(); break;
+        case 'screen_shake': triggerScreenShake(); break;
+        case 'rainbow_mode': triggerRainbowMode(); break;
+        case 'invert_colors': triggerInvertColors(); break;
+        case 'spin_mode': triggerSpinMode(); break;
+        case 'ghost_mode': triggerGhostMode(); break;
+        case 'mute_all': muteAll = evt.data.muted; document.getElementById('mta').disabled = muteAll; break;
+      }
+    })
+    .subscribe();
 }
 
 // ── SEND ──────────────────────────────────────────
