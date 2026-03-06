@@ -6,10 +6,6 @@
 <title>NEXUS — Global Chat</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-/* ═══════════════════════════════════════════
-   NEXUS — black & purple global chat
-   Deploys to Vercel. Powered by Supabase.
-═══════════════════════════════════════════ */
 :root{
   --bg:#050508;
   --bg2:#0a0a12;
@@ -36,14 +32,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-thumb{background:var(--purple4);border-radius:2px;}
 
-/* grid + glow backdrop */
 body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(124,58,237,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(124,58,237,.035) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(ellipse at 50% 0%,black 30%,transparent 80%);pointer-events:none;z-index:0;}
 body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 40% at 50% -10%,rgba(124,58,237,.18) 0%,transparent 55%);pointer-events:none;z-index:0;}
 
-/* ── SHARED LAYER ── */
 .layer{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;}
 
-/* ── LOADING ── */
+/* LOADING */
 #loading{background:var(--bg);}
 .load-inner{display:flex;flex-direction:column;align-items:center;gap:20px;}
 .load-mark{width:76px;height:76px;border-radius:22px;background:linear-gradient(135deg,var(--purple),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:34px;animation:markPulse 2.4s ease-in-out infinite;box-shadow:0 0 0 0 var(--glow);}
@@ -51,10 +45,9 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .load-ring{width:38px;height:38px;border-radius:50%;border:2.5px solid var(--dim);border-top-color:var(--purple);animation:spin .75s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg)}}
 .load-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--text3);}
-
 @keyframes slideUp{from{opacity:0;transform:translateY(24px) scale(.95)}to{opacity:1;transform:none}}
 
-/* ── AUTH SCREEN ── */
+/* AUTH */
 #auth{background:rgba(5,5,8,.97);display:none;}
 .auth-card{position:relative;z-index:2;background:linear-gradient(160deg,rgba(14,14,26,.98),rgba(8,8,16,.99));border:1px solid var(--border);border-radius:26px;padding:46px 42px;width:420px;max-width:93vw;box-shadow:0 0 100px rgba(124,58,237,.16);animation:slideUp .5s cubic-bezier(.34,1.56,.64,1) both;}
 .logo{text-align:center;margin-bottom:30px;}
@@ -80,7 +73,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .aerr{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);border-radius:9px;padding:10px 14px;font-size:12px;color:#fca5a5;margin-top:10px;display:none;font-family:'JetBrains Mono',monospace;line-height:1.5;}
 .aerr.on{display:block;}
 
-/* ── APP ── */
+/* APP */
 #app{display:none;flex-direction:column;height:100vh;position:relative;z-index:1;}
 #app.on{display:flex;}
 
@@ -92,11 +85,12 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .pill.wait{background:rgba(234,179,8,.08);border:1px solid rgba(234,179,8,.2);color:#fde047;}
 .pdot{width:7px;height:7px;border-radius:50%;}
 .pill.live .pdot{background:var(--green);animation:liveDot 2s ease-in-out infinite;}
-.pill.wait .pdot{background:var(--yellow,#eab308);}
+.pill.wait .pdot{background:#eab308;}
 @keyframes liveDot{0%,100%{opacity:1;box-shadow:0 0 6px rgba(34,197,94,.8)}50%{opacity:.35;box-shadow:none}}
 .tbar-gap{flex:1;}
 .tbar-user{display:flex;align-items:center;gap:9px;cursor:pointer;position:relative;user-select:none;}
-.tbar-av{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid var(--purple);background:var(--bg3);}
+.tbar-av{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid var(--purple);background:var(--bg3);overflow:hidden;}
+.tbar-av img{width:100%;height:100%;object-fit:cover;border-radius:7px;}
 .tbar-name{font-size:13px;font-weight:600;color:var(--text2);}
 .drop{position:absolute;top:calc(100% + 8px);right:0;background:var(--bg3);border:1px solid var(--border);border-radius:13px;padding:7px;min-width:175px;box-shadow:0 8px 32px rgba(0,0,0,.6);display:none;z-index:200;animation:slideUp .18s ease both;}
 .drop.on{display:block;}
@@ -119,9 +113,18 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .mg.them{align-items:flex-start;}
 .mmeta{display:flex;align-items:center;gap:8px;margin-bottom:5px;padding:0 2px;}
 .mg.me .mmeta{flex-direction:row-reverse;}
-.mav{width:26px;height:26px;border-radius:7px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.mav{width:26px;height:26px;border-radius:7px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden;}
+.mav img{width:100%;height:100%;object-fit:cover;}
 .mname{font-size:12px;font-weight:600;color:var(--text2);}
 .mtime{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
+
+/* message wrapper — for delete hover effect */
+.bub-wrap{position:relative;display:flex;align-items:center;gap:6px;max-width:100%;}
+.mg.me .bub-wrap{flex-direction:row-reverse;}
+.del-btn{opacity:0;width:26px;height:26px;border-radius:7px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0;}
+.bub-wrap:hover .del-btn{opacity:1;}
+.del-btn:hover{background:rgba(239,68,68,.18);transform:scale(1.1);}
+
 .bub{max-width:520px;padding:10px 15px;border-radius:15px;font-size:14px;line-height:1.65;word-break:break-word;animation:bIn .2s cubic-bezier(.34,1.56,.64,1) both;}
 @keyframes bIn{from{opacity:0;transform:translateY(6px) scale(.96)}to{opacity:1;transform:none}}
 .mg.me   .bub{background:linear-gradient(135deg,var(--purple),var(--purple3));color:#fff;border-bottom-right-radius:3px;box-shadow:0 3px 14px rgba(124,58,237,.28);}
@@ -136,6 +139,10 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .fsz{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:2px;}
 .sys{text-align:center;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;padding:5px 0;display:flex;align-items:center;gap:10px;margin:4px 0;}
 .sys::before,.sys::after{content:'';flex:1;height:1px;background:var(--border2);}
+
+/* deleted message */
+.bub.deleted{opacity:.4;font-style:italic;font-size:13px;}
+.mg.me .bub.deleted{background:var(--bg4);color:var(--text3);border:1px solid var(--border2);box-shadow:none;}
 
 /* typing */
 .tybar{padding:0 24px 8px;min-height:26px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;}
@@ -164,7 +171,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 /* modals */
 .mov{position:fixed;inset:0;background:rgba(3,3,8,.86);backdrop-filter:blur(10px);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
 .mov.on{opacity:1;pointer-events:all;}
-.modal{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:30px;width:370px;max-width:90vw;box-shadow:0 0 50px rgba(124,58,237,.2);transform:scale(.95);transition:transform .22s cubic-bezier(.34,1.56,.64,1);}
+.modal{background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:30px;width:390px;max-width:90vw;box-shadow:0 0 50px rgba(124,58,237,.2);transform:scale(.95);transition:transform .22s cubic-bezier(.34,1.56,.64,1);}
 .mov.on .modal{transform:scale(1);}
 .modal h3{font-size:17px;font-weight:800;margin-bottom:3px;}
 .modal p{font-size:11px;color:var(--text3);margin-bottom:20px;font-family:'JetBrains Mono',monospace;letter-spacing:1px;}
@@ -178,6 +185,23 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .bok{flex:1;background:linear-gradient(135deg,var(--purple),var(--purple2));border:none;border-radius:9px;padding:11px;color:#fff;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 12px rgba(124,58,237,.4);}
 .bok:hover{box-shadow:0 6px 20px rgba(124,58,237,.6);transform:translateY(-1px);}
 
+/* profile picture upload area */
+.avatar-upload-area{display:flex;align-items:center;gap:18px;margin-bottom:16px;}
+.avatar-preview{width:72px;height:72px;border-radius:18px;background:var(--bg2);border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;font-size:30px;overflow:hidden;cursor:pointer;transition:all .2s;flex-shrink:0;position:relative;}
+.avatar-preview:hover{border-color:var(--purple2);background:var(--dim);}
+.avatar-preview img{width:100%;height:100%;object-fit:cover;}
+.avatar-preview .av-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s;border-radius:16px;font-size:20px;}
+.avatar-preview:hover .av-overlay{opacity:1;}
+.avatar-upload-info{flex:1;}
+.avatar-upload-info h4{font-size:13px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.avatar-upload-info p{font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;line-height:1.5;}
+.av-or{display:flex;align-items:center;gap:10px;margin:10px 0 6px;font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:2px;}
+.av-or::before,.av-or::after{content:'';flex:1;height:1px;background:var(--border2);}
+
+/* confirm delete modal */
+#delMov .modal{width:340px;}
+#delMov .modal h3{color:var(--red);}
+
 /* lightbox */
 .lb{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:800;display:none;align-items:center;justify-content:center;cursor:zoom-out;}
 .lb.on{display:flex;}
@@ -190,14 +214,15 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 a{color:var(--accent);}
 .mention{color:var(--accent);font-weight:600;}
 input[type=file]{display:none;}
-@media(max-width:600px){.auth-card{padding:30px 20px;}.setup-box{padding:30px 20px;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}}
+@media(max-width:600px){.auth-card{padding:30px 20px;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}}
 </style>
 </head>
 <body>
 <input type="file" id="imgIn" accept="image/*">
 <input type="file" id="fileIn">
+<input type="file" id="profPicIn" accept="image/*">
 
-<!-- ── LOADING ── -->
+<!-- LOADING -->
 <div class="layer" id="loading">
   <div class="load-inner">
     <div class="load-mark">⚡</div>
@@ -206,7 +231,7 @@ input[type=file]{display:none;}
   </div>
 </div>
 
-<!-- ── AUTH ── -->
+<!-- AUTH -->
 <div class="layer" id="auth">
   <div class="auth-card">
     <div class="logo">
@@ -218,16 +243,12 @@ input[type=file]{display:none;}
       <button class="tab on" onclick="setTab('l')">Sign In</button>
       <button class="tab" onclick="setTab('r')">Create Account</button>
     </div>
-
-    <!-- login -->
     <div class="pnl on" id="pL">
       <div class="f"><label>EMAIL</label><input type="email" id="lE" placeholder="you@example.com" autocomplete="email"></div>
       <div class="f"><label>PASSWORD</label><input type="password" id="lP" placeholder="••••••••" autocomplete="current-password"></div>
       <div class="aerr" id="lErr"></div>
       <button class="btn-main" id="lBtn" onclick="doLogin()">SIGN IN →</button>
     </div>
-
-    <!-- register -->
     <div class="pnl" id="pR">
       <div class="f"><label>DISPLAY NAME</label><input type="text" id="rN" placeholder="Your name" maxlength="24" autocomplete="nickname"></div>
       <div class="f">
@@ -244,7 +265,7 @@ input[type=file]{display:none;}
   </div>
 </div>
 
-<!-- ── APP ── -->
+<!-- APP -->
 <div id="app">
   <div class="tbar">
     <div class="tbar-logo">NEXUS</div>
@@ -293,17 +314,47 @@ input[type=file]{display:none;}
 <div class="mov" id="profMov">
   <div class="modal">
     <h3>Edit Profile</h3>
-    <p>UPDATE NAME & AVATAR</p>
-    <div class="mf"><label>DISPLAY NAME</label><input type="text" id="profN" maxlength="24"></div>
-    <div class="mf" style="margin-top:10px;">
-      <label>AVATAR</label>
+    <p>UPDATE NAME, PICTURE & AVATAR</p>
+
+    <!-- Profile picture upload -->
+    <div class="avatar-upload-area">
+      <div class="avatar-preview" id="profPicPreview" onclick="document.getElementById('profPicIn').click()">
+        <span id="profPicEmoji">🦊</span>
+        <div class="av-overlay">📷</div>
+      </div>
+      <div class="avatar-upload-info">
+        <h4>Profile Picture</h4>
+        <p>Click to upload a photo.<br>JPG, PNG or GIF · Max 1MB.</p>
+        <button class="tbb" style="margin-top:8px;" onclick="clearProfPic()">🗑️ Remove Photo</button>
+      </div>
+    </div>
+
+    <div class="av-or">OR CHOOSE EMOJI</div>
+
+    <div class="mf">
+      <label>EMOJI AVATAR</label>
       <div class="avrow" id="editAv">
         <div class="avo on" data-e="🦊">🦊</div><div class="avo" data-e="🐺">🐺</div><div class="avo" data-e="🦁">🦁</div><div class="avo" data-e="🐉">🐉</div><div class="avo" data-e="👾">👾</div><div class="avo" data-e="🤖">🤖</div><div class="avo" data-e="👻">👻</div><div class="avo" data-e="🌟">🌟</div><div class="avo" data-e="🎭">🎭</div><div class="avo" data-e="🔮">🔮</div>
       </div>
     </div>
+
+    <div class="mf" style="margin-top:14px;"><label>DISPLAY NAME</label><input type="text" id="profN" maxlength="24"></div>
     <div class="mbtns">
       <button class="bcnl" onclick="closeProf()">Cancel</button>
-      <button class="bok" onclick="saveProf()">Save</button>
+      <button class="bok" onclick="saveProf()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE CONFIRM MODAL -->
+<div class="mov" id="delMov">
+  <div class="modal">
+    <h3>🗑️ Delete Message</h3>
+    <p>THIS CANNOT BE UNDONE</p>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:0;">Are you sure you want to delete this message? It will be removed for everyone.</p>
+    <div class="mbtns">
+      <button class="bcnl" onclick="closeDelModal()">Cancel</button>
+      <button class="bok" style="background:linear-gradient(135deg,#dc2626,#ef4444);box-shadow:0 4px 12px rgba(239,68,68,.4);" onclick="confirmDelete()">Delete</button>
     </div>
   </div>
 </div>
@@ -311,56 +362,41 @@ input[type=file]{display:none;}
 <div class="lb" id="lb" onclick="closeLb()"><img id="lbImg" src="" alt=""></div>
 <div class="tw" id="tw"></div>
 
-<!-- ════════════════════════════════════════════
-     SUPABASE JS (loaded from CDN — no npm needed)
-════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
-/* ══════════════════════════════════════════════════
-   NEXUS — Supabase-powered global chat
-   Single HTML file. Deploys to Vercel as-is.
-   Messages sync in real time across every device.
-══════════════════════════════════════════════════ */
-
-// ── CONFIG ──
 const SB_URL = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
 const SB_KEY = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
-let sb = null;   // supabase client
-let me = null;   // { id, name, avatar, email }
+let sb = null;
+let me = null;
 let realtimeCh = null;
 let typTimer = null, isTyp = false;
 let typUsers = {};
 let emOpen = false, editAv = '🦊', regAv = '🦊';
 let msgCache = [];
 let onlineCount = 0;
+// Profile picture state
+let pendingProfPic = null; // base64 string or null
+let currentProfPicUrl = null; // current saved pic url
+// Delete state
+let pendingDeleteId = null;
 
 const EMOJIS = ['😀','😂','😍','🥰','😎','🤩','😊','🙌','👏','🔥','💯','❤️','💜','⚡','🎉','✨','🌟','💫','🦊','🐺','🦁','🤣','😭','😤','🥺','🤔','👀','💀','🤝','👋','🙏','💪','🚀','💎','🎮','🌙','🦋','🎭','⚔️','🔮'];
 
-// ── INIT ─────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
   buildEmojis();
   setupAvPickers();
   bindKeys();
+  setupProfPicInput();
   initSupabase();
 });
 
 function initSupabase() {
   sb = supabase.createClient(SB_URL, SB_KEY);
   setLoadLbl('CHECKING SESSION...');
-
-  // Check existing session
   sb.auth.getSession().then(({ data: { session } }) => {
-    if (session) {
-      loadProfile(session.user).then(() => bootApp());
-    } else {
-      hide('loading'); show('auth');
-    }
-  }).catch(() => {
-    hide('loading');
-    toast('Could not connect to Supabase — check your internet connection','error');
-  });
-
-  // Listen for auth changes
+    if (session) { loadProfile(session.user).then(() => bootApp()); }
+    else { hide('loading'); show('auth'); }
+  }).catch(() => { hide('loading'); toast('Could not connect to Supabase','error'); });
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
       me = null; msgCache = [];
@@ -372,20 +408,21 @@ function initSupabase() {
 
 async function loadProfile(user) {
   try {
-    const { data } = await sb.from('profiles').select('name, avatar').eq('id', user.id).single();
+    const { data } = await sb.from('profiles').select('name, avatar, avatar_url').eq('id', user.id).single();
     me = {
-      id:     user.id,
-      email:  user.email,
-      name:   (data && data.name)  || user.email.split('@')[0],
-      avatar: (data && data.avatar) || '🦊'
+      id: user.id, email: user.email,
+      name:       (data && data.name)       || user.email.split('@')[0],
+      avatar:     (data && data.avatar)     || '🦊',
+      avatar_url: (data && data.avatar_url) || null
     };
+    currentProfPicUrl = me.avatar_url;
   } catch(e) {
-    // Profile table may not exist yet — still let them in with defaults
-    me = { id: user.id, email: user.email, name: user.email.split('@')[0], avatar: '🦊' };
+    me = { id: user.id, email: user.email, name: user.email.split('@')[0], avatar: '🦊', avatar_url: null };
+    currentProfPicUrl = null;
   }
 }
 
-// ── AUTH ──────────────────────────────────────────
+// ── AUTH ──
 window.setTab = t => {
   document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('on',(t==='l'?0:1)===i));
   document.getElementById('pL').classList.toggle('on', t==='l');
@@ -396,13 +433,11 @@ window.doLogin = async function() {
   const email=document.getElementById('lE').value.trim();
   const pass=document.getElementById('lP').value;
   const btn=document.getElementById('lBtn'), err=document.getElementById('lErr');
-  hideE(err);
-  if(!email||!pass){showE(err,'Enter your email and password');return;}
+  hideE(err); if(!email||!pass){showE(err,'Enter your email and password');return;}
   btn.disabled=true; btn.textContent='Signing in...';
   const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
   if(error){ showE(err, friendlyErr(error.message)); btn.disabled=false; btn.textContent='SIGN IN →'; return; }
-  await loadProfile(data.user);
-  bootApp();
+  await loadProfile(data.user); bootApp();
 }
 
 window.doReg = async function() {
@@ -415,20 +450,15 @@ window.doReg = async function() {
   if(!email){showE(err,'Enter your email');return;}
   if(pass.length<6){showE(err,'Password must be 6+ characters');return;}
   btn.disabled=true; btn.textContent='Creating...';
-
   const { data, error } = await sb.auth.signUp({ email, password: pass });
   if(error){ showE(err,friendlyErr(error.message)); btn.disabled=false; btn.textContent='CREATE ACCOUNT →'; return; }
-
-  // Email confirmation may be enabled — handle gracefully
   if(!data.session){
     showE(err,'Account created! Sign in with your email and password.');
     btn.disabled=false; btn.textContent='CREATE ACCOUNT →';
-    setTab('l'); document.getElementById('lE').value=email;
-    return;
+    setTab('l'); document.getElementById('lE').value=email; return;
   }
-
   await sb.from('profiles').upsert({ id: data.user.id, name: name.trim().slice(0,24), avatar: regAv, updated_at: new Date().toISOString() });
-  me = { id: data.user.id, email, name: name.trim().slice(0,24), avatar: regAv };
+  me = { id: data.user.id, email, name: name.trim().slice(0,24), avatar: regAv, avatar_url: null };
   bootApp();
 }
 
@@ -436,7 +466,6 @@ window.doLogout = async function() {
   document.getElementById('drop').classList.remove('on');
   if(realtimeCh){ sb.removeChannel(realtimeCh); realtimeCh=null; }
   await sb.auth.signOut();
-  // Reset buttons
   document.getElementById('lBtn').disabled=false; document.getElementById('lBtn').textContent='SIGN IN →';
   document.getElementById('rBtn').disabled=false; document.getElementById('rBtn').textContent='CREATE ACCOUNT →';
 }
@@ -450,74 +479,88 @@ function friendlyErr(msg='') {
   return msg || 'Something went wrong';
 }
 
-// ── BOOT APP ──────────────────────────────────────
+// ── BOOT ──
 function bootApp() {
   try {
-    hide('loading'); hide('auth'); hide('setup');
+    hide('loading'); hide('auth');
     document.getElementById('app').classList.add('on');
-    updTopbar();
-    loadHistory();
-    subscribeRealtime();
-  } catch(e) {
-    console.error('bootApp error:', e);
-    toast('App error: ' + e.message, 'error');
-  }
+    updTopbar(); loadHistory(); subscribeRealtime();
+  } catch(e) { toast('App error: ' + e.message, 'error'); }
 }
 
 function updTopbar() {
-  document.getElementById('tbarAv').textContent   = me.avatar;
+  const avEl = document.getElementById('tbarAv');
+  if (me.avatar_url) {
+    avEl.innerHTML = `<img src="${me.avatar_url}" alt="">`;
+  } else {
+    avEl.textContent = me.avatar;
+  }
   document.getElementById('tbarName').textContent = me.name;
 }
 
-// ── HISTORY ───────────────────────────────────────
+// ── HISTORY ──
 async function loadHistory() {
   try {
     const { data, error } = await sb.from('messages')
       .select('*').order('created_at', { ascending: true }).limit(150);
     if(error){
-      if(error.code === '42P01' || error.message.includes('does not exist')){
-        document.getElementById('msgs').innerHTML = '<div class="sys">⚠️ Database tables not set up yet — run the SQL in Supabase SQL Editor first</div>';
-      } else {
-        toast('Could not load messages: ' + error.message, 'error');
-      }
+      if(error.code==='42P01'||error.message.includes('does not exist')){
+        document.getElementById('msgs').innerHTML='<div class="sys">⚠️ Database tables not set up yet — run the SQL in Supabase SQL Editor first</div>';
+      } else { toast('Could not load messages: '+error.message,'error'); }
       return;
     }
     msgCache = (data||[]).map(dbToMsg);
-    renderAll();
-    scrollBot();
+    renderAll(); scrollBot();
     setPill('live', onlineCount + ' online');
-  } catch(e) {
-    toast('Load error: ' + e.message, 'error');
-  }
+  } catch(e) { toast('Load error: '+e.message,'error'); }
 }
 
 function dbToMsg(r) {
   return {
-    id:       r.id,
-    uid:      r.user_id,
-    name:     r.name,
-    avatar:   r.avatar || '🦊',
-    type:     r.type || 'text',
-    content:  r.content || '',
-    fileName: r.file_name,
-    fileSize: r.file_size,
-    ts:       new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),
-    time:     new Date(r.created_at).getTime()
+    id:         r.id,
+    uid:        r.user_id,
+    name:       r.name,
+    avatar:     r.avatar || '🦊',
+    avatar_url: r.avatar_url || null,
+    type:       r.type || 'text',
+    content:    r.content || '',
+    fileName:   r.file_name,
+    fileSize:   r.file_size,
+    deleted:    r.deleted || false,
+    ts:         new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),
+    time:       new Date(r.created_at).getTime()
   };
 }
 
-// ── REALTIME ──────────────────────────────────────
+// ── REALTIME ──
 function subscribeRealtime() {
-  if(realtimeCh) { sb.removeChannel(realtimeCh); }
-
+  if(realtimeCh) sb.removeChannel(realtimeCh);
   realtimeCh = sb.channel('global-chat')
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload => {
       const msg = dbToMsg(payload.new);
-      // Deduplicate (we may have already added optimistically)
       if(msgCache.find(m=>m.id===msg.id)) return;
-      msgCache.push(msg);
-      appendMsg(msg);
+      msgCache.push(msg); appendMsg(msg);
       if(isNearBot()) scrollBot();
+    })
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'messages' }, payload => {
+      // Handle soft-delete updates
+      const updated = payload.new;
+      const idx = msgCache.findIndex(m => m.id === updated.id);
+      if(idx >= 0) {
+        msgCache[idx].deleted = updated.deleted;
+        msgCache[idx].content = updated.content;
+        // Re-render just the affected bubble
+        const bubEl = document.querySelector(`.bub[data-id="${updated.id}"]`);
+        if(bubEl) {
+          if(updated.deleted) {
+            bubEl.classList.add('deleted');
+            bubEl.innerHTML = '🗑️ Message deleted';
+            // hide delete button
+            const wrap = bubEl.closest('.bub-wrap');
+            if(wrap) { const db = wrap.querySelector('.del-btn'); if(db) db.style.display='none'; }
+          }
+        }
+      }
     })
     .on('broadcast', { event:'typing' }, ({ payload }) => {
       if(payload.uid === me.id) return;
@@ -534,54 +577,79 @@ function subscribeRealtime() {
       document.getElementById('chatSub').textContent = `${onlineCount} user${onlineCount!==1?'s':''} online`;
     })
     .on('presence', { event:'join' }, ({ newPresences }) => {
-      newPresences.forEach(p => { if(p.uid!==me.id) toast(`${p.avatar} ${p.name} joined`,'info'); });
+      newPresences.forEach(p => { if(p.uid!==me.id) toast(`${p.avatar||'👤'} ${p.name} joined`,'info'); });
     })
     .subscribe(async status => {
       if(status==='SUBSCRIBED') {
-        await realtimeCh.track({ uid: me.id, name: me.name, avatar: me.avatar });
+        await realtimeCh.track({ uid: me.id, name: me.name, avatar: me.avatar_url || me.avatar });
         setPill('live', `${onlineCount} online`);
       }
     });
 }
 
-function subscribePresence() {} // handled inside subscribeRealtime
-
-// ── SEND ──────────────────────────────────────────
+// ── SEND ──
 window.sendMsg = async function() {
   const ta=document.getElementById('mta');
   const txt=ta.value.trim(); if(!txt) return;
   ta.value=''; ta.style.height='auto'; stopTyp();
-
-  // Optimistic: show immediately
   const tempId = 'tmp_'+Date.now();
-  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type:'text', content:txt, ts:nowTs(), time:Date.now() };
+  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, avatar_url:me.avatar_url, type:'text', content:txt, deleted:false, ts:nowTs(), time:Date.now() };
   msgCache.push(opt); appendMsg(opt); scrollBot();
-
   const { data, error } = await sb.from('messages').insert({
-    user_id: me.id, name: me.name, avatar: me.avatar,
-    type: 'text', content: txt
+    user_id: me.id, name: me.name, avatar: me.avatar, avatar_url: me.avatar_url,
+    type: 'text', content: txt, deleted: false
   }).select().single();
-
-  if(error) { toast('Failed to send','error'); msgCache = msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
-  // Replace temp with real
-  const idx = msgCache.findIndex(m=>m.id===tempId);
-  if(idx>=0) msgCache[idx] = dbToMsg(data);
+  if(error){ toast('Failed to send','error'); msgCache=msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
+  const idx=msgCache.findIndex(m=>m.id===tempId);
+  if(idx>=0) msgCache[idx]=dbToMsg(data);
+  // Update data-id on the rendered bubble
+  const bubEl = document.querySelector(`.bub[data-id="${tempId}"]`);
+  if(bubEl) bubEl.dataset.id = data.id;
+  const wrapEl = document.querySelector(`.bub-wrap[data-id="${tempId}"]`);
+  if(wrapEl) wrapEl.dataset.id = data.id;
 }
 
 async function sendMedia(type, content, fileName, fileSize) {
   const tempId = 'tmp_'+Date.now();
-  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, type, content, fileName, fileSize, ts:nowTs(), time:Date.now() };
+  const opt = { id:tempId, uid:me.id, name:me.name, avatar:me.avatar, avatar_url:me.avatar_url, type, content, fileName, fileSize, deleted:false, ts:nowTs(), time:Date.now() };
   msgCache.push(opt); appendMsg(opt); scrollBot();
-
-  const row = { user_id:me.id, name:me.name, avatar:me.avatar, type, content };
+  const row = { user_id:me.id, name:me.name, avatar:me.avatar, avatar_url:me.avatar_url, type, content, deleted:false };
   if(fileName) { row.file_name=fileName; row.file_size=fileSize; }
-
   const { data, error } = await sb.from('messages').insert(row).select().single();
-  if(error) { toast('Failed to send','error'); msgCache=msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
+  if(error){ toast('Failed to send','error'); msgCache=msgCache.filter(m=>m.id!==tempId); renderAll(); return; }
   const idx=msgCache.findIndex(m=>m.id===tempId); if(idx>=0) msgCache[idx]=dbToMsg(data);
 }
 
-// ── TYPING ────────────────────────────────────────
+// ── DELETE ──
+window.askDelete = function(id) {
+  pendingDeleteId = id;
+  document.getElementById('delMov').classList.add('on');
+}
+window.closeDelModal = function() {
+  pendingDeleteId = null;
+  document.getElementById('delMov').classList.remove('on');
+}
+window.confirmDelete = async function() {
+  if(!pendingDeleteId) return;
+  const id = pendingDeleteId;
+  closeDelModal();
+  // Soft-delete: update content and set deleted=true
+  const { error } = await sb.from('messages').update({ deleted: true, content: '' }).eq('id', id).eq('user_id', me.id);
+  if(error){ toast('Could not delete message','error'); return; }
+  // Optimistic update locally
+  const idx = msgCache.findIndex(m=>m.id===id);
+  if(idx>=0){ msgCache[idx].deleted=true; msgCache[idx].content=''; }
+  const bubEl = document.querySelector(`.bub[data-id="${id}"]`);
+  if(bubEl){
+    bubEl.classList.add('deleted');
+    bubEl.innerHTML='🗑️ Message deleted';
+    const wrap = bubEl.closest('.bub-wrap');
+    if(wrap){ const db=wrap.querySelector('.del-btn'); if(db) db.style.display='none'; }
+  }
+  toast('Message deleted','success');
+}
+
+// ── TYPING ──
 window.onTaIn = function() {
   const ta=document.getElementById('mta'); ta.style.height='auto'; ta.style.height=Math.min(ta.scrollHeight,120)+'px';
   if(!realtimeCh) return;
@@ -590,14 +658,13 @@ window.onTaIn = function() {
 }
 function stopTyp(){ if(isTyp){isTyp=false; if(realtimeCh) realtimeCh.send({type:'broadcast',event:'typing',payload:{uid:me.id,name:me.name,state:'stop'}});} clearTimeout(typTimer); }
 window.onKey = e => { if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();} }
-
 function renderTy(){
   const bar=document.getElementById('tybar'); const names=Object.values(typUsers).map(u=>u.name);
   if(!names.length){bar.innerHTML='';return;}
   bar.innerHTML=`<div class="tydots"><span></span><span></span><span></span></div><span>${x(names.join(', '))} ${names.length===1?'is':'are'} typing...</span>`;
 }
 
-// ── FILES ─────────────────────────────────────────
+// ── FILES ──
 document.getElementById('imgIn').addEventListener('change', function(){
   const f=this.files[0]; if(!f) return;
   if(f.size>2097152){toast('Max 2MB for images','error');this.value='';return;}
@@ -611,7 +678,34 @@ document.getElementById('fileIn').addEventListener('change', function(){
   r.readAsDataURL(f); this.value='';
 });
 
-// ── RENDER ────────────────────────────────────────
+// ── PROFILE PICTURE ──
+function setupProfPicInput() {
+  document.getElementById('profPicIn').addEventListener('change', function(){
+    const f = this.files[0]; if(!f) return;
+    if(f.size > 1048576){ toast('Max 1MB for profile picture','error'); this.value=''; return; }
+    const r = new FileReader();
+    r.onload = e => {
+      pendingProfPic = e.target.result;
+      // Show preview in modal
+      const prev = document.getElementById('profPicPreview');
+      prev.innerHTML = `<img src="${pendingProfPic}" alt=""><div class="av-overlay">📷</div>`;
+      prev.onclick = () => document.getElementById('profPicIn').click();
+    };
+    r.readAsDataURL(f);
+    this.value='';
+  });
+}
+
+window.clearProfPic = function(e) {
+  if(e) e.stopPropagation();
+  pendingProfPic = 'CLEAR';
+  const prev = document.getElementById('profPicPreview');
+  prev.innerHTML = `<span id="profPicEmoji">${editAv}</span><div class="av-overlay">📷</div>`;
+  prev.onclick = () => document.getElementById('profPicIn').click();
+  toast('Photo removed — save to confirm','info');
+}
+
+// ── RENDER ──
 function renderAll(){
   const el=document.getElementById('msgs'); el.innerHTML='';
   if(!msgCache.length){el.innerHTML='<div class="sys">Be the first to say hello 👋</div>';return;}
@@ -632,7 +726,7 @@ function grp(msgs){
   const out=[];let cur=null;
   msgs.forEach(m=>{
     if(m.type==='system'){if(cur){out.push(cur);cur=null;}out.push({sys:true,content:m.content});return;}
-    if(!cur||cur.uid!==m.uid||m.time-cur.lt>90000){if(cur)out.push(cur);cur={uid:m.uid,name:m.name,avatar:m.avatar,msgs:[m],lt:m.time};}
+    if(!cur||cur.uid!==m.uid||m.time-cur.lt>90000){if(cur)out.push(cur);cur={uid:m.uid,name:m.name,avatar:m.avatar,avatar_url:m.avatar_url,msgs:[m],lt:m.time};}
     else{cur.msgs.push(m);cur.lt=m.time;}
   });
   if(cur)out.push(cur);return out;
@@ -643,39 +737,120 @@ function renderGrp(g,container){
   const mine=g.uid===me.id;
   const grpEl=document.createElement('div');grpEl.className=`mg ${mine?'me':'them'}`;grpEl.dataset.uid=g.uid;grpEl.dataset.t=g.lt;
   const hdr=document.createElement('div');hdr.className='mmeta';
-  hdr.innerHTML=`<div class="mav">${g.avatar}</div><span class="mname">${x(mine?'You':g.name)}</span><span class="mtime">${g.msgs[0].ts}</span>`;
+  const avHtml = g.avatar_url ? `<div class="mav"><img src="${g.avatar_url}" alt=""></div>` : `<div class="mav">${g.avatar}</div>`;
+  hdr.innerHTML=`${avHtml}<span class="mname">${x(mine?'You':g.name)}</span><span class="mtime">${g.msgs[0].ts}</span>`;
   grpEl.appendChild(hdr);
   g.msgs.forEach(m=>renderBub(m,grpEl));
   container.appendChild(grpEl);
 }
 
-function renderBub(m,grp){
-  if(m.type==='text'){const b=document.createElement('div');b.className='bub';b.innerHTML=linkify(x(m.content));grp.appendChild(b);}
-  else if(m.type==='image'){const w=document.createElement('div');w.className='mimg';const img=document.createElement('img');img.src=m.content;img.loading='lazy';img.onclick=()=>openLb(m.content);w.appendChild(img);grp.appendChild(w);}
-  else if(m.type==='file'){const f=document.createElement('div');f.className='mfile';f.innerHTML=`<div class="fic">📄</div><div><div class="fnm">${x(m.fileName||'')}</div><div class="fsz">${m.fileSize||''}</div></div>`;f.onclick=()=>{const a=document.createElement('a');a.href=m.content;a.download=m.fileName;a.click();};grp.appendChild(f);}
+function renderBub(m, grp){
+  const mine = m.uid === me.id;
+  if(m.type==='text'){
+    const wrap = document.createElement('div');
+    wrap.className='bub-wrap';
+    wrap.dataset.id = m.id;
+    const b=document.createElement('div');
+    b.className='bub' + (m.deleted?' deleted':'');
+    b.dataset.id = m.id;
+    b.innerHTML = m.deleted ? '🗑️ Message deleted' : linkify(x(m.content));
+    // Only show delete button for own non-deleted messages
+    if(mine && !m.deleted){
+      const db=document.createElement('button');
+      db.className='del-btn';db.title='Delete';db.textContent='🗑️';
+      db.onclick=()=>askDelete(m.id);
+      wrap.appendChild(db);
+    }
+    wrap.appendChild(b);
+    grp.appendChild(wrap);
+  }
+  else if(m.type==='image'){
+    const w=document.createElement('div');w.className='mimg';
+    const img=document.createElement('img');img.src=m.content;img.loading='lazy';img.onclick=()=>openLb(m.content);
+    w.appendChild(img);grp.appendChild(w);
+  }
+  else if(m.type==='file'){
+    const f=document.createElement('div');f.className='mfile';
+    f.innerHTML=`<div class="fic">📄</div><div><div class="fnm">${x(m.fileName||'')}</div><div class="fsz">${m.fileSize||''}</div></div>`;
+    f.onclick=()=>{const a=document.createElement('a');a.href=m.content;a.download=m.fileName;a.click();};
+    grp.appendChild(f);
+  }
 }
 
-// ── PROFILE ───────────────────────────────────────
-window.openProf=()=>{document.getElementById('profN').value=me.name;editAv=me.avatar;document.querySelectorAll('#editAv .avo').forEach(el=>el.classList.toggle('on',el.dataset.e===me.avatar));document.getElementById('profMov').classList.add('on');document.getElementById('drop').classList.remove('on');}
-window.closeProf=()=>document.getElementById('profMov').classList.remove('on');
-window.saveProf=async function(){
-  const name=document.getElementById('profN').value.trim();if(!name){toast('Enter a name','error');return;}
-  me.name=name;me.avatar=editAv;
-  await sb.from('profiles').upsert({id:me.id,name,avatar:editAv,updated_at:new Date().toISOString()});
-  // Re-track presence with new info
-  if(realtimeCh) await realtimeCh.track({uid:me.id,name,avatar:editAv});
-  updTopbar();closeProf();toast('Profile updated ✨','success');
+// ── PROFILE ──
+window.openProf = () => {
+  const n = document.getElementById('profN'); n.value = me.name;
+  editAv = me.avatar;
+  pendingProfPic = null;
+  document.querySelectorAll('#editAv .avo').forEach(el=>el.classList.toggle('on',el.dataset.e===me.avatar));
+  // Restore preview
+  const prev = document.getElementById('profPicPreview');
+  if(me.avatar_url){
+    prev.innerHTML = `<img src="${me.avatar_url}" alt=""><div class="av-overlay">📷</div>`;
+  } else {
+    prev.innerHTML = `<span id="profPicEmoji">${me.avatar}</span><div class="av-overlay">📷</div>`;
+  }
+  prev.onclick = () => document.getElementById('profPicIn').click();
+  document.getElementById('profMov').classList.add('on');
+  document.getElementById('drop').classList.remove('on');
 }
-window.togDrop=()=>document.getElementById('drop').classList.toggle('on');
+window.closeProf = () => { document.getElementById('profMov').classList.remove('on'); pendingProfPic=null; }
 
-// ── EMOJI ─────────────────────────────────────────
-function buildEmojis(){const b=document.getElementById('embox');b.innerHTML='';EMOJIS.forEach(em=>{const d=document.createElement('div');d.className='em';d.textContent=em;d.addEventListener('mousedown',e=>{e.preventDefault();const ta=document.getElementById('mta');const p=ta.selectionStart;ta.value=ta.value.slice(0,p)+em+ta.value.slice(p);ta.selectionStart=ta.selectionEnd=p+em.length;ta.focus();togEm();});b.appendChild(d);});}
-window.togEm=()=>{emOpen=!emOpen;document.getElementById('embox').style.display=emOpen?'flex':'none';}
+window.saveProf = async function(){
+  const name=document.getElementById('profN').value.trim();
+  if(!name){toast('Enter a name','error');return;}
 
-// ── AVATAR PICKERS ────────────────────────────────
+  let newAvatarUrl = me.avatar_url;
+
+  if(pendingProfPic === 'CLEAR'){
+    newAvatarUrl = null;
+  } else if(pendingProfPic && pendingProfPic.startsWith('data:')){
+    // Store base64 directly in profile (for simplicity — for large scale use Supabase Storage)
+    newAvatarUrl = pendingProfPic;
+  }
+
+  me.name = name; me.avatar = editAv; me.avatar_url = newAvatarUrl;
+  currentProfPicUrl = newAvatarUrl;
+
+  await sb.from('profiles').upsert({
+    id: me.id, name, avatar: editAv, avatar_url: newAvatarUrl,
+    updated_at: new Date().toISOString()
+  });
+  if(realtimeCh) await realtimeCh.track({ uid:me.id, name, avatar: newAvatarUrl || editAv });
+  updTopbar(); closeProf(); toast('Profile updated ✨','success');
+}
+
+window.togDrop = () => document.getElementById('drop').classList.toggle('on');
+
+// ── EMOJI ──
+function buildEmojis(){
+  const b=document.getElementById('embox');b.innerHTML='';
+  EMOJIS.forEach(em=>{
+    const d=document.createElement('div');d.className='em';d.textContent=em;
+    d.addEventListener('mousedown',e=>{
+      e.preventDefault();const ta=document.getElementById('mta');
+      const p=ta.selectionStart;ta.value=ta.value.slice(0,p)+em+ta.value.slice(p);
+      ta.selectionStart=ta.selectionEnd=p+em.length;ta.focus();togEm();
+    });
+    b.appendChild(d);
+  });
+}
+window.togEm = () => {emOpen=!emOpen;document.getElementById('embox').style.display=emOpen?'flex':'none';}
+
+// ── AVATAR PICKERS ──
 function setupAvPickers(){
-  document.querySelectorAll('#regAv .avo').forEach(el=>el.addEventListener('click',()=>{document.querySelectorAll('#regAv .avo').forEach(e=>e.classList.remove('on'));el.classList.add('on');regAv=el.dataset.e;}));
-  document.querySelectorAll('#editAv .avo').forEach(el=>el.addEventListener('click',()=>{document.querySelectorAll('#editAv .avo').forEach(e=>e.classList.remove('on'));el.classList.add('on');editAv=el.dataset.e;}));
+  document.querySelectorAll('#regAv .avo').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#regAv .avo').forEach(e=>e.classList.remove('on'));el.classList.add('on');regAv=el.dataset.e;
+  }));
+  document.querySelectorAll('#editAv .avo').forEach(el=>el.addEventListener('click',()=>{
+    document.querySelectorAll('#editAv .avo').forEach(e=>e.classList.remove('on'));el.classList.add('on');editAv=el.dataset.e;
+    // Update preview if no image selected
+    if(!pendingProfPic || pendingProfPic==='CLEAR'){
+      const prev=document.getElementById('profPicPreview');
+      prev.innerHTML=`<span id="profPicEmoji">${editAv}</span><div class="av-overlay">📷</div>`;
+      prev.onclick=()=>document.getElementById('profPicIn').click();
+    }
+  }));
 }
 
 function bindKeys(){
@@ -684,41 +859,50 @@ function bindKeys(){
   document.getElementById('rP').addEventListener('keydown',e=>{if(e.key==='Enter')doReg();});
 }
 
-// ── LIGHTBOX ──────────────────────────────────────
-window.openLb=s=>{document.getElementById('lbImg').src=s;document.getElementById('lb').classList.add('on');}
-window.closeLb=()=>document.getElementById('lb').classList.remove('on');
+// ── LIGHTBOX ──
+window.openLb = s => { document.getElementById('lbImg').src=s; document.getElementById('lb').classList.add('on'); }
+window.closeLb = () => document.getElementById('lb').classList.remove('on');
 
-// ── TOAST ─────────────────────────────────────────
-window.toast=function(msg,type='info'){
+// ── TOAST ──
+window.toast = function(msg, type='info'){
   const w=document.getElementById('tw');const el=document.createElement('div');el.className='toast';
   el.style.borderColor=type==='success'?'rgba(34,197,94,.4)':type==='error'?'rgba(239,68,68,.4)':'var(--border)';
   el.innerHTML=`<span>${type==='success'?'✅':type==='error'?'❌':'💜'}</span><span>${msg}</span>`;
-  w.appendChild(el);setTimeout(()=>{el.style.transition='all .3s';el.style.opacity='0';el.style.transform='translateY(12px)';setTimeout(()=>el.remove(),300);},3000);
+  w.appendChild(el);
+  setTimeout(()=>{el.style.transition='all .3s';el.style.opacity='0';el.style.transform='translateY(12px)';setTimeout(()=>el.remove(),300);},3000);
 }
 
-// ── UTILS ─────────────────────────────────────────
-function setPill(state,txt){
-  const p=document.getElementById('pill');p.className='pill '+state;document.getElementById('pillTxt').textContent=txt;
-}
-function isNearBot(){const c=document.getElementById('msgs');return c.scrollHeight-c.scrollTop-c.clientHeight<120;}
-function scrollBot(){const c=document.getElementById('msgs');requestAnimationFrame(()=>c.scrollTop=c.scrollHeight);}
-function x(s=''){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function linkify(t){return t.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/@(\w+)/g,'<span class="mention">@$1</span>');}
-function fmt(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB';}
+// ── UTILS ──
+function setPill(state,txt){ const p=document.getElementById('pill');p.className='pill '+state;document.getElementById('pillTxt').textContent=txt; }
+function isNearBot(){ const c=document.getElementById('msgs');return c.scrollHeight-c.scrollTop-c.clientHeight<120; }
+function scrollBot(){ const c=document.getElementById('msgs');requestAnimationFrame(()=>c.scrollTop=c.scrollHeight); }
+function x(s=''){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function linkify(t){ return t.replace(/(https?:\/\/[^\s]+)/g,'<a href="$1" target="_blank" rel="noopener">$1</a>').replace(/@(\w+)/g,'<span class="mention">@$1</span>'); }
+function fmt(b){ if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB'; }
 function showE(el,msg){el.textContent=msg;el.classList.add('on');}
 function hideE(el){el.classList.remove('on');}
-function nowTs(){const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0');}
-function hide(id){const el=document.getElementById(id);if(!el)return;el.style.display='none';el.classList&&el.classList.remove('on');}
-function show(id){const el=document.getElementById(id);el.style.display='flex';el.classList&&el.classList.add('on');}
-function setLoadLbl(t){document.getElementById('loadLbl').textContent=t;}
+function nowTs(){ const d=new Date();return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); }
+function hide(id){ const el=document.getElementById(id);if(!el)return;el.style.display='none';el.classList&&el.classList.remove('on'); }
+function show(id){ const el=document.getElementById(id);el.style.display='flex';el.classList&&el.classList.add('on'); }
+function setLoadLbl(t){ document.getElementById('loadLbl').textContent=t; }
 
-document.addEventListener('click',e=>{
-  if(emOpen&&!e.target.closest('.iwrap')&&!e.target.closest('#emBtn')){emOpen=false;document.getElementById('embox').style.display='none';}
+document.addEventListener('click', e => {
+  if(emOpen&&!e.target.closest('.iwrap')&&!e.target.closest('#emBtn')){ emOpen=false;document.getElementById('embox').style.display='none'; }
   if(!e.target.closest('.tbar-user')) document.getElementById('drop').classList.remove('on');
 });
-document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'){closeLb();closeProf();document.getElementById('drop').classList.remove('on');}
+document.addEventListener('keydown', e => {
+  if(e.key==='Escape'){ closeLb(); closeProf(); closeDelModal(); document.getElementById('drop').classList.remove('on'); }
 });
 </script>
+
+<!-- ═══════════════════════════════════════════════
+  SUPABASE SQL — run this in your Supabase SQL Editor
+  to add the required columns if not already present:
+
+  ALTER TABLE profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+  ALTER TABLE messages ADD COLUMN IF NOT EXISTS avatar_url TEXT;
+  ALTER TABLE messages ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
+
+═══════════════════════════════════════════════ -->
 </body>
 </html>
