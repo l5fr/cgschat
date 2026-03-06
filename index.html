@@ -319,38 +319,38 @@ input[type=file]{display:none;}
       <div class="admin-section">
         <div class="admin-section-title">Moderation</div>
         <div class="admin-actions">
-          <button class="admin-btn" onclick="clearAllChat()">🗑️ Clear Chat</button>
-          <button class="admin-btn" style="background:rgba(239,68,68,.2);" onclick="toggleMuteAll()">🚫 Mute All</button>
-          <button class="admin-btn" style="background:rgba(239,68,68,.3);" onclick="nukeChat()">🔞 NUKE CHAT</button>
+          <button class="admin-btn" onclick="serverCommand('clear_chat')">🗑️ Clear Chat</button>
+          <button class="admin-btn" style="background:rgba(239,68,68,.2);" onclick="serverCommand('toggle_mute')">🚫 Mute All</button>
+          <button class="admin-btn" style="background:rgba(239,68,68,.3);" onclick="serverCommand('nuke_chat')">🔞 NUKE CHAT</button>
         </div>
       </div>
       <div class="admin-section">
         <div class="admin-section-title">🎭 Chaos</div>
         <div class="admin-actions">
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="jumpscare()">🎭 JUMPSCARE</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="screenShake()">🎬 Screen Shake</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="rainbowMode()">🌈 Rainbow Mode</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="invertColors()">💀 Invert Colors</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="spinMode()">🔀 Spin Mode</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="ghostMode()">👻 Ghost Mode</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('jumpscare')">🎭 JUMPSCARE</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('screen_shake')">🎬 Screen Shake</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('rainbow_mode')">🌈 Rainbow Mode</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('invert_colors')">💀 Invert Colors</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('spin_mode')">🔀 Spin Mode</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('ghost_mode')">👻 Ghost Mode</button>
         </div>
       </div>
       <div class="admin-section">
         <div class="admin-section-title">💬 Messages</div>
         <div class="admin-actions">
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="trollAllCaps()">🔊 ALL CAPS</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="trollReverse()">🔄 Reverse</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="trollSpam()">💬 Spam</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="trollEmoji()">😂 Emoji Spam</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="trollUwU()">OwO OwO Speak</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('all_caps')">🔊 ALL CAPS</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('reverse')">🔄 Reverse</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('spam_messages')">💬 Spam</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('emoji_spam')">😂 Emoji Spam</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('uwu_speak')">OwO OwO Speak</button>
         </div>
       </div>
       <div class="admin-section">
         <div class="admin-section-title">👤 Users</div>
         <div class="admin-actions">
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="renameAllUsers()">👤 Rename Users</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="rainbowAvatars()">🎨 Rainbow Avatars</button>
-          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="spamNotifications()">📢 Spam Notifs</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('rename_all')">👤 Rename Users</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('rainbow_avatars')">🎨 Rainbow Avatars</button>
+          <button class="admin-btn" style="background:rgba(168,85,247,.2);border-color:rgba(168,85,247,.4);" onclick="serverCommand('spam_notifs')">📢 Spam Notifs</button>
         </div>
       </div>
     </div>
@@ -433,13 +433,14 @@ input[type=file]{display:none;}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script>
 /* ══════════════════════════════════════════════════
-   NEXUS — Enhanced Chat with Admin Controls
-   Single HTML file. Deploys to Vercel as-is.
+   NEXUS — Enhanced Chat with Server-Sided Admin Commands
+   All admin commands are processed through the server
+   and broadcast to all clients for maximum chaos!
 ══════════════════════════════════════════════════ */
 
 // ── CONFIG ──
 const SB_URL = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
-const SB_KEY = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl5c3R4c2dneHZua2p4cnZxbm5kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDExMjY4NzAsImV4cCI6MjA1NjcwMjg3MH0.OuppEyMVGpfqFAuTIuX_EA_kojCNZ39NfTBLWq64sYg';
 const OWNER_IDS = [
   'ef732c5f-625b-4334-b4eb-f456b79beae2',
   'af8060a4-1af3-4f89-94e2-939c3e001b43'
@@ -456,6 +457,7 @@ let onlineUsers = {};
 let isOwner = false;
 let editingMsgId = null;
 let searchResults = [];
+let activeEffects = {};
 
 const EMOJIS = ['😀','😂','😍','🥰','😎','🤩','😊','🙌','👏','🔥','💯','❤️','💜','⚡','🎉','✨','🌟','💫','🦊','🐺','🦁','🤣','😭','😤','🥺','🤔','👀','💀','🤝','👋','🙏','💪','🚀','💎','🎮','🌙','🦋','🎭','⚔️','🔮'];
 
@@ -596,7 +598,6 @@ function updTopbar() {
 async function loadHistory() {
   try {
     setLoadLbl('LOADING MESSAGES...');
-    // Give the UI a moment to render
     await new Promise(r => setTimeout(r, 100));
     
     const { data, error } = await sb.from('messages')
@@ -633,7 +634,6 @@ async function loadHistory() {
 }
 
 function dbToMsg(r) {
-  // Handle reactions - they can be object or JSON string
   let reactions = {};
   if(r.reactions) {
     if(typeof r.reactions === 'string') {
@@ -729,7 +729,6 @@ function subscribeRealtime() {
       } else if(status==='CLOSED') {
         console.warn('⚠️ Realtime channel closed');
         toast('Lost real-time connection - will try to reconnect', 'error');
-        // Retry connection after 3 seconds
         setTimeout(() => {
           console.log('Retrying realtime subscription...');
           subscribeRealtime();
@@ -753,168 +752,224 @@ function updateAdminPanel() {
       <div class="admin-user-av">${u.avatar}</div>
       <div class="admin-user-name">${x(u.name)}</div>
       <div class="admin-user-actions">
-        <button class="admin-btn-small delete" onclick="deleteUserMessages('${u.name}')">×</button>
+        <button class="admin-btn-small delete" onclick="serverCommand('delete_user_msgs', '${u.name}')">×</button>
       </div>
     `;
     panel.appendChild(el);
   });
 }
 
-window.deleteUserMessages = async function(userName) {
-  if(!isOwner) return;
-  if(!confirm(`Delete all messages from ${userName}?`)) return;
-  try {
-    const { error } = await sb.from('messages').delete().eq('name', userName);
-    if(error) { toast('Error: ' + error.message, 'error'); return; }
-    msgCache = msgCache.filter(m=>m.name!==userName);
-    renderAll();
-    toast(`Deleted all messages from ${userName} ✓`, 'success');
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
+// ── SERVER-SIDED COMMANDS ─────────────────────────
+// This is the MAIN function that processes all admin commands server-side
+// All commands go through the database so EVERYONE sees the effects
+window.serverCommand = async function(cmd, param = '') {
+  if(!isOwner) {
+    toast('❌ Only the owner can use admin commands', 'error');
+    return;
   }
-}
 
-window.clearAllChat = async function() {
-  if(!isOwner) return;
-  if(!confirm('Clear ALL messages? This cannot be undone.')) return;
-  try {
-    const { error } = await sb.from('messages').delete().gte('id', '');
-    if(error) { toast('Error clearing chat: ' + error.message, 'error'); console.error('Clear error:', error); return; }
-    msgCache = [];
-    renderAll();
-    toast('Chat cleared ✓', 'success');
-  } catch(e) {
-    console.error('Clear chat error:', e);
-    toast('Error: ' + e.message, 'error');
-  }
-}
-
-// ── TROLL COMMANDS ───────────────────────────────
-window.trollAllCaps = async function() {
-  if(!isOwner) return;
-  if(!confirm('Make ALL messages ALL CAPS? 🔊')) return;
-  try {
-    for(const msg of msgCache) {
-      if(msg.type === 'text') {
-        await sb.from('messages').update({ content: msg.content.toUpperCase() }).eq('id', msg.id);
-        msg.content = msg.content.toUpperCase();
-      }
-    }
-    renderAll();
-    toast('ALL CAPS ACTIVATED 🔊', 'success');
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
-}
-
-window.trollReverse = async function() {
-  if(!isOwner) return;
-  if(!confirm('Reverse all messages? 🔄')) return;
-  try {
-    for(const msg of msgCache) {
-      if(msg.type === 'text') {
-        const reversed = msg.content.split('').reverse().join('');
-        await sb.from('messages').update({ content: reversed }).eq('id', msg.id);
-        msg.content = reversed;
-      }
-    }
-    renderAll();
-    toast('Messages reversed! 🔄', 'success');
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
-}
-
-window.trollSpam = async function() {
-  if(!isOwner) return;
-  if(!confirm('SPAM SPAM SPAM? 💬')) return;
-  const spamMsgs = ['SPAM SPAM SPAM 🚨', 'THIS IS SPAM 📢', 'HEHEHEHE 😂', 'TROLL DETECTED 🎭', 'GOTTEM 🎯'];
-  try {
-    for(let i = 0; i < 5; i++) {
-      const msg = spamMsgs[Math.floor(Math.random() * spamMsgs.length)];
-      await sb.from('messages').insert({
-        user_id: me.id, name: me.name, avatar: '🤖', type: 'text', content: msg, reactions: '{}'
-      });
-    }
-    await loadHistory();
-    toast('SPAM SPAM SPAM 📢', 'success');
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
-}
-
-window.trollEmoji = async function() {
-  if(!isOwner) return;
-  if(!confirm('Add emoji spam to all messages? 😂')) return;
-  const emojis = ['😂', '💀', '🤣', '👀', '🔥', '⚡', '💯', '🎉'];
-  try {
-    for(const msg of msgCache) {
-      if(msg.type === 'text') {
-        const emoji = emojis[Math.floor(Math.random() * emojis.length)];
-        const newContent = msg.content + ' ' + emoji.repeat(3);
-        await sb.from('messages').update({ content: newContent }).eq('id', msg.id);
-        msg.content = newContent;
-      }
-    }
-    renderAll();
-    toast('EMOJI SPAM ACTIVATED 😂😂😂', 'success');
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
-}
-
-window.trollUwU = async function() {
-  if(!isOwner) return;
-  if(!confirm('Convert all messages to OwO speak? OwO')) return;
-  try {
-    for(const msg of msgCache) {
-      if(msg.type === 'text') {
-        let uwu = msg.content
-          .replace(/l/g, 'w')
-          .replace(/L/g, 'W')
-          .replace(/r/g, 'w')
-          .replace(/R/g, 'W');
-        uwu = uwu + ' OwO';
-        await sb.from('messages').update({ content: uwu }).eq('id', msg.id);
-        msg.content = uwu;
-      }
-    }
-    renderAll();
-    toast('OwO speak activated! OwO', 'success');
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
-}
-
-// ── CHAOS COMMANDS ──────────────────────────────
-let muteAll = false;
-
-window.toggleMuteAll = async function() {
-  if(!isOwner) return;
-  muteAll = !muteAll;
-  const ta = document.getElementById('mta');
-  if(muteAll) {
-    ta.disabled = true;
-    ta.placeholder = '🤐 MUTED BY ADMIN';
-    toast('🚫 Everyone is MUTED', 'success');
-    await sendEvent('mute_all', { muted: true });
+  // Confirmation for destructive commands
+  const destructiveCmds = ['clear_chat', 'nuke_chat', 'delete_user_msgs'];
+  if(destructiveCmds.includes(cmd)) {
+    if(!confirm(`⚠️ Are you sure you want to execute ${cmd}? This affects EVERYONE!`)) return;
   } else {
-    ta.disabled = false;
-    ta.placeholder = 'Message everyone on NEXUS...';
-    toast('🔓 Unmuted!', 'success');
-    await sendEvent('mute_all', { muted: false });
+    if(!confirm(`🎮 Execute ${cmd} for everyone?`)) return;
+  }
+
+  try {
+    // Insert the command into the events table
+    // This will trigger for ALL connected clients
+    const { error } = await sb.from('admin_commands').insert({
+      command: cmd,
+      parameter: param,
+      triggered_by: me.id,
+      triggered_by_name: me.name,
+      executed_at: new Date().toISOString()
+    });
+
+    if(error) {
+      console.error('Command error:', error);
+      toast('Failed to execute command: ' + error.message, 'error');
+      return;
+    }
+
+    toast(`✅ Command ${cmd} executed for everyone!`, 'success');
+  } catch(e) {
+    console.error('Command error:', e);
+    toast('Error: ' + e.message, 'error');
   }
 }
 
-window.jumpscare = async function() {
-  if(!isOwner) return;
-  if(!confirm('🎭 JUMPSCARE EVERYONE? MWAHAHAHA')) return;
-  await sendEvent('jumpscare', { image: 'https://media.tenor.com/images/8e78b89a5a3bfdc81c7065fa6c6f620d/tenor.gif' });
-  await new Promise(r => setTimeout(r, 100));
-  triggerJumpscare();
+// ── EVENT LISTENER FOR ALL ADMIN COMMANDS ─────────
+// This listens for admin commands from the database and executes them
+// EVERY client receives these and executes the effects together
+function subscribeToEvents() {
+  // First, make sure the admin_commands table exists
+  // We'll handle this by showing an error if it doesn't exist
+  
+  const eventCh = sb.channel('admin-commands')
+    .on('postgres_changes', { 
+      event: 'INSERT', 
+      schema: 'public', 
+      table: 'admin_commands' 
+    }, payload => {
+      const cmd = payload.new;
+      console.log('🎮 ADMIN COMMAND RECEIVED:', cmd.command, 'from', cmd.triggered_by_name);
+      
+      // Don't trigger on our own commands (we already saw the effect)
+      if(cmd.triggered_by === me.id) return;
+      
+      // Show a toast that an admin command is happening
+      toast(`🎮 ${cmd.triggered_by_name} used: ${cmd.command}`, 'info');
+      
+      // Execute the appropriate effect based on the command
+      executeEffect(cmd.command, cmd.parameter);
+    })
+    .subscribe((status) => {
+      if(status === 'SUBSCRIBED') {
+        console.log('✅ Subscribed to admin commands');
+      } else if(status === 'CHANNEL_ERROR') {
+        console.error('❌ Failed to subscribe to admin commands');
+        // Try creating the table if it doesn't exist
+        createAdminCommandsTable();
+      }
+    });
 }
 
-function triggerJumpscare() {
+// Create the admin_commands table if it doesn't exist
+async function createAdminCommandsTable() {
+  try {
+    // This is a one-time setup - we'll try to create the table via SQL
+    // But Supabase doesn't allow arbitrary SQL from the client
+    // So we'll show instructions
+    toast('⚠️ Admin commands table not found. Please run the SQL in the console.', 'error');
+    console.log(`
+      -- Run this SQL in your Supabase SQL Editor:
+      CREATE TABLE IF NOT EXISTS admin_commands (
+        id BIGSERIAL PRIMARY KEY,
+        command TEXT NOT NULL,
+        parameter TEXT,
+        triggered_by UUID NOT NULL,
+        triggered_by_name TEXT NOT NULL,
+        executed_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      );
+      
+      -- Enable RLS
+      ALTER TABLE admin_commands ENABLE ROW LEVEL SECURITY;
+      
+      -- Allow inserts from authenticated users
+      CREATE POLICY "Allow inserts for authenticated users" ON admin_commands
+        FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+      
+      -- Allow reads for everyone
+      CREATE POLICY "Allow reads for all" ON admin_commands
+        FOR SELECT USING (true);
+      
+      -- Enable realtime
+      alter publication supabase_realtime add table admin_commands;
+    `);
+  } catch(e) {
+    console.error('Table creation error:', e);
+  }
+}
+
+// Execute the visual effects for all clients
+function executeEffect(cmd, param) {
+  switch(cmd) {
+    // Moderation
+    case 'clear_chat':
+      clearChatEffect();
+      break;
+    case 'toggle_mute':
+      toggleMuteEffect();
+      break;
+    case 'nuke_chat':
+      nukeChatEffect();
+      break;
+      
+    // Chaos
+    case 'jumpscare':
+      jumpscareEffect();
+      break;
+    case 'screen_shake':
+      screenShakeEffect();
+      break;
+    case 'rainbow_mode':
+      rainbowModeEffect();
+      break;
+    case 'invert_colors':
+      invertColorsEffect();
+      break;
+    case 'spin_mode':
+      spinModeEffect();
+      break;
+    case 'ghost_mode':
+      ghostModeEffect();
+      break;
+      
+    // Messages
+    case 'all_caps':
+      allCapsEffect();
+      break;
+    case 'reverse':
+      reverseEffect();
+      break;
+    case 'spam_messages':
+      spamMessagesEffect();
+      break;
+    case 'emoji_spam':
+      emojiSpamEffect();
+      break;
+    case 'uwu_speak':
+      uwuSpeakEffect();
+      break;
+      
+    // Users
+    case 'rename_all':
+      renameAllEffect();
+      break;
+    case 'rainbow_avatars':
+      rainbowAvatarsEffect();
+      break;
+    case 'spam_notifs':
+      spamNotifsEffect();
+      break;
+    case 'delete_user_msgs':
+      deleteUserMsgsEffect(param);
+      break;
+      
+    default:
+      console.log('Unknown command:', cmd);
+  }
+}
+
+// ── EFFECT IMPLEMENTATIONS ────────────────────────
+// These functions run on EVERY client when a command is received
+
+function clearChatEffect() {
+  // Clear all messages
+  msgCache = [];
+  renderAll();
+  toast('🗑️ Chat cleared by admin', 'success');
+}
+
+let muteAllActive = false;
+function toggleMuteEffect() {
+  muteAllActive = !muteAllActive;
+  const ta = document.getElementById('mta');
+  ta.disabled = muteAllActive;
+  ta.placeholder = muteAllActive ? '🤐 MUTED BY ADMIN' : 'Message everyone on NEXUS...';
+  toast(muteAllActive ? '🚫 Everyone is MUTED' : '🔓 Unmuted!', 'success');
+}
+
+function nukeChatEffect() {
+  msgCache = [];
+  renderAll();
+  jumpscareEffect();
+  toast('💣 CHAT NUKED', 'error');
+}
+
+function jumpscareEffect() {
   const jumpscare = document.createElement('div');
   jumpscare.style.cssText = `
     position:fixed;inset:0;background:#000;z-index:9999;display:flex;align-items:center;justify-content:center;
@@ -934,14 +989,7 @@ function triggerJumpscare() {
   setTimeout(() => jumpscare.remove(), 3000);
 }
 
-window.screenShake = async function() {
-  if(!isOwner) return;
-  if(!confirm('🎬 SCREEN SHAKE?')) return;
-  await sendEvent('screen_shake', {});
-  triggerScreenShake();
-}
-
-function triggerScreenShake() {
+function screenShakeEffect() {
   const app = document.getElementById('app');
   for(let i = 0; i < 20; i++) {
     setTimeout(() => {
@@ -951,110 +999,128 @@ function triggerScreenShake() {
   setTimeout(() => { app.style.transform = 'none'; }, 600);
 }
 
-window.rainbowMode = async function() {
-  if(!isOwner) return;
-  if(!confirm('🌈 RAINBOW MODE ACTIVATED?')) return;
-  await sendEvent('rainbow_mode', {});
-  triggerRainbowMode();
-}
-
-function triggerRainbowMode() {
+function rainbowModeEffect() {
   const colors = ['#ff0000','#ff7f00','#ffff00','#00ff00','#0000ff','#4b0082','#9400d3'];
   let idx = 0;
   const interval = setInterval(() => {
     document.body.style.background = colors[idx % colors.length];
     idx++;
-    if(idx > 20) { clearInterval(interval); document.body.style.background = 'var(--bg)'; }
+    if(idx > 20) { 
+      clearInterval(interval); 
+      document.body.style.background = 'var(--bg)'; 
+    }
   }, 100);
 }
 
-window.invertColors = async function() {
-  if(!isOwner) return;
-  if(!confirm('💀 INVERT COLORS?')) return;
-  await sendEvent('invert_colors', {});
-  triggerInvertColors();
-}
-
-function triggerInvertColors() {
+function invertColorsEffect() {
   const app = document.getElementById('app');
   app.style.filter = 'invert(1)';
   setTimeout(() => { app.style.filter = 'none'; }, 5000);
 }
 
-window.spinMode = async function() {
-  if(!isOwner) return;
-  if(!confirm('🔀 SPIN SPIN SPIN?')) return;
-  await sendEvent('spin_mode', {});
-  triggerSpinMode();
-}
-
-function triggerSpinMode() {
+function spinModeEffect() {
   const app = document.getElementById('app');
   app.style.transition = 'transform 3s ease-in-out';
   app.style.transform = 'rotate(720deg)';
   setTimeout(() => { app.style.transform = 'rotate(0)'; }, 3000);
 }
 
-window.ghostMode = async function() {
-  if(!isOwner) return;
-  if(!confirm('👻 GHOST MODE - Messages randomly appear/disappear?')) return;
-  await sendEvent('ghost_mode', {});
-  triggerGhostMode();
-}
-
-function triggerGhostMode() {
+function ghostModeEffect() {
   const msgs = document.querySelectorAll('.bub');
   msgs.forEach(msg => {
-    setInterval(() => {
+    const interval = setInterval(() => {
+      if(!msg.parentElement) clearInterval(interval);
       msg.style.opacity = Math.random() > 0.5 ? '0.2' : '1';
     }, 500);
+    setTimeout(() => {
+      clearInterval(interval);
+      msg.style.opacity = '1';
+    }, 8000);
   });
-  setTimeout(() => {
-    msgs.forEach(msg => { msg.style.opacity = '1'; });
-  }, 8000);
 }
 
-window.renameAllUsers = async function() {
-  if(!isOwner) return;
-  if(!confirm('👤 Randomly rename everyone?')) return;
+function allCapsEffect() {
+  msgCache.forEach(msg => {
+    if(msg.type === 'text') {
+      msg.content = msg.content.toUpperCase();
+    }
+  });
+  renderAll();
+}
+
+function reverseEffect() {
+  msgCache.forEach(msg => {
+    if(msg.type === 'text') {
+      msg.content = msg.content.split('').reverse().join('');
+    }
+  });
+  renderAll();
+}
+
+function spamMessagesEffect() {
+  const spamMsgs = ['SPAM SPAM SPAM 🚨', 'THIS IS SPAM 📢', 'HEHEHEHE 😂', 'TROLL DETECTED 🎭', 'GOTTEM 🎯'];
+  spamMsgs.forEach(content => {
+    msgCache.push({
+      id: 'spam-' + Date.now() + Math.random(),
+      uid: 'admin',
+      name: '🎮 ADMIN',
+      avatar: '🤖',
+      type: 'text',
+      content: content,
+      reactions: {},
+      ts: new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),
+      time: Date.now()
+    });
+  });
+  renderAll();
+}
+
+function emojiSpamEffect() {
+  const emojis = ['😂', '💀', '🤣', '👀', '🔥', '⚡', '💯', '🎉'];
+  msgCache.forEach(msg => {
+    if(msg.type === 'text') {
+      const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+      msg.content = msg.content + ' ' + emoji.repeat(3);
+    }
+  });
+  renderAll();
+}
+
+function uwuSpeakEffect() {
+  msgCache.forEach(msg => {
+    if(msg.type === 'text') {
+      let uwu = msg.content
+        .replace(/l/g, 'w')
+        .replace(/L/g, 'W')
+        .replace(/r/g, 'w')
+        .replace(/R/g, 'W');
+      msg.content = uwu + ' OwO';
+    }
+  });
+  renderAll();
+}
+
+function renameAllEffect() {
   const names = ['Sigma','Skibidi','Rizz','NoCapFr','PogChamp','Based','ඞ Sus ඞ','GOAT','Ratio','Cope'];
-  try {
-    const users = [...new Set(msgCache.map(m=>m.uid))];
-    for(const uid of users) {
-      const name = names[Math.floor(Math.random()*names.length)];
-      await sb.from('profiles').update({ name }).eq('id', uid);
-      msgCache.filter(m=>m.uid===uid).forEach(m=>m.name=name);
-    }
-    renderAll();
-    await sendEvent('rename_users', {});
-    toast('Everyone renamed! 😂', 'success');
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  const users = [...new Set(msgCache.map(m=>m.uid))];
+  users.forEach((uid, i) => {
+    const newName = names[i % names.length];
+    msgCache.filter(m=>m.uid===uid).forEach(m=>m.name=newName);
+  });
+  renderAll();
 }
 
-window.rainbowAvatars = async function() {
-  if(!isOwner) return;
-  if(!confirm('🎨 Random avatars for everyone?')) return;
+function rainbowAvatarsEffect() {
   const avs = ['🦊','🐺','🦁','🐉','👾','🤖','👻','🌟','🎭','🔮','💀','🤡','👹','🧛','🧟'];
-  try {
-    const users = [...new Set(msgCache.map(m=>m.uid))];
-    for(const uid of users) {
-      const av = avs[Math.floor(Math.random()*avs.length)];
-      await sb.from('profiles').update({ avatar: av }).eq('id', uid);
-      msgCache.filter(m=>m.uid===uid).forEach(m=>m.avatar=av);
-    }
-    renderAll();
-    await sendEvent('rainbow_avatars', {});
-    toast('Rainbow avatars! 🎨', 'success');
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
+  const users = [...new Set(msgCache.map(m=>m.uid))];
+  users.forEach((uid, i) => {
+    const newAv = avs[i % avs.length];
+    msgCache.filter(m=>m.uid===uid).forEach(m=>m.avatar=newAv);
+  });
+  renderAll();
 }
 
-window.spamNotifications = async function() {
-  if(!isOwner) return;
-  if(!confirm('📢 Spam 10 fake notifications?')) return;
+function spamNotifsEffect() {
   const notifs = [
     '✨ You won a free iPhone!',
     '🎉 Congratulations, you\'re the 1000th visitor!',
@@ -1073,54 +1139,20 @@ window.spamNotifications = async function() {
       toast(n, 'info');
     }, i * 300);
   }
-  await sendEvent('spam_notifs', {});
 }
 
-window.nukeChat = async function() {
+function deleteUserMsgsEffect(userName) {
+  if(!userName) return;
+  msgCache = msgCache.filter(m => m.name !== userName);
+  renderAll();
+  toast(`🗑️ Deleted all messages from ${userName}`, 'success');
+}
+
+// ── ADMIN PANEL UPDATE ──────────────────────────
+window.deleteUserMessages = async function(userName) {
   if(!isOwner) return;
-  if(!confirm('🔞 NUKE ENTIRE CHAT + JUMPSCARE EVERYONE?? CANNOT UNDO')) return;
-  if(!confirm('REALLY REALLY SURE?? THIS WILL DELETE EVERYTHING')) return;
-  try {
-    await sb.from('messages').delete().gte('id', '');
-    msgCache = [];
-    renderAll();
-    await sendEvent('nuke_chat', {});
-    triggerJumpscare();
-    toast('💣 NUKED', 'success');
-  } catch(e) {
-    toast('Error: ' + e.message, 'error');
-  }
-}
-
-// ── EVENTS ──────────────────────────────────────
-async function sendEvent(type, data) {
-  try {
-    await sb.from('events').insert({ event_type: type, data, triggered_by: me.id });
-  } catch(e) {
-    console.error('Event error:', e);
-  }
-}
-
-function subscribeToEvents() {
-  const eventCh = sb.channel('events-broadcast')
-    .on('postgres_changes', { event:'INSERT', schema:'public', table:'events' }, payload => {
-      const evt = payload.new;
-      console.log('Event received:', evt.event_type);
-      
-      // Don't trigger on your own events
-      if(evt.triggered_by === me.id) return;
-      
-      switch(evt.event_type) {
-        case 'jumpscare': triggerJumpscare(); break;
-        case 'screen_shake': triggerScreenShake(); break;
-        case 'rainbow_mode': triggerRainbowMode(); break;
-        case 'invert_colors': triggerInvertColors(); break;
-        case 'spin_mode': triggerSpinMode(); break;
-        case 'ghost_mode': triggerGhostMode(); break;
-        case 'mute_all': muteAll = evt.data.muted; document.getElementById('mta').disabled = muteAll; break;
-      }
-    })
-    .subscribe();
+  if(!confirm(`Delete all messages from ${userName}?`)) return;
+  serverCommand('delete_user_msgs', userName);
 }
 
 // ── SEND ──────────────────────────────────────────
