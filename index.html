@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NEXUS — Global Chat I am NOT responcible for your actions </title>
+<title>NEXUS — Global Chat with Video</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════
-   NEXUS — black & purple global chat
-   Deploys to Vercel. Powered by Supabase.
+   NEXUS — black & purple global chat with video calls
+   Deploys to Vercel. Powered by Supabase + WebRTC
 ═══════════════════════════════════════════ */
 :root{
   --bg:#050508;
@@ -30,6 +30,8 @@
   --border2:rgba(124,58,237,.07);
   --green:#22c55e;
   --red:#ef4444;
+  --yellow:#eab308;
+  --blue:#3b82f6;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow:hidden;}
@@ -94,6 +96,14 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .pill.live .pdot{background:var(--green);animation:liveDot 2s ease-in-out infinite;}
 .pill.wait .pdot{background:var(--yellow,#eab308);}
 @keyframes liveDot{0%,100%{opacity:1;box-shadow:0 0 6px rgba(34,197,94,.8)}50%{opacity:.35;box-shadow:none}}
+
+/* call buttons */
+.call-controls{display:flex;gap:6px;margin-left:10px;}
+.call-btn{width:32px;height:32px;border-radius:10px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;font-size:16px;}
+.call-btn:hover{background:var(--dim);border-color:var(--purple);color:var(--accent);transform:scale(1.05);}
+.call-btn.active{background:var(--purple);color:#fff;border-color:var(--purple2);box-shadow:0 0 15px var(--glow);}
+.call-btn.danger:hover{background:rgba(239,68,68,.2);border-color:var(--red);color:var(--red);}
+
 .tbar-gap{flex:1;}
 .tbar-user{display:flex;align-items:center;gap:9px;cursor:pointer;position:relative;user-select:none;}
 .tbar-av{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;border:2px solid var(--purple);background:var(--bg3);}
@@ -104,6 +114,31 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .ditem:hover{background:var(--dim);color:var(--text);}
 .ditem.red:hover{background:rgba(239,68,68,.1);color:var(--red);}
 .dsep{height:1px;background:var(--border2);margin:4px 0;}
+
+/* call container */
+.call-container{position:fixed;bottom:100px;right:20px;width:360px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.6);z-index:300;display:none;backdrop-filter:blur(20px);}
+.call-container.active{display:block;}
+.call-header{padding:15px;background:linear-gradient(135deg,var(--purple3),var(--purple));display:flex;justify-content:space-between;align-items:center;}
+.call-header h3{font-size:14px;font-weight:600;letter-spacing:1px;}
+.call-header span{font-size:12px;opacity:.9;}
+.close-call{width:28px;height:28px;border-radius:8px;background:rgba(0,0,0,.2);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.close-call:hover{background:rgba(0,0,0,.4);}
+
+.video-grid{display:grid;grid-template-columns:1fr;gap:10px;padding:15px;max-height:400px;overflow-y:auto;}
+.video-grid.multi{grid-template-columns:repeat(2,1fr);}
+.video-wrapper{position:relative;background:var(--bg2);border-radius:12px;overflow:hidden;aspect-ratio:4/3;}
+.video-wrapper video{width:100%;height:100%;object-fit:cover;}
+.video-label{position:absolute;bottom:8px;left:8px;background:rgba(0,0,0,.6);padding:4px 10px;border-radius:20px;font-size:11px;backdrop-filter:blur(4px);}
+.video-mute{position:absolute;top:8px;right:8px;width:24px;height:24px;border-radius:6px;background:rgba(239,68,68,.8);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;}
+
+.call-controls-panel{display:flex;justify-content:center;gap:12px;padding:15px;background:var(--bg4);}
+.call-control-btn{width:44px;height:44px;border-radius:12px;border:none;background:var(--bg2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:all .2s;}
+.call-control-btn:hover{background:var(--dim);color:var(--accent);}
+.call-control-btn.danger{background:var(--red);color:#fff;}
+.call-control-btn.danger:hover{background:#dc2626;transform:scale(1.05);}
+.call-control-btn.active{background:var(--green);color:#fff;}
+
+.call-participants{background:var(--bg4);padding:8px 15px;font-size:11px;color:var(--text3);border-top:1px solid var(--border2);display:flex;gap:10px;flex-wrap:wrap;}
 
 /* chat */
 .chat{flex:1;display:flex;flex-direction:column;overflow:hidden;}
@@ -190,7 +225,7 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 a{color:var(--accent);}
 .mention{color:var(--accent);font-weight:600;}
 input[type=file]{display:none;}
-@media(max-width:600px){.auth-card{padding:30px 20px;}.setup-box{padding:30px 20px;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}}
+@media(max-width:600px){.auth-card{padding:30px 20px;}.setup-box{padding:30px 20px;}.msgs{padding:12px;}.iarea{padding:10px 12px 14px;}.call-container{width:100%;bottom:0;right:0;border-radius:20px 20px 0 0;}}
 </style>
 </head>
 <body>
@@ -211,8 +246,8 @@ input[type=file]{display:none;}
   <div class="auth-card">
     <div class="logo">
       <div class="logo-ic">⚡</div>
-      <h1>NEXUS  I am NOT responcible for your actions </h1>
-      <small>GLOBAL CHAT I am NOT responcible for your actions </small>
+      <h1>NEXUS</h1>
+      <small>GLOBAL CHAT + VIDEO</small>
     </div>
     <div class="tabs">
       <button class="tab on" onclick="setTab('l')">Sign In</button>
@@ -249,6 +284,14 @@ input[type=file]{display:none;}
   <div class="tbar">
     <div class="tbar-logo">NEXUS</div>
     <div class="pill wait" id="pill"><div class="pdot"></div><span id="pillTxt">Connecting</span></div>
+    
+    <!-- Call Controls -->
+    <div class="call-controls">
+      <div class="call-btn" id="startVoiceBtn" onclick="startVoiceCall()" title="Start Voice Call">🎤</div>
+      <div class="call-btn" id="startVideoBtn" onclick="startVideoCall()" title="Start Video Call">📹</div>
+      <div class="call-btn" id="joinCallBtn" onclick="joinActiveCall()" title="Join Active Call" style="display:none;">🔊</div>
+    </div>
+    
     <div class="tbar-gap"></div>
     <div class="tbar-user" id="tbarUser" onclick="togDrop()">
       <div class="tbar-av" id="tbarAv">🦊</div>
@@ -259,6 +302,32 @@ input[type=file]{display:none;}
         <div class="dsep"></div>
         <div class="ditem red" onclick="doLogout()">🚪 Sign Out</div>
       </div>
+    </div>
+  </div>
+
+  <!-- Call Container -->
+  <div class="call-container" id="callContainer">
+    <div class="call-header">
+      <div>
+        <h3 id="callTitle">Voice Call</h3>
+        <span id="callDuration">00:00</span>
+      </div>
+      <button class="close-call" onclick="leaveCall()">✕</button>
+    </div>
+    
+    <div class="video-grid" id="videoGrid">
+      <!-- Videos will be inserted here -->
+    </div>
+    
+    <div class="call-controls-panel">
+      <button class="call-control-btn" id="toggleMicBtn" onclick="toggleMic()" title="Mute Microphone">🎤</button>
+      <button class="call-control-btn" id="toggleCamBtn" onclick="toggleCamera()" title="Toggle Camera">📹</button>
+      <button class="call-control-btn" id="toggleScreenBtn" onclick="toggleScreenShare()" title="Share Screen">🖥️</button>
+      <button class="call-control-btn danger" onclick="leaveCall()" title="Leave Call">📞</button>
+    </div>
+    
+    <div class="call-participants" id="callParticipants">
+      <span>Participants: <span id="participantCount">0</span></span>
     </div>
   </div>
 
@@ -315,11 +384,12 @@ input[type=file]{display:none;}
      SUPABASE JS (loaded from CDN — no npm needed)
 ════════════════════════════════════════════ -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 <script>
 /* ══════════════════════════════════════════════════
-   NEXUS — Supabase-powered global chat
+   NEXUS — Supabase-powered global chat with WebRTC video calls
    Single HTML file. Deploys to Vercel as-is.
-   Messages sync in real time across every device.
+   Messages sync in real time + peer-to-peer video calls
 ══════════════════════════════════════════════════ */
 
 // ── CONFIG ──
@@ -334,7 +404,32 @@ let emOpen = false, editAv = '🦊', regAv = '🦊';
 let msgCache = [];
 let onlineCount = 0;
 
+// WebRTC / Call variables
+let peerConnection = null;
+let localStream = null;
+let callActive = false;
+let callType = null; // 'voice' or 'video'
+let participants = {};
+let callStartTime = null;
+let callTimer = null;
+let screenStream = null;
+let isMicMuted = false;
+let isCamOff = false;
+let socket = null;
+let roomId = 'nexus-call-room';
+
 const EMOJIS = ['😀','😂','😍','🥰','😎','🤩','😊','🙌','👏','🔥','💯','❤️','💜','⚡','🎉','✨','🌟','💫','🦊','🐺','🦁','🤣','😭','😤','🥺','🤔','👀','💀','🤝','👋','🙏','💪','🚀','💎','🎮','🌙','🦋','🎭','⚔️','🔮'];
+
+// ICE servers for WebRTC
+const iceServers = {
+  iceServers: [
+    { urls: 'stun:stun.l.google.com:19302' },
+    { urls: 'stun:stun1.l.google.com:19302' },
+    { urls: 'stun:stun2.l.google.com:19302' },
+    { urls: 'stun:stun3.l.google.com:19302' },
+    { urls: 'stun:stun4.l.google.com:19302' }
+  ]
+};
 
 // ── INIT ─────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', () => {
@@ -342,6 +437,7 @@ window.addEventListener('DOMContentLoaded', () => {
   setupAvPickers();
   bindKeys();
   initSupabase();
+  initCallSocket();
 });
 
 function initSupabase() {
@@ -366,6 +462,7 @@ function initSupabase() {
       me = null; msgCache = [];
       hide('app'); show('auth');
       if (realtimeCh) { sb.removeChannel(realtimeCh); realtimeCh = null; }
+      if (callActive) leaveCall();
     }
   });
 }
@@ -383,6 +480,468 @@ async function loadProfile(user) {
     // Profile table may not exist yet — still let them in with defaults
     me = { id: user.id, email: user.email, name: user.email.split('@')[0], avatar: '🦊' };
   }
+}
+
+// ── WebRTC Signaling Socket ─────────────────────
+function initCallSocket() {
+  // Using a free signaling server (you should host your own for production)
+  socket = io('https://nexus-signaling-server.onrender.com', { autoConnect: false });
+  
+  socket.on('connect', () => {
+    console.log('Connected to signaling server');
+    if (callActive) {
+      socket.emit('join-room', roomId, me.id, { name: me.name, avatar: me.avatar, callType });
+    }
+  });
+  
+  socket.on('user-joined', async ({ userId, userInfo }) => {
+    console.log('User joined:', userId, userInfo);
+    if (userId !== me.id && callActive) {
+      participants[userId] = { ...userInfo, stream: null };
+      updateParticipantsList();
+      createPeerConnection(userId);
+      
+      // Create and send offer
+      try {
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        socket.emit('offer', { target: userId, offer, callerId: me.id, callerInfo: { name: me.name, avatar: me.avatar } });
+      } catch (err) {
+        console.error('Error creating offer:', err);
+      }
+    }
+  });
+  
+  socket.on('offer', async ({ offer, callerId, callerInfo }) => {
+    console.log('Received offer from:', callerId);
+    if (!callActive) {
+      // Auto-join if not in call
+      joinCall(callType || 'video');
+    }
+    
+    participants[callerId] = { ...callerInfo, stream: null };
+    updateParticipantsList();
+    
+    await createPeerConnection(callerId);
+    
+    try {
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+      const answer = await peerConnection.createAnswer();
+      await peerConnection.setLocalDescription(answer);
+      socket.emit('answer', { target: callerId, answer });
+    } catch (err) {
+      console.error('Error handling offer:', err);
+    }
+  });
+  
+  socket.on('answer', async ({ answer, callerId }) => {
+    console.log('Received answer from:', callerId);
+    try {
+      await peerConnection.setRemoteDescription(new RTCSessionDescription(answer));
+    } catch (err) {
+      console.error('Error handling answer:', err);
+    }
+  });
+  
+  socket.on('ice-candidate', async ({ candidate, senderId }) => {
+    console.log('Received ICE candidate from:', senderId);
+    try {
+      await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+    } catch (err) {
+      console.error('Error adding ICE candidate:', err);
+    }
+  });
+  
+  socket.on('user-left', ({ userId }) => {
+    console.log('User left:', userId);
+    removeParticipant(userId);
+  });
+  
+  socket.on('call-ended', ({ userId }) => {
+    if (userId !== me.id) {
+      toast(`${participants[userId]?.name || 'Someone'} left the call`, 'info');
+      removeParticipant(userId);
+    }
+  });
+  
+  socket.on('participants-update', (participantsList) => {
+    participants = participantsList;
+    updateParticipantsList();
+    renderVideoGrid();
+  });
+}
+
+async function createPeerConnection(targetId) {
+  peerConnection = new RTCPeerConnection(iceServers);
+  
+  // Add local stream
+  if (localStream) {
+    localStream.getTracks().forEach(track => {
+      peerConnection.addTrack(track, localStream);
+    });
+  }
+  
+  // Handle incoming tracks
+  peerConnection.ontrack = (event) => {
+    console.log('Received remote track from:', targetId);
+    if (!participants[targetId]) {
+      participants[targetId] = { name: 'User', avatar: '🦊', stream: null };
+    }
+    participants[targetId].stream = event.streams[0];
+    renderVideoGrid();
+  };
+  
+  peerConnection.onicecandidate = (event) => {
+    if (event.candidate) {
+      socket.emit('ice-candidate', { target: targetId, candidate: event.candidate });
+    }
+  };
+  
+  peerConnection.onconnectionstatechange = () => {
+    console.log('Connection state:', peerConnection.connectionState);
+    if (peerConnection.connectionState === 'disconnected' || peerConnection.connectionState === 'failed') {
+      removeParticipant(targetId);
+    }
+  };
+  
+  return peerConnection;
+}
+
+// ── Call Functions ─────────────────────────────
+async function startVoiceCall() {
+  callType = 'voice';
+  await startCall(false);
+}
+
+async function startVideoCall() {
+  callType = 'video';
+  await startCall(true);
+}
+
+async function startCall(withVideo) {
+  try {
+    const constraints = {
+      audio: true,
+      video: withVideo
+    };
+    
+    localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    
+    // Add self to participants
+    participants[me.id] = {
+      name: me.name,
+      avatar: me.avatar,
+      stream: localStream,
+      isSelf: true
+    };
+    
+    callActive = true;
+    callStartTime = Date.now();
+    startCallTimer();
+    
+    // Show call container
+    document.getElementById('callContainer').classList.add('active');
+    document.getElementById('callTitle').textContent = withVideo ? 'Video Call' : 'Voice Call';
+    document.getElementById('joinCallBtn').style.display = 'inline-flex';
+    
+    // Update mic/cam buttons
+    updateCallButtons();
+    
+    // Connect to signaling server
+    socket.connect();
+    socket.emit('join-room', roomId, me.id, { name: me.name, avatar: me.avatar, callType });
+    
+    // Render video grid
+    renderVideoGrid();
+    
+    // Broadcast call started
+    toast(`Started ${withVideo ? 'video' : 'voice'} call`, 'success');
+    
+    // Send system message
+    const sysMsg = {
+      type: 'system',
+      content: `${me.name} started a ${withVideo ? '📹 video' : '🎤 voice'} call. Click the 🔊 button to join!`
+    };
+    msgCache.push(sysMsg);
+    appendMsg(sysMsg);
+    
+  } catch (err) {
+    console.error('Error starting call:', err);
+    toast('Could not access camera/microphone', 'error');
+  }
+}
+
+async function joinActiveCall() {
+  if (!callActive) {
+    // If no active call, create one
+    await startVideoCall();
+  } else {
+    await joinCall(callType);
+  }
+}
+
+async function joinCall(type) {
+  try {
+    const constraints = {
+      audio: true,
+      video: type === 'video'
+    };
+    
+    localStream = await navigator.mediaDevices.getUserMedia(constraints);
+    
+    // Add self to participants
+    participants[me.id] = {
+      name: me.name,
+      avatar: me.avatar,
+      stream: localStream,
+      isSelf: true
+    };
+    
+    callActive = true;
+    callType = type;
+    
+    document.getElementById('callContainer').classList.add('active');
+    document.getElementById('callTitle').textContent = type === 'video' ? 'Video Call' : 'Voice Call';
+    
+    if (!socket.connected) {
+      socket.connect();
+    }
+    
+    socket.emit('join-room', roomId, me.id, { name: me.name, avatar: me.avatar, callType: type });
+    
+    updateCallButtons();
+    renderVideoGrid();
+    
+    toast('Joined the call', 'success');
+    
+  } catch (err) {
+    console.error('Error joining call:', err);
+    toast('Could not access camera/microphone', 'error');
+  }
+}
+
+function leaveCall() {
+  // Stop all tracks
+  if (localStream) {
+    localStream.getTracks().forEach(track => track.stop());
+    localStream = null;
+  }
+  
+  if (screenStream) {
+    screenStream.getTracks().forEach(track => track.stop());
+    screenStream = null;
+  }
+  
+  // Close peer connection
+  if (peerConnection) {
+    peerConnection.close();
+    peerConnection = null;
+  }
+  
+  // Notify others
+  if (socket.connected) {
+    socket.emit('leave-call', { userId: me.id });
+    socket.disconnect();
+  }
+  
+  // Clear participants
+  participants = {};
+  callActive = false;
+  callType = null;
+  isMicMuted = false;
+  isCamOff = false;
+  
+  // Hide call container
+  document.getElementById('callContainer').classList.remove('active');
+  document.getElementById('joinCallBtn').style.display = 'none';
+  
+  // Clear video grid
+  document.getElementById('videoGrid').innerHTML = '';
+  
+  // Stop timer
+  if (callTimer) {
+    clearInterval(callTimer);
+    callTimer = null;
+  }
+  
+  toast('Left the call', 'info');
+}
+
+function toggleMic() {
+  if (localStream) {
+    const audioTrack = localStream.getAudioTracks()[0];
+    if (audioTrack) {
+      isMicMuted = !audioTrack.enabled;
+      audioTrack.enabled = !isMicMuted;
+      document.getElementById('toggleMicBtn').classList.toggle('active', !isMicMuted);
+      document.getElementById('toggleMicBtn').innerHTML = isMicMuted ? '🎤❌' : '🎤';
+    }
+  }
+}
+
+function toggleCamera() {
+  if (localStream && callType === 'video') {
+    const videoTrack = localStream.getVideoTracks()[0];
+    if (videoTrack) {
+      isCamOff = !videoTrack.enabled;
+      videoTrack.enabled = !isCamOff;
+      document.getElementById('toggleCamBtn').classList.toggle('active', !isCamOff);
+      document.getElementById('toggleCamBtn').innerHTML = isCamOff ? '📹❌' : '📹';
+    }
+  }
+}
+
+async function toggleScreenShare() {
+  try {
+    if (!screenStream) {
+      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+      
+      // Replace video track with screen track
+      const videoTrack = screenStream.getVideoTracks()[0];
+      const sender = peerConnection?.getSenders().find(s => s.track?.kind === 'video');
+      if (sender) {
+        sender.replaceTrack(videoTrack);
+      }
+      
+      screenStream.getVideoTracks()[0].onended = () => {
+        stopScreenShare();
+      };
+      
+      document.getElementById('toggleScreenBtn').classList.add('active');
+      document.getElementById('toggleScreenBtn').innerHTML = '🖥️✓';
+      toast('Screen sharing started', 'success');
+    } else {
+      stopScreenShare();
+    }
+  } catch (err) {
+    console.error('Error sharing screen:', err);
+    toast('Could not share screen', 'error');
+  }
+}
+
+function stopScreenShare() {
+  if (screenStream) {
+    screenStream.getTracks().forEach(track => track.stop());
+    screenStream = null;
+    
+    // Restore camera track
+    if (localStream && callType === 'video') {
+      const videoTrack = localStream.getVideoTracks()[0];
+      const sender = peerConnection?.getSenders().find(s => s.track?.kind === 'video');
+      if (sender) {
+        sender.replaceTrack(videoTrack);
+      }
+    }
+    
+    document.getElementById('toggleScreenBtn').classList.remove('active');
+    document.getElementById('toggleScreenBtn').innerHTML = '🖥️';
+    toast('Screen sharing stopped', 'info');
+  }
+}
+
+function removeParticipant(userId) {
+  if (participants[userId]) {
+    delete participants[userId];
+    updateParticipantsList();
+    renderVideoGrid();
+  }
+}
+
+function updateParticipantsList() {
+  const count = Object.keys(participants).length;
+  document.getElementById('participantCount').textContent = count;
+  
+  // Update chat sub with call info
+  if (callActive) {
+    document.getElementById('chatSub').textContent = `📞 ${count} in call • ${onlineCount} online`;
+  }
+}
+
+function startCallTimer() {
+  callTimer = setInterval(() => {
+    if (callStartTime) {
+      const duration = Math.floor((Date.now() - callStartTime) / 1000);
+      const minutes = Math.floor(duration / 60).toString().padStart(2, '0');
+      const seconds = (duration % 60).toString().padStart(2, '0');
+      document.getElementById('callDuration').textContent = `${minutes}:${seconds}`;
+    }
+  }, 1000);
+}
+
+function updateCallButtons() {
+  document.getElementById('toggleMicBtn').innerHTML = '🎤';
+  document.getElementById('toggleMicBtn').classList.add('active');
+  
+  if (callType === 'video') {
+    document.getElementById('toggleCamBtn').innerHTML = '📹';
+    document.getElementById('toggleCamBtn').classList.add('active');
+    document.getElementById('toggleCamBtn').style.display = 'flex';
+    document.getElementById('toggleScreenBtn').style.display = 'flex';
+  } else {
+    document.getElementById('toggleCamBtn').style.display = 'none';
+    document.getElementById('toggleScreenBtn').style.display = 'none';
+  }
+}
+
+function renderVideoGrid() {
+  const grid = document.getElementById('videoGrid');
+  grid.innerHTML = '';
+  
+  const participantCount = Object.keys(participants).length;
+  grid.className = `video-grid ${participantCount > 1 ? 'multi' : ''}`;
+  
+  Object.entries(participants).forEach(([userId, user]) => {
+    if (user.stream || user.isSelf) {
+      const wrapper = document.createElement('div');
+      wrapper.className = 'video-wrapper';
+      
+      if (user.stream) {
+        const video = document.createElement('video');
+        video.srcObject = user.stream;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.muted = user.isSelf; // Mute self to avoid echo
+        
+        // Check if it's audio-only
+        if (callType === 'voice' || (user.stream.getVideoTracks().length === 0)) {
+          // Audio-only mode - show avatar
+          const avatarOverlay = document.createElement('div');
+          avatarOverlay.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--bg2);';
+          avatarOverlay.textContent = user.avatar;
+          wrapper.appendChild(avatarOverlay);
+          
+          // Hide video element
+          video.style.display = 'none';
+        } else {
+          video.style.display = 'block';
+        }
+        
+        wrapper.appendChild(video);
+      } else {
+        // No stream yet - show avatar
+        const avatarDiv = document.createElement('div');
+        avatarDiv.style.cssText = 'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:48px;background:var(--bg2);';
+        avatarDiv.textContent = user.avatar;
+        wrapper.appendChild(avatarDiv);
+      }
+      
+      // Label
+      const label = document.createElement('div');
+      label.className = 'video-label';
+      label.textContent = user.isSelf ? `${user.name} (you)` : user.name;
+      wrapper.appendChild(label);
+      
+      // Mute indicator
+      if (!user.isSelf && !user.stream?.getAudioTracks()[0]?.enabled) {
+        const muteIcon = document.createElement('div');
+        muteIcon.className = 'video-mute';
+        muteIcon.innerHTML = '🔇';
+        wrapper.appendChild(muteIcon);
+      }
+      
+      grid.appendChild(wrapper);
+    }
+  });
 }
 
 // ── AUTH ──────────────────────────────────────────
@@ -435,6 +994,7 @@ window.doReg = async function() {
 window.doLogout = async function() {
   document.getElementById('drop').classList.remove('on');
   if(realtimeCh){ sb.removeChannel(realtimeCh); realtimeCh=null; }
+  if (callActive) leaveCall();
   await sb.auth.signOut();
   // Reset buttons
   document.getElementById('lBtn').disabled=false; document.getElementById('lBtn').textContent='SIGN IN →';
@@ -531,7 +1091,9 @@ function subscribeRealtime() {
       const state = realtimeCh.presenceState();
       onlineCount = Object.keys(state).length;
       setPill('live', `${onlineCount} online`);
-      document.getElementById('chatSub').textContent = `${onlineCount} user${onlineCount!==1?'s':''} online`;
+      if (!callActive) {
+        document.getElementById('chatSub').textContent = `${onlineCount} user${onlineCount!==1?'s':''} online`;
+      }
     })
     .on('presence', { event:'join' }, ({ newPresences }) => {
       newPresences.forEach(p => { if(p.uid!==me.id) toast(`${p.avatar} ${p.name} joined`,'info'); });
@@ -543,8 +1105,6 @@ function subscribeRealtime() {
       }
     });
 }
-
-function subscribePresence() {} // handled inside subscribeRealtime
 
 // ── SEND ──────────────────────────────────────────
 window.sendMsg = async function() {
