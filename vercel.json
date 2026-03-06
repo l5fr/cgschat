@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    { "source": "/nexus-chat", "destination": "/nexus-chat.html" },
+    { "source": "/chat", "destination": "/nexus-chat.html" }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Cross-Origin-Embedder-Policy", "value": "unsafe-none" },
+        { "key": "Cross-Origin-Opener-Policy", "value": "unsafe-none" }
+      ]
+    }
+  ]
+}
