@@ -302,6 +302,68 @@ body.cursed-mode #app{animation:cursedFlicker 3s ease-in-out infinite;}
 .tw{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:900;display:flex;flex-direction:column;gap:7px;pointer-events:none;}
 .toast{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:10px 17px;font-size:12px;display:flex;align-items:center;gap:9px;animation:bIn .25s cubic-bezier(.34,1.56,.64,1) both;box-shadow:0 4px 20px rgba(0,0,0,.5);white-space:nowrap;}
 
+
+/* ══ CALLING SYSTEM ══ */
+/* Call button in topbar */
+.call-btn{display:flex;align-items:center;gap:6px;padding:5px 13px;border-radius:20px;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.08);color:#4ade80;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .2s;font-weight:700;letter-spacing:1px;}
+.call-btn:hover{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.5);box-shadow:0 0 14px rgba(34,197,94,.2);}
+.call-btn.in-call{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.4);color:#f87171;}
+.call-btn.in-call:hover{background:rgba(239,68,68,.22);}
+.call-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:liveDot 1.5s ease-in-out infinite;}
+
+/* Incoming call popup */
+#incomingCall{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:8000;background:var(--bg3);border:1px solid var(--border);border-radius:18px;padding:20px 24px;display:none;align-items:center;gap:16px;box-shadow:0 8px 40px rgba(0,0,0,.7);min-width:320px;animation:slideDown .3s cubic-bezier(.34,1.56,.64,1) both;}
+#incomingCall.on{display:flex;}
+@keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.ic-av{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--purple),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;animation:markPulse 1.5s ease-in-out infinite;}
+.ic-info{flex:1;}
+.ic-name{font-size:14px;font-weight:700;color:var(--text);}
+.ic-type{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-top:2px;}
+.ic-btns{display:flex;gap:8px;}
+.ic-accept{width:40px;height:40px;border-radius:50%;background:rgba(34,197,94,.2);border:1px solid rgba(34,197,94,.4);color:#4ade80;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.ic-accept:hover{background:rgba(34,197,94,.4);transform:scale(1.1);}
+.ic-decline{width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.35);color:#f87171;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.ic-decline:hover{background:rgba(239,68,68,.3);transform:scale(1.1);}
+
+/* Active call bar */
+#callBar{position:fixed;bottom:0;left:0;right:0;z-index:7000;background:rgba(8,6,16,.97);border-top:1px solid var(--border);padding:10px 20px;display:none;align-items:center;gap:12px;backdrop-filter:blur(20px);}
+#callBar.on{display:flex;}
+.cb-status{display:flex;align-items:center;gap:8px;flex:1;}
+.cb-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:liveDot 1.5s ease-in-out infinite;}
+.cb-info{font-size:12px;font-weight:700;color:var(--text);letter-spacing:1px;}
+.cb-dur{font-size:10px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:1px;}
+.cb-peers{display:flex;gap:4px;align-items:center;}
+.cb-peer-av{width:26px;height:26px;border-radius:7px;background:var(--bg3);border:2px solid var(--purple);display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;}
+.cb-peer-av img{width:100%;height:100%;object-fit:cover;}
+.cb-btns{display:flex;gap:8px;}
+.cb-btn{height:34px;padding:0 14px;border-radius:9px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+.cb-btn:hover{background:var(--dim);color:var(--text);}
+.cb-btn.active{background:rgba(124,58,237,.2);border-color:var(--purple);color:var(--accent);}
+.cb-btn.danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#f87171;}
+.cb-btn.danger:hover{background:rgba(239,68,68,.25);}
+
+/* Video grid */
+#videoGrid{position:fixed;inset:0;z-index:6000;background:rgba(5,5,8,.97);display:none;flex-direction:column;}
+#videoGrid.on{display:flex;}
+.vg-top{height:50px;background:rgba(8,6,16,.9);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
+.vg-title{font-size:13px;font-weight:700;letter-spacing:2px;color:var(--text);}
+.vg-gap{flex:1;}
+.vg-close{padding:6px 14px;border-radius:8px;border:1px solid rgba(239,68,68,.3);background:rgba(239,68,68,.08);color:#f87171;font-family:'JetBrains Mono',monospace;font-size:11px;cursor:pointer;}
+.vg-close:hover{background:rgba(239,68,68,.2);}
+.vg-videos{flex:1;display:grid;gap:8px;padding:12px;overflow:hidden;}
+.vg-videos.count-1{grid-template-columns:1fr;}
+.vg-videos.count-2{grid-template-columns:1fr 1fr;}
+.vg-videos.count-3,.vg-videos.count-4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
+.vg-videos.count-many{grid-template-columns:repeat(3,1fr);}
+.vid-tile{position:relative;background:var(--bg3);border-radius:14px;overflow:hidden;border:2px solid var(--border2);}
+.vid-tile.speaking{border-color:var(--green);box-shadow:0 0 16px rgba(34,197,94,.3);}
+.vid-tile video{width:100%;height:100%;object-fit:cover;display:block;}
+.vid-tile .vid-label{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.65);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;}
+.vid-tile .vid-muted{position:absolute;top:10px;right:10px;font-size:14px;opacity:.8;}
+.vid-no-cam{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
+.vid-no-cam .vnc-av{width:72px;height:72px;border-radius:20px;background:linear-gradient(135deg,var(--purple),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:32px;}
+.vid-no-cam .vnc-name{font-size:13px;font-weight:700;color:var(--text2);}
+
 a{color:var(--accent);}
 .mention{color:var(--accent);font-weight:600;}
 input[type=file]{display:none;}
@@ -364,6 +426,10 @@ input[type=file]{display:none;}
       <div class="tbar-logo">NEXUS</div>
       <div class="pill wait" id="pill"><div class="pdot"></div><span id="pillTxt">Connecting</span></div>
       <div class="tbar-gap"></div>
+      <button class="call-btn" id="callBtn" onclick="toggleCall()">
+        <span class="call-dot" id="callDot" style="animation:none;background:var(--text3);"></span>
+        <span id="callBtnTxt">📞 Start Call</span>
+      </button>
       <div class="tbar-user" id="tbarUser" onclick="togDrop()">
         <div class="tbar-av" id="tbarAv">🦊</div>
         <div class="tbar-name" id="tbarName">User</div>
@@ -705,6 +771,53 @@ input[type=file]{display:none;}
   </div>
 </div>
 
+
+<!-- INCOMING CALL -->
+<div id="incomingCall">
+  <div class="ic-av" id="icAv">🦊</div>
+  <div class="ic-info">
+    <div class="ic-name" id="icName">Someone</div>
+    <div class="ic-type" id="icType">INCOMING CALL</div>
+  </div>
+  <div class="ic-btns">
+    <button class="ic-accept" onclick="acceptCall()" title="Accept">📞</button>
+    <button class="ic-decline" onclick="declineCall()" title="Decline">📵</button>
+  </div>
+</div>
+
+<!-- ACTIVE CALL BAR -->
+<div id="callBar">
+  <div class="cb-status">
+    <div class="cb-dot"></div>
+    <div>
+      <div class="cb-info">CALL IN PROGRESS</div>
+      <div class="cb-dur" id="callDur">00:00</div>
+    </div>
+  </div>
+  <div class="cb-peers" id="callPeers"></div>
+  <div class="cb-btns">
+    <button class="cb-btn" id="muteBtn" onclick="toggleMute()">🎤 Mute</button>
+    <button class="cb-btn" id="camBtn" onclick="toggleCamera()">📹 Camera</button>
+    <button class="cb-btn" id="screenBtn" onclick="toggleScreen()">🖥️ Screen</button>
+    <button class="cb-btn" id="videoGridBtn" onclick="toggleVideoGrid()">⛶ View</button>
+    <button class="cb-btn danger" onclick="leaveCall()">📵 Leave</button>
+  </div>
+</div>
+
+<!-- VIDEO GRID -->
+<div id="videoGrid">
+  <div class="vg-top">
+    <div class="vg-title">📞 NEXUS CALL</div>
+    <div id="vgCallInfo" style="font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;"></div>
+    <div class="vg-gap"></div>
+    <button class="vg-close" onclick="toggleVideoGrid()">✕ Hide</button>
+  </div>
+  <div class="vg-videos count-1" id="vgVideos"></div>
+</div>
+
+<!-- hidden audio elements for ringtone -->
+<audio id="ringtoneAudio" loop></audio>
+
 <div class="lb" id="lb" onclick="closeLb()"><img id="lbImg" src="" alt=""></div>
 <div class="tw" id="tw"></div>
 
@@ -716,7 +829,7 @@ input[type=file]{display:none;}
 const SB_URL = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
 const SB_KEY = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
 const ADMIN_IDS = [
-  'f0293c06-00ea-4b9e-ab99-098627a8b249',
+  'af8060a4-1af3-4f89-94e2-939c3e001b43',
   'ef732c5f-625b-4334-b4eb-f456b79beae2'
 ];
 
@@ -917,6 +1030,7 @@ function subscribeRealtime() {
     .subscribe(async status => {
       if(status==='SUBSCRIBED'){
         await realtimeCh.track({uid:me.id,name:me.name,avatar:me.avatar_url||me.avatar});
+        attachCallSignalListener();
         setPill('live',`${onlineCount} online`);
       }
     });
@@ -1745,6 +1859,428 @@ window.confirmImpersonate = async function() {
   toast(`💬 Sent as ${name}!`,'success');
 }
 function doImpersonateReceive(data) { /* handled via DB insert realtime */ }
+
+
+// ══════════════════════════════════════════════
+//  WEBRTC CALLING SYSTEM
+// ══════════════════════════════════════════════
+const STUN = { iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun2.l.google.com:19302'}] };
+
+let callState = 'idle'; // idle | calling | incall
+let localStream = null;
+let screenStream = null;
+let peers = {}; // uid -> { pc, stream, name, avatar, avatar_url, muted, camOff }
+let callStartTime = null;
+let callDurInterval = null;
+let isMuted = false;
+let isCamOff = true; // start with camera off
+let isScreenSharing = false;
+let videoGridOpen = false;
+let pendingOffer = null; // { fromUid, fromName, fromAvatar, fromAvatarUrl, offer }
+
+// ── Broadcast call signals via Supabase realtime ──
+function sendSignal(toUid, type, data) {
+  if(!realtimeCh) return;
+  realtimeCh.send({ type:'broadcast', event:'call_signal', payload:{ toUid, fromUid:me.id, fromName:me.name, fromAvatar:me.avatar, fromAvatarUrl:me.avatar_url||null, type, data } });
+}
+function broadcastSignal(type, data) {
+  if(!realtimeCh) return;
+  realtimeCh.send({ type:'broadcast', event:'call_signal', payload:{ toUid:'*', fromUid:me.id, fromName:me.name, fromAvatar:me.avatar, fromAvatarUrl:me.avatar_url||null, type, data } });
+}
+
+// ── Hook into subscribeRealtime — add call_signal listener ──
+// Called after subscribeRealtime sets up the channel
+function attachCallSignalListener() {
+  if(!realtimeCh) return;
+  realtimeCh.on('broadcast',{event:'call_signal'},({payload}) => {
+    if(payload.toUid !== me.id && payload.toUid !== '*') return;
+    if(payload.fromUid === me.id) return;
+    handleSignal(payload);
+  });
+}
+
+async function handleSignal(p) {
+  const { fromUid, fromName, fromAvatar, fromAvatarUrl, type, data } = p;
+  if(type === 'call-invite') {
+    if(callState === 'incall') { sendSignal(fromUid,'call-busy',{}); return; }
+    showIncomingCall(fromUid, fromName, fromAvatar, fromAvatarUrl, data);
+  }
+  else if(type === 'call-accepted') {
+    if(callState !== 'incall') return;
+    await addPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, true);
+  }
+  else if(type === 'call-declined') { toast(`${fromName} declined the call`,'info'); }
+  else if(type === 'call-busy') { toast(`${fromName} is already in a call`,'info'); }
+  else if(type === 'call-left') { removePeer(fromUid); }
+  else if(type === 'call-join') {
+    // Someone joined an active call
+    if(callState !== 'incall') return;
+    await addPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, true);
+  }
+  else if(type === 'offer') {
+    if(!peers[fromUid]) await addPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, false);
+    const pc = peers[fromUid]?.pc; if(!pc) return;
+    await pc.setRemoteDescription(new RTCSessionDescription(data));
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    sendSignal(fromUid, 'answer', answer);
+  }
+  else if(type === 'answer') {
+    const pc = peers[fromUid]?.pc; if(!pc) return;
+    await pc.setRemoteDescription(new RTCSessionDescription(data));
+  }
+  else if(type === 'ice') {
+    const pc = peers[fromUid]?.pc; if(!pc) return;
+    try { await pc.addIceCandidate(new RTCIceCandidate(data)); } catch(e){}
+  }
+}
+
+// ── Get local media ──
+async function getLocalStream(withVideo=false) {
+  if(localStream) return localStream;
+  try {
+    localStream = await navigator.mediaDevices.getUserMedia({ audio:true, video: withVideo ? {width:1280,height:720} : false });
+    return localStream;
+  } catch(e) {
+    toast('Could not access microphone: '+e.message, 'error');
+    return null;
+  }
+}
+
+// ── Start / toggle call ──
+window.toggleCall = async function() {
+  if(callState === 'idle') await startCall();
+  else leaveCall();
+}
+
+async function startCall() {
+  const stream = await getLocalStream(false);
+  if(!stream) return;
+  callState = 'incall';
+  updateCallBtn();
+  startCallBar();
+  // Add local video tile
+  addLocalTile();
+  // Broadcast invite to everyone online
+  broadcastSignal('call-invite', { callerName: me.name });
+  toast('📞 Call started — waiting for others to join', 'info');
+  // Hook signal listener now
+  attachCallSignalListener();
+}
+
+function showIncomingCall(fromUid, fromName, fromAvatar, fromAvatarUrl, data) {
+  pendingOffer = { fromUid, fromName, fromAvatar, fromAvatarUrl };
+  const ic = document.getElementById('incomingCall');
+  const avEl = document.getElementById('icAv');
+  if(fromAvatarUrl) avEl.innerHTML = `<img src="${fromAvatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:12px;">`;
+  else avEl.textContent = fromAvatar || '🦊';
+  document.getElementById('icName').textContent = fromName;
+  document.getElementById('icType').textContent = '📞 INCOMING CALL';
+  ic.classList.add('on');
+  playRingtone();
+}
+
+window.acceptCall = async function() {
+  stopRingtone();
+  document.getElementById('incomingCall').classList.remove('on');
+  if(!pendingOffer) return;
+  const { fromUid, fromName, fromAvatar, fromAvatarUrl } = pendingOffer;
+  pendingOffer = null;
+  const stream = await getLocalStream(false);
+  if(!stream) return;
+  callState = 'incall';
+  updateCallBtn();
+  startCallBar();
+  addLocalTile();
+  attachCallSignalListener();
+  // Tell caller + everyone in call we joined
+  broadcastSignal('call-join', {});
+  sendSignal(fromUid, 'call-accepted', {});
+  await addPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, true);
+}
+
+window.declineCall = function() {
+  stopRingtone();
+  document.getElementById('incomingCall').classList.remove('on');
+  if(pendingOffer) { sendSignal(pendingOffer.fromUid, 'call-declined', {}); pendingOffer=null; }
+}
+
+window.leaveCall = function() {
+  stopRingtone();
+  broadcastSignal('call-left', {});
+  // Close all peer connections
+  Object.keys(peers).forEach(uid => removePeer(uid, true));
+  peers = {};
+  // Stop streams
+  if(localStream) { localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
+  if(screenStream) { screenStream.getTracks().forEach(t=>t.stop()); screenStream=null; }
+  callState = 'idle'; isMuted=false; isCamOff=true; isScreenSharing=false;
+  updateCallBtn();
+  stopCallBar();
+  document.getElementById('callBar').classList.remove('on');
+  document.getElementById('videoGrid').classList.remove('on');
+  document.getElementById('vgVideos').innerHTML='';
+  videoGridOpen=false;
+  toast('Call ended','info');
+}
+
+// ── Peer connection ──
+async function addPeer(uid, name, avatar, avatarUrl, initiator) {
+  if(peers[uid]) return;
+  const pc = new RTCPeerConnection(STUN);
+  peers[uid] = { pc, name, avatar, avatar_url:avatarUrl, muted:false, camOff:true, stream:null };
+
+  // Add local tracks
+  if(localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+  // ICE candidates
+  pc.onicecandidate = e => { if(e.candidate) sendSignal(uid,'ice',e.candidate); };
+
+  // Remote stream
+  pc.ontrack = e => {
+    peers[uid].stream = e.streams[0];
+    updatePeerTile(uid);
+    updateCallPeers();
+  };
+
+  pc.onconnectionstatechange = () => {
+    if(pc.connectionState==='disconnected'||pc.connectionState==='failed'||pc.connectionState==='closed') removePeer(uid);
+  };
+
+  addPeerTile(uid, name, avatar, avatarUrl);
+  updateCallPeers();
+
+  if(initiator) {
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    sendSignal(uid, 'offer', offer);
+  }
+}
+
+function removePeer(uid, silent=false) {
+  const p = peers[uid]; if(!p) return;
+  if(p.pc) { try{p.pc.close();}catch(e){} }
+  delete peers[uid];
+  // Remove tile
+  const tile = document.getElementById('vt-'+uid);
+  if(tile) tile.remove();
+  updateCallPeers();
+  updateVideoGrid();
+  if(!silent) toast(`${p.name} left the call`,'info');
+  if(Object.keys(peers).length===0 && callState==='incall') toast('Everyone left the call','info');
+}
+
+// ── Media controls ──
+window.toggleMute = function() {
+  if(!localStream) return;
+  isMuted = !isMuted;
+  localStream.getAudioTracks().forEach(t => t.enabled = !isMuted);
+  const btn = document.getElementById('muteBtn');
+  btn.textContent = isMuted ? '🔇 Unmute' : '🎤 Mute';
+  btn.classList.toggle('active', isMuted);
+}
+
+window.toggleCamera = async function() {
+  isCamOff = !isCamOff;
+  if(!isCamOff) {
+    // Turn camera ON
+    try {
+      const camStream = await navigator.mediaDevices.getUserMedia({video:{width:1280,height:720},audio:false});
+      const videoTrack = camStream.getVideoTracks()[0];
+      localStream.addTrack(videoTrack);
+      // Replace track in all peers
+      Object.values(peers).forEach(p => {
+        const sender = p.pc.getSenders().find(s=>s.track&&s.track.kind==='video');
+        if(sender) sender.replaceTrack(videoTrack);
+        else p.pc.addTrack(videoTrack, localStream);
+      });
+      updateLocalTile();
+    } catch(e) { toast('Camera access denied','error'); isCamOff=true; return; }
+  } else {
+    // Turn camera OFF
+    localStream.getVideoTracks().forEach(t=>{t.stop();localStream.removeTrack(t);});
+    Object.values(peers).forEach(p => {
+      const sender = p.pc.getSenders().find(s=>s.track&&s.track.kind==='video');
+      if(sender) sender.replaceTrack(null).catch(()=>{});
+    });
+    updateLocalTile();
+  }
+  const btn = document.getElementById('camBtn');
+  btn.textContent = isCamOff ? '📷 Camera' : '📹 Camera On';
+  btn.classList.toggle('active', !isCamOff);
+}
+
+window.toggleScreen = async function() {
+  if(isScreenSharing) {
+    // Stop screen share
+    if(screenStream) { screenStream.getTracks().forEach(t=>t.stop()); screenStream=null; }
+    // Revert to camera or blank
+    const videoTrack = localStream.getVideoTracks()[0]||null;
+    Object.values(peers).forEach(p => {
+      const sender = p.pc.getSenders().find(s=>s.track&&s.track.kind==='video');
+      if(sender) sender.replaceTrack(videoTrack).catch(()=>{});
+    });
+    isScreenSharing=false;
+    document.getElementById('screenBtn').classList.remove('active');
+    document.getElementById('screenBtn').textContent='🖥️ Screen';
+    updateLocalTile();
+    toast('Screen share stopped','info');
+  } else {
+    try {
+      screenStream = await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
+      const screenTrack = screenStream.getVideoTracks()[0];
+      screenTrack.onended = () => { if(isScreenSharing) toggleScreen(); };
+      // Replace video track in all peers
+      Object.values(peers).forEach(p => {
+        const sender = p.pc.getSenders().find(s=>s.track&&s.track.kind==='video');
+        if(sender) sender.replaceTrack(screenTrack);
+        else p.pc.addTrack(screenTrack, localStream);
+      });
+      isScreenSharing=true;
+      document.getElementById('screenBtn').classList.add('active');
+      document.getElementById('screenBtn').textContent='🖥️ Sharing';
+      updateLocalTile();
+      toast('📺 Screen sharing started','success');
+    } catch(e) { toast('Screen share cancelled','info'); }
+  }
+}
+
+// ── Video tiles ──
+function addLocalTile() {
+  const vg = document.getElementById('vgVideos');
+  let tile = document.getElementById('vt-local');
+  if(!tile) {
+    tile = document.createElement('div');
+    tile.className='vid-tile'; tile.id='vt-local';
+    vg.appendChild(tile);
+  }
+  updateLocalTile();
+  updateVideoGrid();
+}
+
+function updateLocalTile() {
+  const tile = document.getElementById('vt-local'); if(!tile) return;
+  const videoTrack = isScreenSharing ? screenStream?.getVideoTracks()[0] : localStream?.getVideoTracks()[0];
+  if(videoTrack && !isCamOff) {
+    const stream = new MediaStream([videoTrack]);
+    if(localStream?.getAudioTracks()[0]) stream.addTrack(localStream.getAudioTracks()[0]);
+    tile.innerHTML = `<video autoplay muted playsinline style="transform:scaleX(-1)"></video><div class="vid-label">You${isScreenSharing?' 🖥️':''}</div>${isMuted?'<div class="vid-muted">🔇</div>':''}`;
+    tile.querySelector('video').srcObject = stream;
+  } else {
+    const avHtml = me.avatar_url ? `<img src="${me.avatar_url}" style="width:72px;height:72px;border-radius:20px;object-fit:cover;">` : `<div class="vnc-av">${me.avatar}</div>`;
+    tile.innerHTML = `<div class="vid-no-cam">${avHtml}<div class="vnc-name">You${isMuted?' 🔇':''}</div></div><div class="vid-label">You</div>`;
+  }
+}
+
+function addPeerTile(uid, name, avatar, avatarUrl) {
+  const vg = document.getElementById('vgVideos');
+  let tile = document.getElementById('vt-'+uid);
+  if(!tile) { tile=document.createElement('div'); tile.className='vid-tile'; tile.id='vt-'+uid; vg.appendChild(tile); }
+  const avHtml = avatarUrl ? `<img src="${avatarUrl}" style="width:72px;height:72px;border-radius:20px;object-fit:cover;">` : `<div class="vnc-av">${avatar}</div>`;
+  tile.innerHTML = `<div class="vid-no-cam">${avHtml}<div class="vnc-name">${x(name)}</div></div><div class="vid-label">${x(name)}</div>`;
+  updateVideoGrid();
+}
+
+function updatePeerTile(uid) {
+  const p = peers[uid]; if(!p||!p.stream) return;
+  const tile = document.getElementById('vt-'+uid); if(!tile) return;
+  const hasVideo = p.stream.getVideoTracks().some(t=>t.enabled&&t.readyState==='live');
+  if(hasVideo) {
+    tile.innerHTML = `<video autoplay playsinline></video><div class="vid-label">${x(p.name)}</div>`;
+    tile.querySelector('video').srcObject = p.stream;
+  } else {
+    const avHtml = p.avatar_url ? `<img src="${p.avatar_url}" style="width:72px;height:72px;border-radius:20px;object-fit:cover;">` : `<div class="vnc-av">${p.avatar}</div>`;
+    tile.innerHTML = `<div class="vid-no-cam">${avHtml}<div class="vnc-name">${x(p.name)}</div></div><div class="vid-label">${x(p.name)}</div>`;
+  }
+}
+
+function updateVideoGrid() {
+  const vg = document.getElementById('vgVideos');
+  const count = vg.children.length;
+  vg.className = 'vg-videos ' + (count<=1?'count-1':count===2?'count-2':count<=4?'count-'+count:'count-many');
+  document.getElementById('vgCallInfo').textContent = count + ' participant' + (count!==1?'s':'');
+}
+
+window.toggleVideoGrid = function() {
+  videoGridOpen = !videoGridOpen;
+  document.getElementById('videoGrid').classList.toggle('on', videoGridOpen);
+  document.getElementById('videoGridBtn').classList.toggle('active', videoGridOpen);
+}
+
+// ── Call bar ──
+function startCallBar() {
+  document.getElementById('callBar').classList.add('on');
+  callStartTime = Date.now();
+  callDurInterval = setInterval(updateCallDur, 1000);
+}
+function stopCallBar() {
+  clearInterval(callDurInterval);
+  document.getElementById('callBar').classList.remove('on');
+}
+function updateCallDur() {
+  if(!callStartTime) return;
+  const s = Math.floor((Date.now()-callStartTime)/1000);
+  const m = Math.floor(s/60).toString().padStart(2,'0');
+  const sec = (s%60).toString().padStart(2,'0');
+  document.getElementById('callDur').textContent = m+':'+sec;
+}
+
+function updateCallPeers() {
+  const el = document.getElementById('callPeers');
+  el.innerHTML = Object.values(peers).map(p=>{
+    const avHtml = p.avatar_url ? `<img src="${p.avatar_url}" style="width:100%;height:100%;object-fit:cover;">` : p.avatar;
+    return `<div class="cb-peer-av" title="${x(p.name)}">${avHtml}</div>`;
+  }).join('');
+}
+
+function updateCallBtn() {
+  const btn = document.getElementById('callBtn');
+  const dot = document.getElementById('callDot');
+  const txt = document.getElementById('callBtnTxt');
+  if(callState==='incall') {
+    btn.classList.add('in-call');
+    dot.style.animation='liveDot 1.5s ease-in-out infinite';
+    dot.style.background='';
+    txt.textContent='📵 Leave Call';
+  } else {
+    btn.classList.remove('in-call');
+    dot.style.animation='none';
+    dot.style.background='var(--text3)';
+    txt.textContent='📞 Start Call';
+  }
+}
+
+// ── Ringtone (synthesized) ──
+function playRingtone() {
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    window._ringtoneCtx = ctx;
+    const ring = () => {
+      const o=ctx.createOscillator(),g=ctx.createGain();
+      o.connect(g);g.connect(ctx.destination);
+      o.type='sine';o.frequency.value=880;
+      g.gain.setValueAtTime(0.3,ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.4);
+      o.start();o.stop(ctx.currentTime+0.4);
+      const o2=ctx.createOscillator(),g2=ctx.createGain();
+      o2.connect(g2);g2.connect(ctx.destination);
+      o2.type='sine';o2.frequency.value=1100;
+      g2.gain.setValueAtTime(0,ctx.currentTime+0.45);
+      g2.gain.setValueAtTime(0.3,ctx.currentTime+0.45);
+      g2.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.85);
+      o2.start(ctx.currentTime+0.45);o2.stop(ctx.currentTime+0.85);
+    };
+    ring();
+    window._ringtoneInterval = setInterval(ring, 2000);
+  } catch(e){}
+}
+function stopRingtone() {
+  clearInterval(window._ringtoneInterval);
+  try { window._ringtoneCtx && window._ringtoneCtx.close(); } catch(e){}
+}
+
+// Patch subscribeRealtime to attach call listener after subscribe
+const _origSubscribeRealtime = subscribeRealtime;
 
 document.addEventListener('click',e=>{
   if(emOpen&&!e.target.closest('.iwrap')&&!e.target.closest('#emBtn')){emOpen=false;document.getElementById('embox').style.display='none';}
