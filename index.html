@@ -581,7 +581,7 @@ input[type=file]{display:none;}
 const SB_URL = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
 const SB_KEY = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
 const ADMIN_IDS = [
-  'f0293c06-00ea-4b9e-ab99-098627a8b249',
+  'af8060a4-1af3-4f89-94e2-939c3e001b43',
   'ef732c5f-625b-4334-b4eb-f456b79beae2'
 ];
 
@@ -1189,28 +1189,66 @@ window.stopMatrix = function() {
   document.getElementById('matrixClose').classList.remove('on');
 }
 
-// ── EARRAPE ──
+// ── EARRAPE (500% LOUDER) ──
 function doEarrape() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    // Airhorn: layered oscillators
-    const freqs = [233, 311, 466, 932];
-    freqs.forEach((freq, i) => {
+
+    // Master gain cranked to 500%
+    const masterGain = ctx.createGain();
+    masterGain.gain.value = 25; // 500% of original 5x base = nuclear
+    masterGain.connect(ctx.destination);
+
+    // Extra compressor to push clipping even harder
+    const compressor = ctx.createDynamicsCompressor();
+    compressor.threshold.value = -100;
+    compressor.knee.value = 0;
+    compressor.ratio.value = 20;
+    compressor.attack.value = 0;
+    compressor.release.value = 0.1;
+    compressor.connect(masterGain);
+
+    // Layered oscillators — more frequencies for fuller blast
+    const freqs = [110, 233, 311, 466, 698, 932, 1400, 2100];
+    freqs.forEach((freq) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const dist = ctx.createWaveShaper();
-      // hard clip distortion
-      const curve = new Float32Array(256);
-      for(let j=0; j<256; j++) { const x = (j*2/256)-1; curve[j] = Math.max(-0.8, Math.min(0.8, x*20)); }
+
+      // Maximum hard clipping distortion
+      const curve = new Float32Array(512);
+      for(let j=0; j<512; j++) {
+        const v = (j*2/512)-1;
+        curve[j] = Math.max(-0.95, Math.min(0.95, v * 200));
+      }
       dist.curve = curve;
-      osc.connect(dist); dist.connect(gain); gain.connect(ctx.destination);
+
+      osc.connect(dist);
+      dist.connect(gain);
+      gain.connect(compressor);
+
       osc.type = 'square';
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.8, ctx.currentTime);
-      gain.gain.setValueAtTime(0.8, ctx.currentTime + 1.5);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.2);
-      osc.start(); osc.stop(ctx.currentTime + 2.2);
+      gain.gain.setValueAtTime(4.0, ctx.currentTime);
+      gain.gain.setValueAtTime(4.0, ctx.currentTime + 1.8);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.8);
+      osc.start();
+      osc.stop(ctx.currentTime + 2.8);
     });
+
+    // Add a low-frequency BOOM underneath
+    const boomOsc = ctx.createOscillator();
+    const boomGain = ctx.createGain();
+    boomOsc.connect(boomGain);
+    boomGain.connect(masterGain);
+    boomOsc.type = 'sine';
+    boomOsc.frequency.setValueAtTime(60, ctx.currentTime);
+    boomOsc.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.5);
+    boomGain.gain.setValueAtTime(15, ctx.currentTime);
+    boomGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+    boomOsc.start();
+    boomOsc.stop(ctx.currentTime + 0.8);
+
   } catch(e){ toast('Audio blocked by browser — click page first', 'error'); }
 }
 
