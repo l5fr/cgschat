@@ -1189,37 +1189,32 @@ window.stopMatrix = function() {
   document.getElementById('matrixClose').classList.remove('on');
 }
 
-// ── EARRAPE (500% LOUDER) ──
+// ── EARRAPE — original formula, smartly amplified ──
 function doEarrape() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
 
-    // Master gain cranked to 500%
-    const masterGain = ctx.createGain();
-    masterGain.gain.value = 25; // 500% of original 5x base = nuclear
-    masterGain.connect(ctx.destination);
-
-    // Extra compressor to push clipping even harder
+    // Use a subtle compressor to RAISE the floor, not squash the ceiling
     const compressor = ctx.createDynamicsCompressor();
-    compressor.threshold.value = -100;
-    compressor.knee.value = 0;
-    compressor.ratio.value = 20;
+    compressor.threshold.value = -24;
+    compressor.knee.value = 2;
+    compressor.ratio.value = 1.5;
     compressor.attack.value = 0;
-    compressor.release.value = 0.1;
-    compressor.connect(masterGain);
+    compressor.release.value = 0.05;
+    compressor.connect(ctx.destination);
 
-    // Layered oscillators — more frequencies for fuller blast
-    const freqs = [110, 233, 311, 466, 698, 932, 1400, 2100];
+    // Original 4 freqs that worked — keep them, just push gain harder
+    const freqs = [233, 311, 466, 932];
     freqs.forEach((freq) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const dist = ctx.createWaveShaper();
 
-      // Maximum hard clipping distortion
-      const curve = new Float32Array(512);
-      for(let j=0; j<512; j++) {
-        const v = (j*2/512)-1;
-        curve[j] = Math.max(-0.95, Math.min(0.95, v * 200));
+      // Same hard clip curve as original — this is what made it loud
+      const curve = new Float32Array(256);
+      for(let j=0; j<256; j++) {
+        const v = (j*2/256)-1;
+        curve[j] = Math.max(-0.8, Math.min(0.8, v * 20));
       }
       dist.curve = curve;
 
@@ -1229,25 +1224,13 @@ function doEarrape() {
 
       osc.type = 'square';
       osc.frequency.value = freq;
-      gain.gain.setValueAtTime(4.0, ctx.currentTime);
-      gain.gain.setValueAtTime(4.0, ctx.currentTime + 1.8);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.8);
+      // Gain bumped from 0.8 → 2.8 — loud but not so high it mudds out
+      gain.gain.setValueAtTime(2.8, ctx.currentTime);
+      gain.gain.setValueAtTime(2.8, ctx.currentTime + 1.5);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.2);
       osc.start();
-      osc.stop(ctx.currentTime + 2.8);
+      osc.stop(ctx.currentTime + 2.2);
     });
-
-    // Add a low-frequency BOOM underneath
-    const boomOsc = ctx.createOscillator();
-    const boomGain = ctx.createGain();
-    boomOsc.connect(boomGain);
-    boomGain.connect(masterGain);
-    boomOsc.type = 'sine';
-    boomOsc.frequency.setValueAtTime(60, ctx.currentTime);
-    boomOsc.frequency.exponentialRampToValueAtTime(20, ctx.currentTime + 0.5);
-    boomGain.gain.setValueAtTime(15, ctx.currentTime);
-    boomGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
-    boomOsc.start();
-    boomOsc.stop(ctx.currentTime + 0.8);
 
   } catch(e){ toast('Audio blocked by browser — click page first', 'error'); }
 }
