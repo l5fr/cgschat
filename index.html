@@ -1446,16 +1446,27 @@ let pendingInvite = null;
 let callMembers = {};
 let audioCtxUnlocked = false;
 
-// ── Unlock browser autoplay on first user gesture ──
+// ── Shared AudioContext for ALL remote audio playback ──
+// Using Web Audio API avoids browser autoplay blocking on <audio> elements entirely.
+let sharedAudioCtx = null;
+
+function getAudioCtx() {
+  if(!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+    sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  return sharedAudioCtx;
+}
+
+// ── Unlock / resume AudioContext on first user gesture ──
 function unlockAudio() {
   if(audioCtxUnlocked) return;
   audioCtxUnlocked = true;
   try {
-    const sil = document.createElement('audio');
-    sil.src = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
-    sil.play().catch(()=>{});
+    const ctx = getAudioCtx();
+    if(ctx.state === 'suspended') ctx.resume();
   } catch(e){}
-  document.querySelectorAll('audio[id^="paud-"]').forEach(a => a.play().catch(()=>{}));
+  // Also try to play any legacy <audio> elements (shouldn't be any now)
+  document.querySelectorAll('audio[id^="paud-"]').forEach(a => { a.muted=false; a.play().catch(()=>{}); });
 }
 
 function sendSignal(toUid, type, data={}) {
@@ -1478,38 +1489,11 @@ async function createPeer(uid, name, avatar, avatarUrl, imOfferer) {
   const pc = new RTCPeerConnection(STUN);
   peers[uid] = {
     pc, name, avatar, avatar_url: avatarUrl,
-    iceBuf: [],        // buffer for RECEIVED ice candidates before remote desc is set
-    remoteSet: false,
-    makingOffer: false // polite offer collision guard
+    iceBuf: [],       // buffer for RECEIVED ice candidates before remote desc is set
+    remoteSet: false
   };
 
-  // Add local audio track(s) before creating offer
-  if(localStream) {
-    localStream.getTracks().forEach(t => {
-      try { pc.addTrack(t, localStream); } catch(e){}
-    });
-  }
-
-  // ── FIX 1: onnegotiationneeded — drives ALL offer creation & renegotiation ──
-  pc.onnegotiationneeded = async () => {
-    if(!imOfferer) return;              // only the designated offerer negotiates
-    const p = peers[uid]; if(!p) return;
-    p.makingOffer = true;
-    try {
-      const offer = await pc.createOffer();
-      // Bail if signaling state changed while we were awaiting
-      if(pc.signalingState !== 'stable') { p.makingOffer = false; return; }
-      await pc.setLocalDescription(offer);
-      sendSignal(uid, 'offer', pc.localDescription.toJSON());
-    } catch(e) {
-      console.error('[WebRTC] onnegotiationneeded error', e);
-    } finally {
-      p.makingOffer = false;
-    }
-  };
-
-  // ── FIX 2: always send ICE candidates immediately ──
-  // Never buffer outgoing candidates — the remote buffers unmatched ones on its side
+  // ── ALWAYS register handlers BEFORE addTrack ──
   pc.onicecandidate = e => {
     if(!e.candidate) return;
     sendSignal(uid, 'ice', e.candidate.toJSON());
@@ -1556,8 +1540,34 @@ async function createPeer(uid, name, avatar, avatarUrl, imOfferer) {
     updateCallPeers();
   };
 
+  // ── Add local tracks AFTER all handlers are registered ──
+  if(localStream) {
+    localStream.getTracks().forEach(t => {
+      try { pc.addTrack(t, localStream); } catch(e){}
+    });
+  }
+
+  // ── Offerer explicitly creates offer — don't rely on onnegotiationneeded ──
+  if(imOfferer) {
+    // Slight delay so addTrack settles and browser ICE agent initialises
+    setTimeout(() => makeOffer(uid), 150);
+  }
+
   addPeerTile(uid, name, avatar, avatarUrl);
   return peers[uid];
+}
+
+// ── makeOffer: explicit offer creation, called by offerer side ──
+async function makeOffer(uid) {
+  const peer = peers[uid]; if(!peer) return;
+  const pc = peer.pc;
+  if(pc.signalingState !== 'stable') return; // already negotiating
+  try {
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    sendSignal(uid, 'offer', pc.localDescription.toJSON());
+    console.log('[WebRTC] offer sent to', uid);
+  } catch(e) { console.error('[WebRTC] makeOffer error', e); }
 }
 
 // ══════════════════════════════════════════════
@@ -1572,22 +1582,21 @@ async function handleSignal(p) {
     showIncomingCall(fromUid, fromName, fromAvatar, fromAvatarUrl);
   }
   else if(type === 'call-join') {
-    // A new person joined — we are an existing member
-    // We create a peer as NON-offerer (they will be the offerer toward us)
+    // A new person joined — we are an existing member, we are the OFFERER
     if(callState !== 'incall') return;
     if(peers[fromUid]) return;
     callMembers[fromUid] = {name:fromName, avatar:fromAvatar, avatar_url:fromAvatarUrl};
-    // Send existing member list to the new joiner (excluding the joiner themselves)
+    // Send existing member list so the new joiner knows who else is in the call
     const memberList = Object.entries(callMembers)
-      .filter(([uid]) => uid !== fromUid)
+      .filter(([uid]) => uid !== fromUid && uid !== me.id)
       .map(([uid, m]) => ({uid, ...m}));
     sendSignal(fromUid, 'call-member-list', {members: memberList});
-    // Create peer as non-offerer — they will send us an offer
-    await createPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, false);
+    // WE are the offerer — we have mic already, so we send the offer
+    await createPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, true);
     updateCallPeers();
   }
   else if(type === 'call-member-list') {
-    // We just joined — connect to each existing member as OFFERER
+    // We just joined — connect to other existing members (not the caller) as OFFERER
     const {members} = data;
     for(const m of members) {
       if(m.uid === me.id || peers[m.uid]) continue;
@@ -1605,22 +1614,17 @@ async function handleSignal(p) {
 
   // ── SDP exchange ──
   else if(type === 'offer') {
-    // Create peer as non-offerer if not yet created
+    // Received an offer — we are the non-offerer (answerer)
     if(!peers[fromUid]) await createPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, false);
     const peer = peers[fromUid]; if(!peer) return;
     const pc = peer.pc;
-
-    // Collision: if we're also making an offer, the offerer politely backs off
-    const offerCollision = peer.makingOffer || pc.signalingState !== 'stable';
-    if(offerCollision) {
-      // Roll back our local offer if we had one
-      try { await pc.setLocalDescription({type:'rollback'}); } catch(e){}
-    }
-
     try {
+      // If we're somehow mid-negotiation, roll back first
+      if(pc.signalingState !== 'stable') {
+        await pc.setLocalDescription({type:'rollback'}).catch(()=>{});
+      }
       await pc.setRemoteDescription(new RTCSessionDescription(data));
       peer.remoteSet = true;
-      // Drain buffered ICE candidates
       for(const c of peer.iceBuf) {
         try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e){}
       }
@@ -1628,6 +1632,7 @@ async function handleSignal(p) {
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
       sendSignal(fromUid, 'answer', pc.localDescription.toJSON());
+      console.log('[WebRTC] answer sent to', fromUid);
     } catch(e) { console.error('[WebRTC] offer handling error', e); }
   }
   else if(type === 'answer') {
@@ -1658,21 +1663,50 @@ async function handleSignal(p) {
   }
 }
 
-// ── Attach remote audio to an <audio> element ──
+// ── Attach remote audio via Web Audio API ──
+// This completely avoids browser autoplay blocking that plagues <audio> elements.
+// Flow: MediaStream → MediaStreamSourceNode → GainNode → AudioContext.destination (speakers)
 function attachPeerAudio(uid, stream) {
-  let aud = document.getElementById('paud-'+uid);
-  if(!aud) {
-    aud = document.createElement('audio');
-    aud.id = 'paud-'+uid;
-    aud.autoplay = true;
-    aud.playsInline = true;
-    aud.style.display = 'none';
-    document.body.appendChild(aud);
+  const p = peers[uid]; if(!p) return;
+  // Disconnect any existing source for this peer
+  try { p.audioSource?.disconnect(); } catch(e){}
+
+  const audioTracks = stream.getAudioTracks();
+  if(!audioTracks.length) return;
+
+  try {
+    const ctx = getAudioCtx();
+    // Resume context if suspended (can happen if page lost focus)
+    if(ctx.state === 'suspended') ctx.resume();
+
+    const source = ctx.createMediaStreamSource(stream);
+    // Gain node lets us control volume per-peer later if needed
+    const gain = ctx.createGain();
+    gain.gain.value = 1.0;
+    source.connect(gain);
+    gain.connect(ctx.destination);
+
+    if(peers[uid]) {
+      peers[uid].audioSource = source;
+      peers[uid].audioGain   = gain;
+      peers[uid].audioStream = stream;
+    }
+  } catch(e) {
+    console.warn('[Audio] Web Audio API failed, falling back to <audio>', e);
+    // Fallback: legacy <audio> element
+    let aud = document.getElementById('paud-'+uid);
+    if(!aud) {
+      aud = document.createElement('audio');
+      aud.id = 'paud-'+uid;
+      aud.autoplay = true; aud.playsInline = true;
+      aud.style.display = 'none';
+      document.body.appendChild(aud);
+    }
+    aud.srcObject = stream;
+    aud.volume = 1; aud.muted = false;
+    const pp = aud.play();
+    if(pp !== undefined) pp.catch(() => showAudioUnlockBtn());
   }
-  if(peers[uid]) peers[uid].audioEl = aud;
-  aud.srcObject = stream;
-  const pp = aud.play();
-  if(pp !== undefined) pp.catch(() => showAudioUnlockBtn());
 }
 
 function showAudioUnlockBtn() {
@@ -1680,23 +1714,36 @@ function showAudioUnlockBtn() {
   const btn = document.createElement('button');
   btn.id = 'audioUnlockBtn';
   btn.className = 'cb-btn';
-  btn.style.cssText = 'background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.4);color:#4ade80;';
-  btn.innerHTML = '🔊 Tap to hear';
+  btn.style.cssText = 'background:rgba(34,197,94,.25);border-color:rgba(34,197,94,.5);color:#4ade80;font-weight:700;animation:markPulse 1.5s ease-in-out infinite;';
+  btn.innerHTML = '🔊 Enable Audio';
   btn.onclick = () => {
-    unlockAudio();
+    const ctx = getAudioCtx();
+    ctx.resume().then(() => {
+      audioCtxUnlocked = true;
+      // Re-route all existing peer audio through resumed context
+      Object.keys(peers).forEach(uid => {
+        const p = peers[uid];
+        if(p?.audioStream) attachPeerAudio(uid, p.audioStream);
+      });
+    });
     document.querySelectorAll('audio[id^="paud-"]').forEach(a => { a.muted=false; a.play().catch(()=>{}); });
     btn.remove();
   };
   const btns = document.querySelector('.cb-btns');
   if(btns) btns.prepend(btn);
+  toast('🔊 Click "Enable Audio" in the call bar to hear others','info');
 }
 
 function removePeer(uid) {
   const p = peers[uid]; if(!p) return;
   try { p.pc.close(); } catch(e){}
+  // Disconnect Web Audio nodes
+  try { p.audioSource?.disconnect(); } catch(e){}
+  try { p.audioGain?.disconnect(); } catch(e){}
   delete peers[uid];
   stopPeerVolumeMeter(uid);
   const tile = document.getElementById('vt-'+uid); if(tile) tile.remove();
+  // Clean up legacy <audio> fallback if present
   const aud  = document.getElementById('paud-'+uid); if(aud){ aud.srcObject=null; aud.remove(); }
   updateCallPeers(); updateVideoGrid();
   toast(`${p.name} left the call`,'info');
@@ -1708,6 +1755,8 @@ window.toggleCall = async function() {
 
 async function startCall() {
   unlockAudio();
+  // Ensure AudioContext is live before call starts
+  try { getAudioCtx().resume(); } catch(e){}
   const stream = await getLocalStream();
   if(!stream) return;
   callState = 'incall';
@@ -1733,6 +1782,8 @@ function showIncomingCall(fromUid, fromName, fromAvatar, fromAvatarUrl) {
 
 window.acceptCall = async function() {
   stopRingtone(); unlockAudio();
+  // Resume AudioContext — this is inside a user gesture so it's guaranteed to work
+  try { getAudioCtx().resume(); } catch(e){}
   document.getElementById('incomingCall').classList.remove('on');
   if(!pendingInvite) return;
   const {fromUid, fromName, fromAvatar, fromAvatarUrl} = pendingInvite;
@@ -1757,11 +1808,18 @@ window.leaveCall = function() {
   stopRingtone();
   Object.keys(callMembers).forEach(uid => { if(uid!==me.id) sendSignal(uid,'call-left',{}); });
   Object.keys(peers).forEach(uid => {
-    const p = peers[uid]; if(p){ try{p.pc.close();}catch(e){} }
+    const p = peers[uid]; if(p){
+      try{p.pc.close();}catch(e){}
+      try{p.audioSource?.disconnect();}catch(e){}
+      try{p.audioGain?.disconnect();}catch(e){}
+    }
     delete peers[uid];
     const t = document.getElementById('vt-'+uid); if(t) t.remove();
     const a = document.getElementById('paud-'+uid); if(a){a.srcObject=null;a.remove();}
   });
+  // Close shared AudioContext so it's fresh for next call
+  try { sharedAudioCtx?.close(); sharedAudioCtx = null; } catch(e){}
+  audioCtxUnlocked = false;
   peers = {}; callMembers = {};
   if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
   if(screenStream){ screenStream.getTracks().forEach(t=>t.stop()); screenStream=null; }
@@ -1772,6 +1830,7 @@ window.leaveCall = function() {
   document.getElementById('videoGrid').classList.remove('on');
   document.getElementById('vgVideos').innerHTML='';
   videoGridOpen=false;
+  const ub = document.getElementById('audioUnlockBtn'); if(ub) ub.remove();
   toast('Call ended','info');
 }
 
@@ -1817,9 +1876,8 @@ window.toggleCamera = async function() {
           await sender.replaceTrack(vt);
         } else {
           p.pc.addTrack(vt, localStream);
-          // addTrack fires onnegotiationneeded — but only if we are offerer
-          // For non-offerer peers, manually trigger renegotiation
-          if(!p.pc.onnegotiationneeded) await renegotiatePeer(uid, p.pc);
+          // Explicitly renegotiate for all peers
+          await makeOffer(uid);
         }
       }
     } catch(e) { toast('Camera denied','error'); isCamOff=true; return; }
@@ -1877,7 +1935,8 @@ window.toggleScreen = async function() {
           await vs.replaceTrack(vt).catch(()=>{});
         } else {
           p.pc.addTrack(vt, screenStream);
-          // onnegotiationneeded will fire for offerer peers automatically
+          // Explicitly renegotiate
+          await makeOffer(uid);
         }
       }
       isScreenSharing=true;
