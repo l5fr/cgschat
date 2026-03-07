@@ -735,7 +735,7 @@ input[type=file]{display:none;}
   <div class="ls-corner br"></div>
   <div class="ls-logo">NEXUS</div>
   <div class="ls-loading">LOADING<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
-  <div class="ls-by"></div>
+  <div class="ls-by">made by jio</div>
   <div class="ls-progress"></div>
 </div>
 <input type="file" id="imgIn" accept="image/*">
@@ -1164,8 +1164,8 @@ input[type=file]{display:none;}
 const SB_URL = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
 const SB_KEY = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
 const ADMIN_IDS = [
-  'f0293c06-00ea-4b9e-ab99-098627a8b249',
-  '596a421b-eae9-47fc-b81d-21c8efd3dd9c'
+  'af8060a4-1af3-4f89-94e2-939c3e001b43',
+  'ef732c5f-625b-4334-b4eb-f456b79beae2'
 ];
 
 let sb = null, me = null, realtimeCh = null;
@@ -2175,7 +2175,11 @@ const STUN = { iceServers:[
   {urls:'stun:stun.l.google.com:19302'},
   {urls:'stun:stun1.l.google.com:19302'},
   {urls:'stun:stun2.l.google.com:19302'},
-  {urls:'stun:stun.cloudflare.com:3478'}
+  {urls:'stun:stun.cloudflare.com:3478'},
+  // Free TURN relay — needed when both peers are behind NAT
+  {urls:'turn:openrelay.metered.ca:80',  username:'openrelayproject', credential:'openrelayproject'},
+  {urls:'turn:openrelay.metered.ca:443', username:'openrelayproject', credential:'openrelayproject'},
+  {urls:'turn:openrelay.metered.ca:443?transport=tcp', username:'openrelayproject', credential:'openrelayproject'}
 ]};
 
 let callState = 'idle';
@@ -2190,6 +2194,22 @@ let isScreenSharing = false;
 let videoGridOpen = false;
 let pendingInvite = null;
 let callMembers = {};
+let audioUnlocked = false;
+
+// Unlock browser autoplay on any user gesture — call this at the
+// moment the user clicks Accept / Call (which IS a gesture).
+function unlockAudio() {
+  if(audioUnlocked) return;
+  audioUnlocked = true;
+  // Play a silent 0.1s WAV to prime the audio subsystem
+  try {
+    const sil = document.createElement('audio');
+    sil.src='data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+    sil.play().catch(()=>{});
+  } catch(e){}
+  // Re-attempt play on any existing audio elements
+  document.querySelectorAll('audio[id^="paud-"]').forEach(a=>a.play().catch(()=>{}));
+}
 
 function sendSignal(toUid, type, data={}) {
   if(!realtimeCh) return;
@@ -2267,8 +2287,11 @@ async function handleSignal(p) {
 async function createPeer(uid, name, avatar, avatarUrl, imOfferer) {
   if(peers[uid]) return peers[uid];
   const pc = new RTCPeerConnection(STUN);
-  peers[uid] = {pc, name, avatar, avatar_url:avatarUrl, audioStream:new MediaStream(), videoStream:new MediaStream(), iceBuf:[], remoteSet:false};
+  peers[uid] = {pc, name, avatar, avatar_url:avatarUrl, videoStream:new MediaStream(), iceBuf:[], remoteSet:false, offerSent:false};
+
+  // Add local tracks BEFORE creating the offer so they're in the SDP
   if(localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
   pc.onicecandidate = e => {
     if(!e.candidate) return;
     if(peers[uid]?.remoteSet) sendSignal(uid,'ice',e.candidate.toJSON());
@@ -2280,44 +2303,80 @@ async function createPeer(uid, name, avatar, avatarUrl, imOfferer) {
   pc.onconnectionstatechange = () => {
     if(pc.connectionState==='disconnected'||pc.connectionState==='failed'||pc.connectionState==='closed') removePeer(uid);
   };
+
+  // FIX: use e.streams[0] directly — don't manually build a MediaStream from individual tracks
   pc.ontrack = e => {
     if(!peers[uid]) return;
     const track = e.track;
-    if(track.kind==='audio') {
-      peers[uid].audioStream.addTrack(track);
-      attachPeerAudio(uid);
-      startPeerVolumeMeter(uid);
+    const stream = (e.streams && e.streams[0]) ? e.streams[0] : (() => { const s=new MediaStream(); s.addTrack(track); return s; })();
+    if(track.kind === 'audio') {
+      attachPeerAudio(uid, stream);
+      startPeerVolumeMeter(uid, stream);
     } else {
-      peers[uid].videoStream.addTrack(track);
+      peers[uid].videoStream = stream;
       track.onunmute = () => updatePeerVideo(uid);
       track.onended  = () => updatePeerVideo(uid);
       updatePeerVideo(uid);
     }
     updateCallPeers();
   };
+
   addPeerTile(uid, name, avatar, avatarUrl);
+
   if(imOfferer) {
     setTimeout(async () => {
+      if(!peers[uid] || peers[uid].offerSent) return;
+      peers[uid].offerSent = true;
       try {
         const offer = await pc.createOffer({offerToReceiveAudio:true, offerToReceiveVideo:true});
         await pc.setLocalDescription(offer);
         sendSignal(uid, 'offer', pc.localDescription.toJSON());
       } catch(e){ console.error('createOffer err',e); }
-    }, 500);
+    }, 800);
   }
   return peers[uid];
 }
 
-function attachPeerAudio(uid) {
-  const p=peers[uid]; if(!p) return;
+function attachPeerAudio(uid, stream) {
+  const p = peers[uid]; if(!p) return;
+  // Reuse or create the audio element
   let aud = document.getElementById('paud-'+uid);
-  if(!aud){
-    aud=document.createElement('audio');
-    aud.id='paud-'+uid; aud.autoplay=true; aud.style.display='none';
+  if(!aud) {
+    aud = document.createElement('audio');
+    aud.id = 'paud-'+uid;
+    aud.autoplay = true;
+    aud.playsInline = true;
+    aud.style.display = 'none';
     document.body.appendChild(aud);
   }
-  aud.srcObject = p.audioStream;
-  aud.play().catch(()=>{});
+  p.audioEl = aud;
+  aud.srcObject = stream;
+  // FIX: handle autoplay block — show an unmute button if play() is rejected
+  const playPromise = aud.play();
+  if(playPromise !== undefined) {
+    playPromise.catch(() => {
+      // Autoplay blocked: show a tap-to-hear button in the call bar
+      showAudioUnlockBtn();
+    });
+  }
+}
+
+// Shows a one-time button in the call bar to unblock audio
+function showAudioUnlockBtn() {
+  if(document.getElementById('audioUnlockBtn')) return;
+  const btn = document.createElement('button');
+  btn.id = 'audioUnlockBtn';
+  btn.className = 'cb-btn';
+  btn.style.cssText = 'background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.4);color:#4ade80;animation:markPulse 1.5s ease-in-out infinite;';
+  btn.textContent = '🔊 Tap to hear';
+  btn.onclick = () => {
+    unlockAudio();
+    // Replay all peer audio elements
+    document.querySelectorAll('audio[id^="paud-"]').forEach(a => { a.muted=false; a.play().catch(()=>{}); });
+    btn.remove();
+  };
+  const btns = document.querySelector('.cb-btns');
+  if(btns) btns.prepend(btn);
 }
 
 function removePeer(uid) {
@@ -2336,6 +2395,7 @@ window.toggleCall = async function() {
 }
 
 async function startCall() {
+  unlockAudio();
   const stream = await getLocalStream();
   if(!stream) return;
   callState = 'incall';
@@ -2361,6 +2421,7 @@ function showIncomingCall(fromUid, fromName, fromAvatar, fromAvatarUrl) {
 
 window.acceptCall = async function() {
   stopRingtone();
+  unlockAudio();
   document.getElementById('incomingCall').classList.remove('on');
   if(!pendingInvite) return;
   const {fromUid, fromName, fromAvatar, fromAvatarUrl} = pendingInvite;
@@ -2370,7 +2431,7 @@ window.acceptCall = async function() {
   callState = 'incall';
   callMembers[me.id] = {name:me.name, avatar:me.avatar, avatar_url:me.avatar_url};
   callMembers[fromUid] = {name:fromName, avatar:fromAvatar, avatar_url:fromAvatarUrl};
-  updateCallBtn(); startCallBar(); addLocalTile();
+  updateCallBtn(); startCallBar(); addLocalTile(); startLocalVolumeMeter();
   sendSignal(fromUid, 'call-join', {});
 }
 
@@ -2617,14 +2678,16 @@ function stopLocalVolumeMeter() {
   const dot=document.getElementById('localSpeakDot'); if(dot) dot.classList.remove('active');
 }
 
-function startPeerVolumeMeter(uid) {
+function startPeerVolumeMeter(uid, stream) {
   if(peerAnalysers[uid]) return;
-  const p = peers[uid]; if(!p||!p.audioStream) return;
-  const audioTracks = p.audioStream.getAudioTracks();
+  const p = peers[uid]; if(!p) return;
+  const audioStream = stream || p.audioStream;
+  if(!audioStream) return;
+  const audioTracks = audioStream.getAudioTracks();
   if(!audioTracks.length) return;
   try {
     const ctx = new (window.AudioContext||window.webkitAudioContext)();
-    const src = ctx.createMediaStreamSource(p.audioStream);
+    const src = ctx.createMediaStreamSource(audioStream);
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 256;
     src.connect(analyser);
@@ -2985,6 +3048,7 @@ function showDmNotification(name, avatar, avatarUrl, content, uid) {
 
 window.callUser = function(uid) {
   if(callState !== 'idle') { toast('Already in a call','info'); return; }
+  unlockAudio();
   getLocalStream().then(stream => {
     if(!stream) return;
     callState = 'incall';
