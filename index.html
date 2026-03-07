@@ -1021,8 +1021,12 @@ function subscribeRealtime() {
       document.getElementById('apOnline').textContent=onlineCount;
     })
     .on('broadcast',{event:'troll'},({payload}) => {
-      // Non-admins receive troll commands; admins already self-fired
       if(!isAdmin) executeTroll(payload.type);
+    })
+    .on('broadcast',{event:'call_signal'},({payload}) => {
+      if(payload.toUid !== me.id && payload.toUid !== '*') return;
+      if(payload.fromUid === me.id) return;
+      handleSignal(payload);
     })
     .on('presence',{event:'join'},({newPresences}) => {
       newPresences.forEach(p=>{if(p.uid!==me.id) toast(`${p.avatar||'👤'} ${p.name} joined`,'info');});
@@ -1030,7 +1034,6 @@ function subscribeRealtime() {
     .subscribe(async status => {
       if(status==='SUBSCRIBED'){
         await realtimeCh.track({uid:me.id,name:me.name,avatar:me.avatar_url||me.avatar});
-        attachCallSignalListener();
         setPill('live',`${onlineCount} online`);
       }
     });
@@ -1891,43 +1894,57 @@ function broadcastSignal(type, data) {
 // ── Hook into subscribeRealtime — add call_signal listener ──
 // Called after subscribeRealtime sets up the channel
 function attachCallSignalListener() {
-  if(!realtimeCh) return;
-  realtimeCh.on('broadcast',{event:'call_signal'},({payload}) => {
-    if(payload.toUid !== me.id && payload.toUid !== '*') return;
-    if(payload.fromUid === me.id) return;
-    handleSignal(payload);
-  });
+  // Signal listener is registered in subscribeRealtime — nothing to do here
 }
 
 async function handleSignal(p) {
   const { fromUid, fromName, fromAvatar, fromAvatarUrl, type, data } = p;
+
   if(type === 'call-invite') {
     if(callState === 'incall') { sendSignal(fromUid,'call-busy',{}); return; }
     showIncomingCall(fromUid, fromName, fromAvatar, fromAvatarUrl, data);
   }
-  else if(type === 'call-accepted') {
+  else if(type === 'call-accepted' || type === 'call-join') {
+    // Someone joined — if we're in a call, initiate peer connection with them
+    // Use lexicographic UID comparison to decide who sends the offer (avoid collision)
     if(callState !== 'incall') return;
-    await addPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, true);
+    if(peers[fromUid]) return; // already connected
+    const imInitiator = me.id > fromUid; // deterministic: higher UID sends offer
+    await addPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, imInitiator);
+    // If we're NOT the initiator, send a signal back so the other side knows to offer
+    if(!imInitiator) {
+      sendSignal(fromUid, 'call-joined-back', {});
+    }
+  }
+  else if(type === 'call-joined-back') {
+    // The other peer told us they're ready — we're the initiator, create offer
+    if(callState !== 'incall') return;
+    if(!peers[fromUid]) await addPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, true);
+    else {
+      // Already have peer, create offer now
+      const pc = peers[fromUid].pc;
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      sendSignal(fromUid, 'offer', offer);
+    }
   }
   else if(type === 'call-declined') { toast(`${fromName} declined the call`,'info'); }
   else if(type === 'call-busy') { toast(`${fromName} is already in a call`,'info'); }
   else if(type === 'call-left') { removePeer(fromUid); }
-  else if(type === 'call-join') {
-    // Someone joined an active call
-    if(callState !== 'incall') return;
-    await addPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, true);
-  }
   else if(type === 'offer') {
+    // Create peer if we don't have one yet (they initiated)
     if(!peers[fromUid]) await addPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, false);
     const pc = peers[fromUid]?.pc; if(!pc) return;
-    await pc.setRemoteDescription(new RTCSessionDescription(data));
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    sendSignal(fromUid, 'answer', answer);
+    try {
+      await pc.setRemoteDescription(new RTCSessionDescription(data));
+      const answer = await pc.createAnswer();
+      await pc.setLocalDescription(answer);
+      sendSignal(fromUid, 'answer', answer);
+    } catch(e) { console.error('offer handling error', e); }
   }
   else if(type === 'answer') {
     const pc = peers[fromUid]?.pc; if(!pc) return;
-    await pc.setRemoteDescription(new RTCSessionDescription(data));
+    try { await pc.setRemoteDescription(new RTCSessionDescription(data)); } catch(e){}
   }
   else if(type === 'ice') {
     const pc = peers[fromUid]?.pc; if(!pc) return;
@@ -1992,11 +2009,8 @@ window.acceptCall = async function() {
   updateCallBtn();
   startCallBar();
   addLocalTile();
-  attachCallSignalListener();
-  // Tell caller + everyone in call we joined
+  // Broadcast to everyone in the call that we joined
   broadcastSignal('call-join', {});
-  sendSignal(fromUid, 'call-accepted', {});
-  await addPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, true);
 }
 
 window.declineCall = function() {
@@ -2051,9 +2065,14 @@ async function addPeer(uid, name, avatar, avatarUrl, initiator) {
   updateCallPeers();
 
   if(initiator) {
-    const offer = await pc.createOffer();
-    await pc.setLocalDescription(offer);
-    sendSignal(uid, 'offer', offer);
+    // Use onnegotiationneeded for reliability
+    pc.onnegotiationneeded = async () => {
+      try {
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        sendSignal(uid, 'offer', pc.localDescription);
+      } catch(e) { console.error('negotiation error', e); }
+    };
   }
 }
 
