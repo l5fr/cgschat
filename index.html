@@ -110,7 +110,6 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
   transform:translateY(18px) scale(.97);
   animation:lsLogoIn .9s cubic-bezier(.22,1,.36,1) .2s forwards;
   text-shadow:none;
-  /* purple bloom via filter */
   filter:drop-shadow(0 0 32px rgba(192,132,252,.35));
 }
 @keyframes lsLogoIn{
@@ -553,14 +552,12 @@ body.cursed-mode #app{animation:cursedFlicker 3s ease-in-out infinite;}
 
 
 /* ══ CALLING SYSTEM ══ */
-/* Call button in topbar */
 .call-btn{display:flex;align-items:center;gap:6px;padding:5px 13px;border-radius:20px;border:1px solid rgba(34,197,94,.3);background:rgba(34,197,94,.08);color:#4ade80;font-size:11px;font-family:'JetBrains Mono',monospace;cursor:pointer;transition:all .2s;font-weight:700;letter-spacing:1px;}
 .call-btn:hover{background:rgba(34,197,94,.18);border-color:rgba(34,197,94,.5);box-shadow:0 0 14px rgba(34,197,94,.2);}
 .call-btn.in-call{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.4);color:#f87171;}
 .call-btn.in-call:hover{background:rgba(239,68,68,.22);}
 .call-dot{width:7px;height:7px;border-radius:50%;background:currentColor;animation:liveDot 1.5s ease-in-out infinite;}
 
-/* Incoming call popup */
 #incomingCall{position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:8000;background:var(--bg3);border:1px solid var(--border);border-radius:18px;padding:20px 24px;display:none;align-items:center;gap:16px;box-shadow:0 8px 40px rgba(0,0,0,.7);min-width:320px;animation:slideDown .3s cubic-bezier(.34,1.56,.64,1) both;}
 #incomingCall.on{display:flex;}
 @keyframes slideDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
@@ -574,7 +571,6 @@ body.cursed-mode #app{animation:cursedFlicker 3s ease-in-out infinite;}
 .ic-decline{width:40px;height:40px;border-radius:50%;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.35);color:#f87171;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;}
 .ic-decline:hover{background:rgba(239,68,68,.3);transform:scale(1.1);}
 
-/* Active call bar */
 #callBar{position:fixed;bottom:0;left:0;right:0;z-index:7000;background:rgba(8,6,16,.97);border-top:1px solid var(--border);padding:10px 20px;display:none;align-items:center;gap:12px;backdrop-filter:blur(20px);}
 #callBar.on{display:flex;}
 .cb-status{display:flex;align-items:center;gap:8px;flex:1;}
@@ -591,7 +587,6 @@ body.cursed-mode #app{animation:cursedFlicker 3s ease-in-out infinite;}
 .cb-btn.danger{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.3);color:#f87171;}
 .cb-btn.danger:hover{background:rgba(239,68,68,.25);}
 
-/* Video grid */
 #videoGrid{position:fixed;inset:0;z-index:6000;background:rgba(5,5,8,.97);display:none;flex-direction:column;}
 #videoGrid.on{display:flex;}
 .vg-top{height:50px;background:rgba(8,6,16,.9);border-bottom:1px solid var(--border2);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
@@ -606,7 +601,6 @@ body.cursed-mode #app{animation:cursedFlicker 3s ease-in-out infinite;}
 .vg-videos.count-many{grid-template-columns:repeat(3,1fr);}
 .vid-tile{position:relative;background:var(--bg3);border-radius:14px;overflow:hidden;border:2px solid var(--border2);}
 
-/* ── VOLUME METERS ── */
 .vol-meter-wrap{display:flex;align-items:center;gap:6px;padding:0 4px;}
 .vol-bar-local{width:120px;height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;position:relative;}
 .vol-bar-fill{height:100%;width:0%;border-radius:4px;transition:width .05s linear;background:linear-gradient(90deg,#22c55e,#86efac);}
@@ -689,7 +683,6 @@ input[type=file]{display:none;}
 
 <!-- APP -->
 <div id="app">
-  <!-- ── USERS SIDEBAR ── -->
   <div id="usersCol">
     <div class="uc-header">
       <div class="uc-title">ONLINE</div>
@@ -710,7 +703,6 @@ input[type=file]{display:none;}
     </div>
   </div>
 
-  <!-- ── MAIN COLUMN ── -->
   <div class="main-col">
     <div class="tbar">
       <button class="sidebar-toggle" id="sidebarToggle" onclick="toggleUsersSidebar()" title="Toggle users">👥</button>
@@ -762,7 +754,6 @@ input[type=file]{display:none;}
     </div>
   </div>
 
-  <!-- ── ADMIN SIDE PANEL ── -->
   <div id="adminCol">
     <div class="ap-topbar">
       <div class="ap-topbar-ic">🛡️</div>
@@ -770,8 +761,6 @@ input[type=file]{display:none;}
       <div class="ap-topbar-gap"></div>
       <button class="ap-topbar-close" onclick="toggleAdminPanel()">✕</button>
     </div>
-
-    <!-- stats -->
     <div class="ap-stats">
       <div class="ap-stat">
         <div class="ap-stat-num" id="apMsgCount">—</div>
@@ -782,8 +771,6 @@ input[type=file]{display:none;}
         <div class="ap-stat-lbl">ONLINE NOW</div>
       </div>
     </div>
-
-    <!-- nuke all -->
     <button class="ap-nuke" onclick="askNukeAll()">
       <div class="ap-nuke-ic">☢️</div>
       <div class="ap-nuke-text">
@@ -791,97 +778,35 @@ input[type=file]{display:none;}
         <small>Wipe the entire chat permanently</small>
       </div>
     </button>
-
-
     <div class="ap-sec">😈 TROLL COMMANDS</div>
     <div class="ap-troll-grid">
-      <button class="troll-btn" onclick="trollCmd('jumpscare')">
-        <span class="tb-ic">👻</span>
-        <span class="tb-lbl">JUMP SCARE</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('redscreen')">
-        <span class="tb-ic">🔴</span>
-        <span class="tb-lbl">RED SCREEN</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('rickroll')">
-        <span class="tb-ic">📺</span>
-        <span class="tb-lbl">RICKROLL</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('matrix')">
-        <span class="tb-ic">🌧️</span>
-        <span class="tb-lbl">MATRIX RAIN</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('earrape')">
-        <span class="tb-ic">🔔</span>
-        <span class="tb-lbl">EARRAPE</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('cursed')">
-        <span class="tb-ic">😱</span>
-        <span class="tb-lbl">CURSED MODE</span>
-      </button>
+      <button class="troll-btn" onclick="trollCmd('jumpscare')"><span class="tb-ic">👻</span><span class="tb-lbl">JUMP SCARE</span></button>
+      <button class="troll-btn" onclick="trollCmd('redscreen')"><span class="tb-ic">🔴</span><span class="tb-lbl">RED SCREEN</span></button>
+      <button class="troll-btn" onclick="trollCmd('rickroll')"><span class="tb-ic">📺</span><span class="tb-lbl">RICKROLL</span></button>
+      <button class="troll-btn" onclick="trollCmd('matrix')"><span class="tb-ic">🌧️</span><span class="tb-lbl">MATRIX RAIN</span></button>
+      <button class="troll-btn" onclick="trollCmd('earrape')"><span class="tb-ic">🔔</span><span class="tb-lbl">EARRAPE</span></button>
+      <button class="troll-btn" onclick="trollCmd('cursed')"><span class="tb-ic">😱</span><span class="tb-lbl">CURSED MODE</span></button>
     </div>
-
     <div class="ap-sec">💣 OVERPOWERED</div>
     <div class="ap-troll-grid">
-      <button class="troll-btn" onclick="trollCmd('blackhole')">
-        <span class="tb-ic">🕳️</span>
-        <span class="tb-lbl">BLACK HOLE</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('eye')">
-        <span class="tb-ic">👁️</span>
-        <span class="tb-lbl">THE EYE</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('volcano')">
-        <span class="tb-ic">🌋</span>
-        <span class="tb-lbl">VOLCANO</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('nuke')">
-        <span class="tb-ic">💣</span>
-        <span class="tb-lbl">NUKE</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('virus')">
-        <span class="tb-ic">👾</span>
-        <span class="tb-lbl">VIRUS</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('bsod')">
-        <span class="tb-ic">☠️</span>
-        <span class="tb-lbl">BSOD</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('shutdown')">
-        <span class="tb-ic">📴</span>
-        <span class="tb-lbl">SHUTDOWN</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('clown')">
-        <span class="tb-ic">🤡</span>
-        <span class="tb-lbl">CLOWN</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('flood')">
-        <span class="tb-ic">🌊</span>
-        <span class="tb-lbl">FLOOD</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('loop')">
-        <span class="tb-ic">🔁</span>
-        <span class="tb-lbl">LOOP</span>
-      </button>
-      <button class="troll-btn" onclick="trollCmd('miccheck')">
-        <span class="tb-ic">🎤</span>
-        <span class="tb-lbl">MIC CHECK</span>
-      </button>
-      <button class="troll-btn" onclick="openImpersonate()">
-        <span class="tb-ic">💬</span>
-        <span class="tb-lbl">IMPERSONATE</span>
-      </button>
+      <button class="troll-btn" onclick="trollCmd('blackhole')"><span class="tb-ic">🕳️</span><span class="tb-lbl">BLACK HOLE</span></button>
+      <button class="troll-btn" onclick="trollCmd('eye')"><span class="tb-ic">👁️</span><span class="tb-lbl">THE EYE</span></button>
+      <button class="troll-btn" onclick="trollCmd('volcano')"><span class="tb-ic">🌋</span><span class="tb-lbl">VOLCANO</span></button>
+      <button class="troll-btn" onclick="trollCmd('nuke')"><span class="tb-ic">💣</span><span class="tb-lbl">NUKE</span></button>
+      <button class="troll-btn" onclick="trollCmd('virus')"><span class="tb-ic">👾</span><span class="tb-lbl">VIRUS</span></button>
+      <button class="troll-btn" onclick="trollCmd('bsod')"><span class="tb-ic">☠️</span><span class="tb-lbl">BSOD</span></button>
+      <button class="troll-btn" onclick="trollCmd('shutdown')"><span class="tb-ic">📴</span><span class="tb-lbl">SHUTDOWN</span></button>
+      <button class="troll-btn" onclick="trollCmd('clown')"><span class="tb-ic">🤡</span><span class="tb-lbl">CLOWN</span></button>
+      <button class="troll-btn" onclick="trollCmd('flood')"><span class="tb-ic">🌊</span><span class="tb-lbl">FLOOD</span></button>
+      <button class="troll-btn" onclick="trollCmd('loop')"><span class="tb-ic">🔁</span><span class="tb-lbl">LOOP</span></button>
+      <button class="troll-btn" onclick="trollCmd('miccheck')"><span class="tb-ic">🎤</span><span class="tb-lbl">MIC CHECK</span></button>
+      <button class="troll-btn" onclick="openImpersonate()"><span class="tb-ic">💬</span><span class="tb-lbl">IMPERSONATE</span></button>
     </div>
-
     <div class="ap-sec">ALL MESSAGES</div>
-
-    <!-- search -->
     <div class="ap-search">
       <span class="ap-search-ic">🔍</span>
       <input type="text" id="apSearch" placeholder="Search messages..." oninput="filterApMsgs()">
     </div>
-
-    <!-- message list -->
     <div class="ap-msgs" id="apMsgList">
       <div class="ap-loading">LOADING...</div>
     </div>
@@ -1062,7 +987,6 @@ input[type=file]{display:none;}
   </div>
 </div>
 
-
 <!-- INCOMING CALL -->
 <div id="incomingCall">
   <div class="ic-av" id="icAv">🦊</div>
@@ -1106,7 +1030,6 @@ input[type=file]{display:none;}
   <div class="vg-videos count-1" id="vgVideos"></div>
 </div>
 
-<!-- hidden audio elements for ringtone -->
 <audio id="ringtoneAudio" loop></audio>
 
 <div class="uc-tooltip" id="ucTooltip"></div>
@@ -1131,8 +1054,8 @@ let emOpen = false, editAv = '🦊', regAv = '🦊';
 let msgCache = [];
 let onlineCount = 0;
 let pendingProfPic = null, currentProfPicUrl = null;
-let pendingDeleteId = null;       // own msg delete
-let pendingAdminDelId = null;     // admin del one
+let pendingDeleteId = null;
+let pendingAdminDelId = null;
 let isAdmin = false;
 let apFilter = '';
 
@@ -1144,13 +1067,49 @@ window.addEventListener('DOMContentLoaded', () => {
   initSupabase();
 });
 
+// ══════════════════════════════════════════════
+//  FIX: robust initSupabase with timeout + catch fallthrough
+// ══════════════════════════════════════════════
 function initSupabase() {
-  sb = supabase.createClient(SB_URL, SB_KEY);
+  try {
+    sb = supabase.createClient(SB_URL, SB_KEY);
+  } catch(e) {
+    // Supabase failed to init entirely (bad URL/key format)
+    hide('loading'); show('auth');
+    if(window._dismissLoad) window._dismissLoad();
+    toast('Supabase init failed — check your URL/key','error');
+    return;
+  }
+
   setLoadLbl('CHECKING SESSION...');
+
+  // Hard timeout: if getSession hangs >4 seconds, bail to auth
+  const sessionTimeout = setTimeout(() => {
+    hide('loading'); show('auth');
+    if(window._dismissLoad) window._dismissLoad();
+    toast('Connection timed out — check your network','error');
+  }, 4000);
+
   sb.auth.getSession().then(({ data: { session } }) => {
-    if (session) loadProfile(session.user).then(() => bootApp());
-    else { hide('loading'); show('auth'); if(window._dismissLoad) window._dismissLoad(); }
-  }).catch(() => { hide('loading'); toast('Could not connect to Supabase','error'); });
+    clearTimeout(sessionTimeout);
+    if (session) {
+      loadProfile(session.user).then(() => bootApp()).catch(() => {
+        // loadProfile failed — still boot but with defaults
+        me = { id:session.user.id, email:session.user.email, name:session.user.email.split('@')[0], avatar:'🦊', avatar_url:null };
+        bootApp();
+      });
+    } else {
+      hide('loading'); show('auth');
+      if(window._dismissLoad) window._dismissLoad();
+    }
+  }).catch(() => {
+    // ── FIX: was missing _dismissLoad and show('auth') ──
+    clearTimeout(sessionTimeout);
+    hide('loading'); show('auth');
+    if(window._dismissLoad) window._dismissLoad();
+    toast('Could not connect to Supabase','error');
+  });
+
   sb.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_OUT') {
       me = null; msgCache = [];
@@ -1227,7 +1186,6 @@ function bootApp() {
     if(isAdmin) {
       document.getElementById('adminDropItem').style.display='flex';
       document.getElementById('adminDropSep').style.display='block';
-      // Auto-open admin panel for admins
       document.getElementById('adminCol').classList.add('visible');
     }
     loadHistory();
@@ -1243,7 +1201,6 @@ function updTopbar() {
   nameEl.innerHTML = x(me.name) + (isAdmin?'<span class="admin-badge">ADMIN</span>':'');
 }
 
-// ── ADMIN PANEL TOGGLE ──
 window.toggleAdminPanel = function() {
   document.getElementById('drop').classList.remove('on');
   document.getElementById('adminCol').classList.toggle('visible');
@@ -1376,7 +1333,7 @@ window.confirmDelete = async function() {
   toast('Message deleted','success');
 }
 
-// ── ADMIN: DELETE ONE MESSAGE (hard delete) ──
+// ── ADMIN: DELETE ONE MESSAGE ──
 window.adminDelMsg = function(id) {
   const m = msgCache.find(m2=>m2.id===id); if(!m) return;
   pendingAdminDelId = id;
@@ -1407,10 +1364,7 @@ window.confirmNuke = async function() {
 // ── ADMIN PANEL RENDER ──
 function renderAdminPanel() {
   if(!isAdmin) return;
-  // update stats
-  const visible=msgCache.filter(m=>!m.deleted).length;
   document.getElementById('apMsgCount').textContent=msgCache.length;
-  // render list
   const list=document.getElementById('apMsgList');
   const q=(apFilter||'').toLowerCase();
   const filtered=msgCache.filter(m=>{
@@ -1419,7 +1373,6 @@ function renderAdminPanel() {
   });
   if(!filtered.length){ list.innerHTML=`<div class="ap-empty">${q?'NO MATCHES':'NO MESSAGES YET'}</div>`; return; }
   list.innerHTML='';
-  // Show newest first in admin panel
   [...filtered].reverse().forEach(m=>{
     const div=document.createElement('div');
     div.className='ap-msg'+(m.deleted?' is-deleted':'');
@@ -1617,19 +1570,11 @@ function setLoadLbl(t){document.getElementById('loadLbl').textContent=t;}
 let matrixInterval = null;
 let cursedActive = false;
 
-// Broadcast a troll event to all users
 window.trollCmd = async function(type) {
   if(!isAdmin || !realtimeCh) return;
-  // Fire on self immediately too
   executeTroll(type);
-  // Broadcast to everyone else
   realtimeCh.send({ type:'broadcast', event:'troll', payload:{ type } });
   toast(`😈 ${type.toUpperCase()} fired on everyone!`, 'success');
-}
-
-// Listen for troll broadcasts (non-admins receive these)
-function listenTrolls() {
-  // Already attached in subscribeRealtime — handled via 'troll' event
 }
 
 function executeTroll(type) {
@@ -1653,10 +1598,8 @@ function executeTroll(type) {
   if(type && type.startsWith('impersonate:')) doImpersonateReceive(JSON.parse(atob(type.slice(12))));
 }
 
-// ── JUMP SCARE ──
 function doJumpScare() {
   const o = document.getElementById('jsOverlay');
-  // play scream audio
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const osc = ctx.createOscillator();
@@ -1670,17 +1613,14 @@ function doJumpScare() {
     osc.start(); osc.stop(ctx.currentTime + 1.4);
   } catch(e){}
   o.classList.add('on');
-  // shake too
   document.body.classList.add('shaking');
   setTimeout(() => document.body.classList.remove('shaking'), 3000);
   setTimeout(() => o.classList.remove('on'), 4000);
 }
 window.closeJumpScare = () => document.getElementById('jsOverlay').classList.remove('on');
 
-// ── RED SCREEN ──
 function doRedScreen() {
   const el = document.getElementById('redFlash');
-  // boom sound
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const buf = ctx.createBuffer(1, ctx.sampleRate * 0.6, ctx.sampleRate);
@@ -1692,16 +1632,14 @@ function doRedScreen() {
     gain.gain.value = 3.5;
     src.start();
   } catch(e){}
-  // shake
   document.body.classList.add('shaking');
   setTimeout(() => document.body.classList.remove('shaking'), 3000);
   el.classList.remove('on');
-  void el.offsetWidth; // reflow to restart animation
+  void el.offsetWidth;
   el.classList.add('on');
   setTimeout(() => el.classList.remove('on'), 1000);
 }
 
-// ── RICKROLL ──
 function doRickroll() {
   const o = document.getElementById('rickrollOverlay');
   const frame = document.getElementById('rickrollFrame');
@@ -1713,7 +1651,6 @@ window.closeRickroll = function() {
   document.getElementById('rickrollFrame').src = '';
 }
 
-// ── MATRIX RAIN ──
 function doMatrix() {
   const canvas = document.getElementById('matrixCanvas');
   const closeBtn = document.getElementById('matrixClose');
@@ -1750,12 +1687,9 @@ window.stopMatrix = function() {
   document.getElementById('matrixClose').classList.remove('on');
 }
 
-// ── EARRAPE — original formula, smartly amplified ──
 function doEarrape() {
   try {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
-
-    // Use a subtle compressor to RAISE the floor, not squash the ceiling
     const compressor = ctx.createDynamicsCompressor();
     compressor.threshold.value = -24;
     compressor.knee.value = 2;
@@ -1763,44 +1697,34 @@ function doEarrape() {
     compressor.attack.value = 0;
     compressor.release.value = 0.05;
     compressor.connect(ctx.destination);
-
-    // Original 4 freqs that worked — keep them, just push gain harder
     const freqs = [233, 311, 466, 932];
     freqs.forEach((freq) => {
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
       const dist = ctx.createWaveShaper();
-
-      // Same hard clip curve as original — this is what made it loud
       const curve = new Float32Array(256);
       for(let j=0; j<256; j++) {
         const v = (j*2/256)-1;
         curve[j] = Math.max(-0.8, Math.min(0.8, v * 20));
       }
       dist.curve = curve;
-
       osc.connect(dist);
       dist.connect(gain);
       gain.connect(compressor);
-
       osc.type = 'square';
       osc.frequency.value = freq;
-      // Gain bumped from 0.8 → 2.8 — loud but not so high it mudds out
       gain.gain.setValueAtTime(2.8, ctx.currentTime);
       gain.gain.setValueAtTime(2.8, ctx.currentTime + 1.5);
       gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 2.2);
       osc.start();
       osc.stop(ctx.currentTime + 2.2);
     });
-
   } catch(e){ toast('Audio blocked by browser — click page first', 'error'); }
 }
 
-// ── CURSED MODE ──
 function doCursed() {
   cursedActive = !cursedActive;
   document.body.classList.toggle('cursed-mode', cursedActive);
-  // Replace all avatars with 😈 temporarily
   if(cursedActive) {
     document.querySelectorAll('.mav').forEach(el => { if(!el.dataset.orig) el.dataset.orig=el.innerHTML; el.innerHTML='😈'; });
     document.querySelectorAll('.tbar-av').forEach(el => { if(!el.dataset.orig) el.dataset.orig=el.innerHTML; el.innerHTML='😈'; });
@@ -1812,12 +1736,6 @@ function doCursed() {
   }
 }
 
-
-// ══════════════════════════════════════════════
-//  OVERPOWERED TROLL COMMANDS
-// ══════════════════════════════════════════════
-
-// ── BLACK HOLE ──
 function doBlackhole() {
   const canvas = document.getElementById('blackholeCanvas');
   canvas.style.display = 'block';
@@ -1826,13 +1744,10 @@ function doBlackhole() {
   const ctx = canvas.getContext('2d');
   const cx = canvas.width/2, cy = canvas.height/2;
   let t = 0;
-  // First grab a screenshot of the page into the canvas
-  ctx.drawImage(document.createElement('canvas'), 0, 0);
   const interval = setInterval(() => {
     t += 0.03;
     ctx.save();
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // Draw swirling black void
     const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(canvas.width, canvas.height)*0.6*(1-Math.min(t/4,0.85)));
     grad.addColorStop(0, 'rgba(0,0,0,1)');
     grad.addColorStop(0.4, 'rgba(30,0,60,0.9)');
@@ -1840,7 +1755,6 @@ function doBlackhole() {
     grad.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = grad;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // Spiral particles
     for(let i=0; i<80; i++){
       const angle = (i/80)*Math.PI*2 + t*2;
       const r = Math.max(0, (1-t/5)*Math.min(cx,cy)*(0.3+0.7*(i/80)));
@@ -1861,12 +1775,10 @@ function doBlackhole() {
   }, 30);
 }
 
-// ── THE EYE ──
 function doEye() {
   const o = document.getElementById('eyeOverlay');
   o.classList.add('on');
   o.style.display = 'flex';
-  // Creepy tone
   try {
     const ctx = new (window.AudioContext||window.webkitAudioContext)();
     const osc = ctx.createOscillator();
@@ -1887,7 +1799,6 @@ window.closeEye = () => {
   o.style.display = 'none';
 }
 
-// ── VOLCANO ──
 let volcanoInterval = null;
 function doVolcano() {
   const canvas = document.getElementById('volcanoCanvas');
@@ -1902,15 +1813,12 @@ function doVolcano() {
   if(volcanoInterval) clearInterval(volcanoInterval);
   volcanoInterval = setInterval(() => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // Rising lava
     lavaLevel = Math.max(-100, lavaLevel - 2.5);
-    // Lava surface gradient
     const lavaGrad = ctx.createLinearGradient(0, lavaLevel, 0, canvas.height);
     lavaGrad.addColorStop(0, 'rgba(255,120,0,0.92)');
     lavaGrad.addColorStop(0.3, 'rgba(220,40,0,0.96)');
     lavaGrad.addColorStop(1, 'rgba(100,0,0,1)');
     ctx.fillStyle = lavaGrad;
-    // Wavy lava surface
     ctx.beginPath();
     ctx.moveTo(0, lavaLevel + Math.sin(Date.now()/400)*12);
     for(let x=0; x<canvas.width; x+=20){
@@ -1920,7 +1828,6 @@ function doVolcano() {
     ctx.lineTo(0, canvas.height);
     ctx.closePath();
     ctx.fill();
-    // Lava bubbles
     if(Math.random()>.6) particles.push({x:Math.random()*canvas.width,y:lavaLevel,r:Math.random()*16+6,vy:-Math.random()*3-1,life:1});
     particles.forEach((p,i)=>{
       p.y+=p.vy; p.life-=0.025;
@@ -1940,7 +1847,6 @@ window.stopVolcano = function() {
   document.getElementById('volcanoClose').style.display='none';
 }
 
-// ── NUKE ──
 function doNuke() {
   const canvas = document.getElementById('nukeCanvas');
   canvas.style.display = 'block';
@@ -1948,10 +1854,8 @@ function doNuke() {
   canvas.height = window.innerHeight;
   const ctx = canvas.getContext('2d');
   const cx = canvas.width/2, cy = canvas.height/2;
-  let phase = 0; // 0=crack, 1=flash, 2=explosion, 3=black
   let t = 0;
   const cracks = Array.from({length:12},(_,i)=>({angle:(i/12)*Math.PI*2,len:0,maxLen:Math.random()*300+100}));
-  // Explosion boom
   try {
     const actx = new (window.AudioContext||window.webkitAudioContext)();
     const buf = actx.createBuffer(1, actx.sampleRate*1.5, actx.sampleRate);
@@ -1965,7 +1869,6 @@ function doNuke() {
   const interval = setInterval(() => {
     t+=0.04; ctx.clearRect(0,0,canvas.width,canvas.height);
     if(t<1) {
-      // Phase 1: screen cracks
       ctx.strokeStyle='rgba(255,200,0,'+Math.min(t*2,1)+')';
       ctx.lineWidth=2;
       cracks.forEach(c=>{
@@ -1974,20 +1877,16 @@ function doNuke() {
         ctx.lineTo(cx+Math.cos(c.angle)*c.len, cy+Math.sin(c.angle)*c.len);
         ctx.stroke();
       });
-      // Vignette
       const vg=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(cx,cy));
       vg.addColorStop(0,'rgba(0,0,0,0)');
       vg.addColorStop(1,'rgba(0,0,0,'+Math.min(t*0.5,0.4)+')');
       ctx.fillStyle=vg; ctx.fillRect(0,0,canvas.width,canvas.height);
     } else if(t<1.3){
-      // Phase 2: white flash
       ctx.fillStyle=`rgba(255,255,255,${Math.min((t-1)*5,1)})`;
       ctx.fillRect(0,0,canvas.width,canvas.height);
     } else if(t<3){
-      // Phase 3: mushroom cloud explosion
       const prog = (t-1.3)/1.7;
       ctx.fillStyle='rgba(0,0,0,1)'; ctx.fillRect(0,0,canvas.width,canvas.height);
-      // Fireball
       const fbR = prog * Math.min(cx,cy)*1.2;
       const fbG = ctx.createRadialGradient(cx,cy,0,cx,cy,fbR);
       fbG.addColorStop(0,'rgba(255,255,200,0.95)');
@@ -1995,12 +1894,10 @@ function doNuke() {
       fbG.addColorStop(0.7,'rgba(200,40,0,0.7)');
       fbG.addColorStop(1,'rgba(40,10,0,0)');
       ctx.fillStyle=fbG; ctx.beginPath(); ctx.arc(cx,cy,fbR,0,Math.PI*2); ctx.fill();
-      // Shockwave ring
       ctx.beginPath(); ctx.arc(cx,cy,prog*Math.max(canvas.width,canvas.height)*0.7,0,Math.PI*2);
       ctx.strokeStyle=`rgba(255,200,100,${Math.max(0,0.6-prog)})`;
       ctx.lineWidth=6*(1-prog)+2; ctx.stroke();
     } else {
-      // Phase 4: fade to black
       ctx.fillStyle='rgba(0,0,0,1)'; ctx.fillRect(0,0,canvas.width,canvas.height);
       clearInterval(interval);
       setTimeout(()=>{ canvas.style.display='none'; ctx.clearRect(0,0,canvas.width,canvas.height); },3000);
@@ -2008,7 +1905,6 @@ function doNuke() {
   }, 30);
 }
 
-// ── VIRUS ──
 function doVirus() {
   const o = document.getElementById('virusOverlay');
   const lines = document.getElementById('virusLines');
@@ -2032,7 +1928,6 @@ function doVirus() {
 }
 window.closeVirus = () => { document.getElementById('virusOverlay').style.display='none'; document.getElementById('virusLines').innerHTML=''; }
 
-// ── BSOD ──
 function doBsod() {
   const o = document.getElementById('bsodOverlay');
   const pct = document.getElementById('bsodPct');
@@ -2046,7 +1941,6 @@ function doBsod() {
 }
 window.closeBsod = () => { document.getElementById('bsodOverlay').style.display='none'; }
 
-// ── SHUTDOWN ──
 function doShutdown() {
   const o = document.getElementById('shutdownOverlay');
   const msg = document.getElementById('shutdownMsg');
@@ -2060,18 +1954,15 @@ function doShutdown() {
   setTimeout(()=>{ o.style.display='none'; document.getElementById('shutdownBar').parentElement.style.display='block'; bar.style.width='0%'; bar.style.transition='none'; },14000);
 }
 
-// ── CLOWN ──
 let clownActive = false;
 let clownObserver = null;
 function doClown() {
   clownActive = !clownActive;
   if(clownActive) {
-    // Rewrite all visible message text
     document.querySelectorAll('.bub:not(.deleted)').forEach(el=>{
       if(!el.dataset.origClown) el.dataset.origClown = el.innerHTML;
       el.innerHTML = clownify(el.innerHTML);
     });
-    // Watch for new messages
     clownObserver = new MutationObserver(muts=>{
       muts.forEach(m=>m.addedNodes.forEach(n=>{
         if(n.nodeType===1){
@@ -2091,10 +1982,9 @@ function doClown() {
 }
 function clownify(text) {
   const honks = ['HONK','honk','🤡','🎪','honk honk','BEEP BEEP','🎠','🎡','hOnK'];
-  return text.replace(/(\w{3,})/g, ()=>honks[Math.floor(Math.random()*honks.length)]);
+  return text.replace(/(\w{3,})/g, ()=>honks[Math.floor(Math.random()*honks.length)]);
 }
 
-// ── FLOOD ──
 async function doFlood() {
   if(!isAdmin) return;
   const floodMsgs = ['💥','🌊','FLOOD','help','aaaaa','🔥🔥🔥','...','>:)','lol','bruh','omg','🤣','wtf','nooo','rip','😭','chaos','NEXUS','☠️','pog'];
@@ -2107,7 +1997,6 @@ async function doFlood() {
   toast('🌊 FLOOD SENT — 40 messages!', 'success');
 }
 
-// ── LOOP ──
 async function doLoop() {
   if(!isAdmin || !msgCache.length) return;
   const last = msgCache.filter(m=>!m.deleted).slice(-1)[0];
@@ -2120,7 +2009,6 @@ async function doLoop() {
   toast('🔁 Last message looped 20 times!','success');
 }
 
-// ── MIC CHECK ──
 function doMicCheck() {
   const o = document.getElementById('micOverlay');
   o.style.display='flex';
@@ -2136,9 +2024,7 @@ function doMicCheck() {
   setTimeout(()=>{ o.style.display='none'; },5000);
 }
 
-// ── IMPERSONATE ──
 window.openImpersonate = function() {
-  // Build user list from presence + msgCache
   const users = {};
   msgCache.forEach(m=>{ if(m.uid!==me.id) users[m.uid]={name:m.name,avatar:m.avatar,avatar_url:m.avatar_url}; });
   const sel = document.getElementById('impersonateUser');
@@ -2162,7 +2048,7 @@ function doImpersonateReceive(data) { /* handled via DB insert realtime */ }
 
 
 // ══════════════════════════════════════════════
-//  WEBRTC CALLING SYSTEM — v3 clean rewrite
+//  WEBRTC CALLING SYSTEM
 // ══════════════════════════════════════════════
 const STUN = { iceServers:[
   {urls:'stun:stun.l.google.com:19302'},
@@ -2174,7 +2060,7 @@ const STUN = { iceServers:[
 let callState = 'idle';
 let localStream = null;
 let screenStream = null;
-let peers = {}; // uid -> { pc, name, avatar, avatar_url, stream }
+let peers = {};
 let callStartTime = null;
 let callDurInterval = null;
 let isMuted = false;
@@ -2182,12 +2068,8 @@ let isCamOff = true;
 let isScreenSharing = false;
 let videoGridOpen = false;
 let pendingInvite = null;
-// Track who is in the call: uid -> {name,avatar,avatar_url}
 let callMembers = {};
 
-// ─────────────────────────────────────
-//  SIGNALING  (all direct, no wildcard)
-// ─────────────────────────────────────
 function sendSignal(toUid, type, data={}) {
   if(!realtimeCh) return;
   realtimeCh.send({
@@ -2196,56 +2078,41 @@ function sendSignal(toUid, type, data={}) {
               fromAvatar:me.avatar, fromAvatarUrl:me.avatar_url||null, type, data }
   });
 }
-// Broadcast to all current call members individually
 function signalAllMembers(type, data={}) {
   Object.keys(callMembers).forEach(uid => { if(uid!==me.id) sendSignal(uid,type,data); });
 }
 
 async function handleSignal(p) {
   const {fromUid, fromName, fromAvatar, fromAvatarUrl, type, data} = p;
-
-  // ── Incoming invite ──
   if(type === 'call-invite') {
     if(callState === 'incall') { sendSignal(fromUid,'call-busy',{}); return; }
     pendingInvite = {fromUid, fromName, fromAvatar, fromAvatarUrl};
     showIncomingCall(fromUid, fromName, fromAvatar, fromAvatarUrl);
   }
-
-  // ── Someone accepted our invite / joined the room ──
   else if(type === 'call-join') {
     if(callState !== 'incall') return;
     if(peers[fromUid]) return;
-    // Add them to known members
     callMembers[fromUid] = {name:fromName, avatar:fromAvatar, avatar_url:fromAvatarUrl};
-    // Send them back the list of existing members so they can connect to everyone
     const memberList = Object.entries(callMembers)
       .filter(([uid])=>uid!==fromUid)
       .map(([uid,m])=>({uid,...m}));
     sendSignal(fromUid, 'call-member-list', {members: memberList});
-    // Create our peer — WE are the polite side, they will offer to us
     await createPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, false);
     updateCallPeers();
   }
-
-  // ── We just joined, receive member list ──
   else if(type === 'call-member-list') {
     const {members} = data;
     for(const m of members) {
       if(m.uid === me.id) continue;
       if(peers[m.uid]) continue;
       callMembers[m.uid] = {name:m.name, avatar:m.avatar, avatar_url:m.avatar_url};
-      // We are the NEW joiner — we offer to everyone already in the call
       await createPeer(m.uid, m.name, m.avatar, m.avatar_url, true);
     }
     updateCallPeers();
   }
-
-  // ── Call declined / busy / left ──
   else if(type === 'call-declined') { toast(`${fromName} declined`,'info'); }
   else if(type === 'call-busy')     { toast(`${fromName} is in a call`,'info'); }
   else if(type === 'call-left')     { removePeer(fromUid); delete callMembers[fromUid]; }
-
-  // ── WebRTC offer ──
   else if(type === 'offer') {
     if(!peers[fromUid]) await createPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, false);
     const peer = peers[fromUid]; if(!peer) return;
@@ -2253,7 +2120,6 @@ async function handleSignal(p) {
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(data));
       peer.remoteSet = true;
-      // Flush buffered ICE candidates
       for(const c of peer.iceBuf) { try{ await pc.addIceCandidate(new RTCIceCandidate(c)); }catch(e){} }
       peer.iceBuf = [];
       const answer = await pc.createAnswer();
@@ -2261,8 +2127,6 @@ async function handleSignal(p) {
       sendSignal(fromUid, 'answer', pc.localDescription.toJSON());
     } catch(e){ console.error('offer err',e); }
   }
-
-  // ── WebRTC answer ──
   else if(type === 'answer') {
     const peer = peers[fromUid]; if(!peer) return;
     try {
@@ -2272,8 +2136,6 @@ async function handleSignal(p) {
       peer.iceBuf = [];
     } catch(e){ console.error('answer err',e); }
   }
-
-  // ── ICE candidate ──
   else if(type === 'ice') {
     const peer = peers[fromUid]; if(!peer) return;
     if(peer.remoteSet) { try{ await peer.pc.addIceCandidate(new RTCIceCandidate(data)); }catch(e){} }
@@ -2281,19 +2143,11 @@ async function handleSignal(p) {
   }
 }
 
-// ─────────────────────────────────────
-//  PEER CONNECTION
-// ─────────────────────────────────────
 async function createPeer(uid, name, avatar, avatarUrl, imOfferer) {
   if(peers[uid]) return peers[uid];
   const pc = new RTCPeerConnection(STUN);
-  // iceBuf: buffer candidates until remoteDescription is set
   peers[uid] = {pc, name, avatar, avatar_url:avatarUrl, audioStream:new MediaStream(), videoStream:new MediaStream(), iceBuf:[], remoteSet:false};
-
-  // Add local audio track
   if(localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-
-  // ICE — buffer until remote desc ready
   pc.onicecandidate = e => {
     if(!e.candidate) return;
     if(peers[uid]?.remoteSet) sendSignal(uid,'ice',e.candidate.toJSON());
@@ -2305,8 +2159,6 @@ async function createPeer(uid, name, avatar, avatarUrl, imOfferer) {
   pc.onconnectionstatechange = () => {
     if(pc.connectionState==='disconnected'||pc.connectionState==='failed'||pc.connectionState==='closed') removePeer(uid);
   };
-
-  // Remote tracks — keep audio and video in separate streams
   pc.ontrack = e => {
     if(!peers[uid]) return;
     const track = e.track;
@@ -2322,9 +2174,7 @@ async function createPeer(uid, name, avatar, avatarUrl, imOfferer) {
     }
     updateCallPeers();
   };
-
   addPeerTile(uid, name, avatar, avatarUrl);
-
   if(imOfferer) {
     setTimeout(async () => {
       try {
@@ -2334,11 +2184,9 @@ async function createPeer(uid, name, avatar, avatarUrl, imOfferer) {
       } catch(e){ console.error('createOffer err',e); }
     }, 500);
   }
-
   return peers[uid];
 }
 
-// Attach peer audio to a dedicated <audio> element (bypasses autoplay block)
 function attachPeerAudio(uid) {
   const p=peers[uid]; if(!p) return;
   let aud = document.getElementById('paud-'+uid);
@@ -2362,9 +2210,6 @@ function removePeer(uid) {
   toast(`${p.name} left the call`,'info');
 }
 
-// ─────────────────────────────────────
-//  CALL FLOW
-// ─────────────────────────────────────
 window.toggleCall = async function() {
   if(callState==='idle') await startCall(); else leaveCall();
 }
@@ -2375,7 +2220,6 @@ async function startCall() {
   callState = 'incall';
   callMembers[me.id] = {name:me.name, avatar:me.avatar, avatar_url:me.avatar_url};
   updateCallBtn(); startCallBar(); addLocalTile(); startLocalVolumeMeter();
-  // Invite everyone online using presence state
   const state = realtimeCh.presenceState();
   const onlineUids = Object.values(state).flat().map(u=>u.uid).filter(uid=>uid&&uid!==me.id);
   if(onlineUids.length===0) { toast('📞 Call started — no one else online','info'); return; }
@@ -2406,7 +2250,6 @@ window.acceptCall = async function() {
   callMembers[me.id] = {name:me.name, avatar:me.avatar, avatar_url:me.avatar_url};
   callMembers[fromUid] = {name:fromName, avatar:fromAvatar, avatar_url:fromAvatarUrl};
   updateCallBtn(); startCallBar(); addLocalTile();
-  // Tell the caller (and everyone else in the call) we joined
   sendSignal(fromUid, 'call-join', {});
 }
 
@@ -2418,7 +2261,6 @@ window.declineCall = function() {
 
 window.leaveCall = function() {
   stopRingtone();
-  // Tell all peers we left
   Object.keys(callMembers).forEach(uid => { if(uid!==me.id) sendSignal(uid,'call-left',{}); });
   Object.keys(peers).forEach(uid => { const p=peers[uid]; if(p){try{p.pc.close();}catch(e){}} delete peers[uid]; const t=document.getElementById("vt-"+uid); if(t)t.remove(); });
   peers = {}; callMembers = {};
@@ -2433,9 +2275,6 @@ window.leaveCall = function() {
   toast('Call ended','info');
 }
 
-// ─────────────────────────────────────
-//  MEDIA
-// ─────────────────────────────────────
 async function getLocalStream() {
   if(localStream) return localStream;
   try {
@@ -2481,7 +2320,6 @@ window.toggleCamera = async function() {
 window.toggleScreen = async function() {
   if(isScreenSharing) {
     if(screenStream){screenStream.getTracks().forEach(t=>t.stop());screenStream=null;}
-    // Revert to camera track or null
     const vt=localStream?.getVideoTracks().find(t=>t.readyState==='live')||null;
     await Promise.all(Object.values(peers).map(p=>{
       const s=p.pc.getSenders().find(s=>s.track?.kind==='video');
@@ -2509,9 +2347,6 @@ window.toggleScreen = async function() {
   }
 }
 
-// ─────────────────────────────────────
-//  VIDEO TILES
-// ─────────────────────────────────────
 function addLocalTile() {
   const vg=document.getElementById('vgVideos');
   if(!document.getElementById('vt-local')){
@@ -2542,7 +2377,6 @@ function addPeerTile(uid, name, avatar, avatarUrl) {
   vg.appendChild(t); updateVideoGrid();
 }
 
-// updatePeerVideo — called when a video track arrives/changes
 function updatePeerVideo(uid) {
   const p=peers[uid]; if(!p) return;
   const tile=document.getElementById('vt-'+uid); if(!tile) return;
@@ -2561,10 +2395,6 @@ function updatePeerVideo(uid) {
   }
 }
 
-// Legacy alias
-function updatePeerTile(uid){ updatePeerVideo(uid); }
-function ensureAudioPlays(uid){ attachPeerAudio(uid); }
-
 function updateVideoGrid() {
   const vg=document.getElementById('vgVideos');
   const n=vg.children.length;
@@ -2578,9 +2408,6 @@ window.toggleVideoGrid = function() {
   document.getElementById('videoGridBtn').classList.toggle('active',videoGridOpen);
 }
 
-// ─────────────────────────────────────
-//  CALL BAR
-// ─────────────────────────────────────
 function startCallBar() {
   document.getElementById('callBar').classList.add('on');
   callStartTime=Date.now();
@@ -2610,9 +2437,6 @@ function updateCallBtn() {
   }
 }
 
-// ─────────────────────────────────────
-//  RINGTONE
-// ─────────────────────────────────────
 function playRingtone() {
   try {
     const ctx=new(window.AudioContext||window.webkitAudioContext)();
@@ -2634,16 +2458,9 @@ function stopRingtone(){
   try{window._rtCtx?.close();}catch(e){}
 }
 
-// ── no-op kept for compat ──
-function attachCallSignalListener(){}
-
-
-
-// ─────────────────────────────────────
-//  VOLUME METERS
-// ─────────────────────────────────────
+// ── VOLUME METERS ──
 let localAnalyser = null, localVolInterval = null;
-let peerAnalysers = {}; // uid -> {analyser, interval}
+let peerAnalysers = {};
 
 function startLocalVolumeMeter() {
   if(localVolInterval) return;
@@ -2698,7 +2515,6 @@ function startPeerVolumeMeter(uid) {
       const pct = Math.min(100, avg * 2.5);
       const speaking = pct > 8;
       tile.classList.toggle('speaking', speaking);
-      // Draw on canvas if present
       const canvas = tile.querySelector('canvas.vol-bar');
       if(canvas){
         const ctx2=canvas.getContext('2d');
@@ -2719,14 +2535,15 @@ function stopPeerVolumeMeter(uid) {
   delete peerAnalysers[uid];
 }
 
-
-// ── LOADING SCREEN DISMISS ──
+// ══════════════════════════════════════════════
+//  LOADING SCREEN DISMISS — fixed fallback
+// ══════════════════════════════════════════════
 (function(){
   const ls = document.getElementById('loadScreen');
   if(!ls) return;
-  // Minimum display time so the animation plays fully
   const minTime = 2600;
   const start = Date.now();
+
   window._dismissLoad = function(){
     const elapsed = Date.now() - start;
     const wait = Math.max(0, minTime - elapsed);
@@ -2735,8 +2552,24 @@ function stopPeerVolumeMeter(uid) {
       setTimeout(() => { ls.style.display='none'; }, 750);
     }, wait);
   };
-  // Fallback: force dismiss after 5s no matter what
-  setTimeout(() => { if(ls && !ls.classList.contains('fade-out')) window._dismissLoad(); }, 5000);
+
+  // ── FIX: fallback now also reveals auth if the app never booted ──
+  setTimeout(() => {
+    if(ls && !ls.classList.contains('fade-out')) window._dismissLoad();
+    // After the fade completes, check if we're stuck on the spinner
+    setTimeout(() => {
+      const app    = document.getElementById('app');
+      const auth   = document.getElementById('auth');
+      const loading = document.getElementById('loading');
+      const appVisible  = app  && app.classList.contains('on');
+      const authVisible = auth && (auth.style.display === 'flex' || auth.classList.contains('on'));
+      if(!appVisible && !authVisible) {
+        // Neither panel is showing — fall back to auth gracefully
+        if(loading) loading.style.display = 'none';
+        if(auth) { auth.style.display = 'flex'; auth.classList.add('on'); }
+      }
+    }, 900); // wait for fade to finish
+  }, 5000);
 })();
 
 
@@ -2746,8 +2579,8 @@ function stopPeerVolumeMeter(uid) {
 let ucSidebarOpen = true;
 let ucPeakOnline = 0;
 let ucMsgTodayCount = 0;
-let ucWhisperTarget = null; // {uid, name}
-let ucPresenceData = {}; // uid -> {name, avatar, avatar_url}
+let ucWhisperTarget = null;
+let ucPresenceData = {};
 
 window.toggleUsersSidebar = function() {
   ucSidebarOpen = !ucSidebarOpen;
@@ -2764,7 +2597,6 @@ function renderUsersSidebar() {
     if(p.uid) users.push(p);
   });
 
-  // Update peak
   if(users.length > ucPeakOnline) {
     ucPeakOnline = users.length;
     const pk = document.getElementById('ucPeak');
@@ -2773,12 +2605,10 @@ function renderUsersSidebar() {
   const cn = document.getElementById('ucCountNum');
   if(cn) cn.textContent = users.length;
 
-  // In-call count
   const inCallCount = Object.keys(callMembers||{}).filter(uid=>uid!==me?.id).length;
   const ic = document.getElementById('ucInCall');
   if(ic) ic.textContent = inCallCount + (inCallCount > 0 ? ' 🟢' : '');
 
-  // Sort: me first, then admins, then rest alpha
   users.sort((a,b) => {
     if(a.uid===me?.id) return -1;
     if(b.uid===me?.id) return 1;
@@ -2791,7 +2621,6 @@ function renderUsersSidebar() {
 
   list.innerHTML = '';
 
-  // Section: you
   const meUser = users.find(u=>u.uid===me?.id);
   if(meUser) {
     const sec = document.createElement('div');
@@ -2800,7 +2629,6 @@ function renderUsersSidebar() {
     list.appendChild(makeUserCard(meUser, true));
   }
 
-  // Section: others
   const others = users.filter(u=>u.uid!==me?.id);
   if(others.length) {
     const sec = document.createElement('div');
@@ -2810,7 +2638,7 @@ function renderUsersSidebar() {
   }
 
   if(users.length === 0) {
-    list.innerHTML = '<div style="text-align:center;padding:20px 8px;color:var(--text3);font-size:11px;font-family:'JetBrains Mono',monospace;line-height:1.7;">No one else online<br><span style="font-size:18px;">😶</span></div>';
+    list.innerHTML = '<div style="text-align:center;padding:20px 8px;color:var(--text3);font-size:11px;font-family:JetBrains Mono,monospace;line-height:1.7;">No one else online<br><span style="font-size:18px;">😶</span></div>';
   }
 }
 
@@ -2819,15 +2647,15 @@ function makeUserCard(u, isMe) {
   div.className = 'uc-user' + (isMe?' is-me':'');
   div.dataset.uid = u.uid;
 
-  const isAdmin = ADMIN_IDS.includes(u.uid);
+  const uIsAdmin = ADMIN_IDS.includes(u.uid);
   const inCall  = callMembers && callMembers[u.uid];
 
   const avHtml = (u.avatar_url||u.avatarUrl)
     ? `<img src="${u.avatar_url||u.avatarUrl}" style="width:100%;height:100%;object-fit:cover;">`
     : (u.avatar || '👤');
 
-  const roleLabel = inCall ? 'IN CALL 🟢' : isAdmin ? 'ADMIN' : 'MEMBER';
-  const roleClass = inCall ? 'incall' : isAdmin ? 'admin' : '';
+  const roleLabel = inCall ? 'IN CALL 🟢' : uIsAdmin ? 'ADMIN' : 'MEMBER';
+  const roleClass = inCall ? 'incall' : uIsAdmin ? 'admin' : '';
 
   div.innerHTML = `
     <div class="uc-av-wrap">
@@ -2844,14 +2672,13 @@ function makeUserCard(u, isMe) {
     </div>` : ''}
   `;
 
-  // Tooltip on hover
-  div.addEventListener('mouseenter', e => showUcTooltip(e, u, isAdmin, inCall));
+  div.addEventListener('mouseenter', e => showUcTooltip(e, u, uIsAdmin, inCall));
   div.addEventListener('mouseleave', hideUcTooltip);
   return div;
 }
 
 let tooltipTimeout;
-function showUcTooltip(e, u, isAdmin, inCall) {
+function showUcTooltip(e, u, uIsAdmin, inCall) {
   clearTimeout(tooltipTimeout);
   tooltipTimeout = setTimeout(() => {
     const tip = document.getElementById('ucTooltip');
@@ -2864,7 +2691,7 @@ function showUcTooltip(e, u, isAdmin, inCall) {
       <div class="uc-tip-name">${x(u.name||'Unknown')}</div>
       <div class="uc-tip-badges">
         <span class="uc-badge online">● ONLINE</span>
-        ${isAdmin?'<span class="uc-badge admin-b">ADMIN</span>':''}
+        ${uIsAdmin?'<span class="uc-badge admin-b">ADMIN</span>':''}
         ${inCall?'<span class="uc-badge call-b">IN CALL</span>':''}
       </div>
     `;
@@ -2880,7 +2707,6 @@ function hideUcTooltip() {
   if(tip) tip.classList.remove('show');
 }
 
-// Whisper (DM-style message prefixed with @name)
 window.openWhisper = function(uid, name) {
   ucWhisperTarget = {uid, name};
   const bar = document.getElementById('ucDmBar');
@@ -2892,20 +2718,16 @@ window.sendWhisper = async function() {
   const inp = document.getElementById('ucDmInput');
   const msg = inp?.value?.trim();
   if(!msg || !ucWhisperTarget) return;
-  // Send as a styled message visible to all (with whisper indicator)
   const content = `💬 *whispers to @${ucWhisperTarget.name}:* ${msg}`;
   inp.value = '';
   document.getElementById('ucDmBar')?.classList.remove('open');
   ucWhisperTarget = null;
-  // inject into chat
   const ta = document.getElementById('mta');
   if(ta) { ta.value = content; await sendMsg(); ta.value=''; }
 }
 
-// Call a specific user
 window.callUser = function(uid) {
   if(callState !== 'idle') { toast('Already in a call','info'); return; }
-  // Start call and invite just this user
   getLocalStream().then(stream => {
     if(!stream) return;
     callState = 'incall';
@@ -2916,13 +2738,11 @@ window.callUser = function(uid) {
   });
 }
 
-// Track message count today
 function incMsgToday() {
   ucMsgTodayCount++;
   const el = document.getElementById('ucMsgToday');
   if(el) el.textContent = ucMsgTodayCount;
 }
-
 
 document.addEventListener('click',e=>{
   if(emOpen&&!e.target.closest('.iwrap')&&!e.target.closest('#emBtn')){emOpen=false;document.getElementById('embox').style.display='none';}
@@ -2936,24 +2756,5 @@ document.addEventListener('keydown',e=>{
   }
 });
 </script>
-
-<!--
-  ═══════════════════════════════════════════════
-  SUPABASE SQL — run in your Supabase SQL Editor:
-
-  ALTER TABLE profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
-  ALTER TABLE messages ADD COLUMN IF NOT EXISTS avatar_url TEXT;
-  ALTER TABLE messages ADD COLUMN IF NOT EXISTS deleted BOOLEAN DEFAULT FALSE;
-
-  -- RLS policy so admins can hard-delete any message:
-  CREATE POLICY "Admins can delete any message" ON messages
-  FOR DELETE USING (
-    auth.uid() IN (
-      'af8060a4-1af3-4f89-94e2-939c3e001b43',
-      'ef732c5f-625b-4334-b4eb-f456b79beae2'
-    )
-  );
-  ═══════════════════════════════════════════════
--->
 </body>
 </html>
