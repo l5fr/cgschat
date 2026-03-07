@@ -296,22 +296,126 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .uc-badge.admin-b{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#f87171;}
 .uc-badge.call-b{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.25);color:#4ade80;}
 
-/* Whisper DM input */
-.uc-dm-bar{
-  display:none;padding:8px;border-top:1px solid var(--border2);flex-shrink:0;
+/* ── DM PANEL ── */
+#dmPanel{
+  position:absolute;inset:0;z-index:20;
+  background:linear-gradient(180deg,rgba(7,4,14,.99),rgba(5,3,10,.99));
+  display:flex;flex-direction:column;
+  transform:translateX(-100%);
+  transition:transform .25s cubic-bezier(.4,0,.2,1);
+  pointer-events:none;
 }
-.uc-dm-bar.open{display:flex;gap:6px;}
-.uc-dm-input{
-  flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;
-  padding:7px 10px;color:var(--text);font-size:12px;outline:none;
-  font-family:'Syne',sans-serif;
+#dmPanel.open{transform:translateX(0);pointer-events:all;}
+
+.dm-header{
+  height:54px;border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;gap:10px;padding:0 12px;
+  flex-shrink:0;background:rgba(8,6,20,.96);
 }
-.uc-dm-input:focus{border-color:var(--purple);}
-.uc-dm-send{
-  padding:7px 12px;border-radius:8px;border:none;
+.dm-back{
+  width:28px;height:28px;border-radius:8px;border:1px solid var(--border2);
+  background:transparent;color:var(--text3);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;font-size:13px;
+  transition:all .15s;flex-shrink:0;
+}
+.dm-back:hover{background:var(--dim);color:var(--text);border-color:var(--purple2);}
+.dm-header-av{
+  width:30px;height:30px;border-radius:9px;
+  background:linear-gradient(135deg,var(--purple),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;overflow:hidden;border:1.5px solid var(--border2);
+}
+.dm-header-av img{width:100%;height:100%;object-fit:cover;}
+.dm-header-info{flex:1;min-width:0;}
+.dm-header-name{font-size:12px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dm-header-sub{font-size:9px;color:var(--accent);font-family:'JetBrains Mono',monospace;letter-spacing:1px;margin-top:1px;}
+
+.dm-msgs{
+  flex:1;overflow-y:auto;padding:12px 10px;
+  display:flex;flex-direction:column;gap:2px;
+}
+.dm-msgs::-webkit-scrollbar{width:2px;}
+.dm-msgs::-webkit-scrollbar-thumb{background:var(--purple4);border-radius:2px;}
+
+.dm-msg{display:flex;flex-direction:column;margin-bottom:10px;}
+.dm-msg.dm-me{align-items:flex-end;}
+.dm-msg.dm-them{align-items:flex-start;}
+.dm-bubble{
+  max-width:170px;padding:8px 11px;border-radius:12px;
+  font-size:12px;line-height:1.55;word-break:break-word;
+  animation:bIn .18s cubic-bezier(.34,1.56,.64,1) both;
+}
+.dm-me .dm-bubble{
+  background:linear-gradient(135deg,var(--purple),var(--purple3));
+  color:#fff;border-bottom-right-radius:3px;
+  box-shadow:0 2px 10px rgba(124,58,237,.25);
+}
+.dm-them .dm-bubble{
+  background:var(--bg3);color:var(--text);
+  border-bottom-left-radius:3px;border:1px solid var(--border2);
+}
+.dm-ts{font-size:9px;color:var(--text3);font-family:'JetBrains Mono',monospace;margin-top:3px;padding:0 2px;}
+
+.dm-empty{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:8px;
+  font-size:11px;color:var(--text3);font-family:'JetBrains Mono',monospace;
+  letter-spacing:1px;text-align:center;padding:20px;
+}
+.dm-empty-icon{font-size:28px;opacity:.4;}
+
+.dm-input-area{
+  padding:10px 10px 12px;border-top:1px solid var(--border2);
+  flex-shrink:0;display:flex;gap:7px;align-items:flex-end;
+  background:rgba(8,8,16,.84);
+}
+.dm-ta{
+  flex:1;background:var(--bg2);border:1px solid var(--border);
+  border-radius:10px;padding:9px 12px;color:var(--text);
+  font-family:'Syne',sans-serif;font-size:12px;outline:none;
+  resize:none;min-height:36px;max-height:90px;line-height:1.5;
+  transition:border-color .2s,box-shadow .2s;
+}
+.dm-ta:focus{border-color:var(--purple);box-shadow:0 0 0 3px var(--dim);}
+.dm-ta::placeholder{color:var(--text3);}
+.dm-send{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
   background:linear-gradient(135deg,var(--purple),var(--purple2));
-  color:#fff;font-size:12px;cursor:pointer;font-weight:700;
+  border:none;color:#fff;font-size:14px;cursor:pointer;
+  transition:all .2s;display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 10px rgba(124,58,237,.4);
 }
+.dm-send:hover{transform:scale(1.08);box-shadow:0 5px 18px rgba(124,58,237,.6);}
+
+/* Unread badge on user cards */
+.uc-unread{
+  position:absolute;top:-3px;right:-3px;
+  min-width:16px;height:16px;border-radius:8px;
+  background:linear-gradient(135deg,var(--purple),var(--accent2));
+  border:2px solid var(--bg2);
+  font-size:9px;font-weight:800;color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 3px;font-family:'JetBrains Mono',monospace;
+  animation:bIn .2s cubic-bezier(.34,1.56,.64,1) both;
+  pointer-events:none;
+}
+
+/* DM notification toast with avatar */
+.dm-notif{
+  display:flex;align-items:center;gap:10px;
+  background:var(--bg3);border:1px solid var(--border);
+  border-radius:12px;padding:10px 14px;
+  box-shadow:0 4px 20px rgba(0,0,0,.5);
+  cursor:pointer;pointer-events:all;
+  animation:bIn .25s cubic-bezier(.34,1.56,.64,1) both;
+  white-space:nowrap;
+}
+.dm-notif:hover{background:var(--bg4);border-color:var(--purple2);}
+.dm-notif-av{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--purple),var(--accent2));display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden;}
+.dm-notif-av img{width:100%;height:100%;object-fit:cover;}
+.dm-notif-body{display:flex;flex-direction:column;}
+.dm-notif-name{font-size:11px;font-weight:700;color:var(--accent);}
+.dm-notif-msg{font-size:11px;color:var(--text2);max-width:160px;overflow:hidden;text-overflow:ellipsis;}
 
 @media(max-width:700px){#usersCol{display:none!important;}}
 
@@ -692,9 +796,25 @@ input[type=file]{display:none;}
       </div>
     </div>
     <div class="uc-list" id="ucList"></div>
-    <div class="uc-dm-bar" id="ucDmBar">
-      <input class="uc-dm-input" id="ucDmInput" placeholder="Whisper to someone..." onkeydown="if(event.key==='Enter')sendWhisper()"/>
-      <button class="uc-dm-send" onclick="sendWhisper()">➤</button>
+    <!-- DM PANEL (slides over the user list) -->
+    <div id="dmPanel">
+      <div class="dm-header">
+        <button class="dm-back" onclick="closeDmPanel()" title="Back">←</button>
+        <div class="dm-header-av" id="dmHeaderAv">💬</div>
+        <div class="dm-header-info">
+          <div class="dm-header-name" id="dmHeaderName">—</div>
+          <div class="dm-header-sub">DIRECT MESSAGE</div>
+        </div>
+      </div>
+      <div class="dm-msgs" id="dmMsgs">
+        <div class="dm-empty"><div class="dm-empty-icon">💬</div>No messages yet.<br>Say something!</div>
+      </div>
+      <div class="dm-input-area">
+        <textarea class="dm-ta" id="dmTa" placeholder="Message privately..." rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDm();}"
+          oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,90)+'px'"></textarea>
+        <button class="dm-send" onclick="sendDm()">➤</button>
+      </div>
     </div>
     <div class="uc-footer">
       <div class="uc-stat"><span class="uc-stat-label">MESSAGES TODAY</span><span class="uc-stat-val" id="ucMsgToday">—</span></div>
@@ -1190,6 +1310,7 @@ function bootApp() {
     }
     loadHistory();
     subscribeRealtime();
+    subscribeDms();
   } catch(e){ toast('App error: '+e.message,'error'); }
 }
 
@@ -2579,8 +2700,13 @@ function stopPeerVolumeMeter(uid) {
 let ucSidebarOpen = true;
 let ucPeakOnline = 0;
 let ucMsgTodayCount = 0;
-let ucWhisperTarget = null;
 let ucPresenceData = {};
+// DM state
+let dmOpenUid = null;        // uid of currently open DM conversation
+let dmOpenName = '';
+let dmCache = {};            // uid -> [{id,senderId,content,ts,time}]
+let dmUnread = {};           // uid -> unread count
+let dmSubCh = null;          // separate realtime channel for DMs
 
 window.toggleUsersSidebar = function() {
   ucSidebarOpen = !ucSidebarOpen;
@@ -2657,17 +2783,20 @@ function makeUserCard(u, isMe) {
   const roleLabel = inCall ? 'IN CALL 🟢' : uIsAdmin ? 'ADMIN' : 'MEMBER';
   const roleClass = inCall ? 'incall' : uIsAdmin ? 'admin' : '';
 
+  const unread = dmUnread[u.uid] || 0;
+
   div.innerHTML = `
     <div class="uc-av-wrap">
       <div class="uc-av${inCall?' in-call':''}">${avHtml}</div>
       <div class="uc-online-dot"></div>
+      ${unread > 0 ? `<div class="uc-unread">${unread > 9 ? '9+' : unread}</div>` : ''}
     </div>
     <div class="uc-info">
       <div class="uc-name${isMe?' is-me-label':''}">${x(u.name||'Unknown')}</div>
       <div class="uc-role ${roleClass}">${roleLabel}</div>
     </div>
     ${!isMe ? `<div class="uc-actions">
-      <button class="uc-act-btn" title="Whisper" onclick="openWhisper('${u.uid}','${x(u.name||'')}');event.stopPropagation()">💬</button>
+      <button class="uc-act-btn" title="DM" onclick="openDmPanel('${u.uid}','${x(u.name||'')}','${x(u.avatar||'')}','${x(u.avatar_url||u.avatarUrl||'')}');event.stopPropagation()">💬</button>
       <button class="uc-act-btn" title="Call" onclick="callUser('${u.uid}');event.stopPropagation()">📞</button>
     </div>` : ''}
   `;
@@ -2707,23 +2836,151 @@ function hideUcTooltip() {
   if(tip) tip.classList.remove('show');
 }
 
-window.openWhisper = function(uid, name) {
-  ucWhisperTarget = {uid, name};
-  const bar = document.getElementById('ucDmBar');
-  const inp = document.getElementById('ucDmInput');
-  if(bar) bar.classList.add('open');
-  if(inp) { inp.placeholder = `Whisper to ${name}...`; inp.focus(); }
+// ══════════════════════════════════════════════
+//  DIRECT MESSAGE SYSTEM
+// ══════════════════════════════════════════════
+
+// ── Subscribe to incoming DMs ──
+function subscribeDms() {
+  if(dmSubCh) sb.removeChannel(dmSubCh);
+  dmSubCh = sb.channel('direct-messages-'+me.id)
+    .on('postgres_changes', {
+      event:'INSERT', schema:'public', table:'direct_messages',
+      filter:`recipient_id=eq.${me.id}`
+    }, payload => {
+      const row = payload.new;
+      const msg = dmRowToMsg(row);
+      const uid = row.sender_id;
+      if(!dmCache[uid]) dmCache[uid] = [];
+      dmCache[uid].push(msg);
+      if(dmOpenUid === uid) {
+        appendDmMsg(msg, false);
+        dmScrollBot();
+      } else {
+        // Unread count
+        dmUnread[uid] = (dmUnread[uid]||0) + 1;
+        renderUsersSidebar();
+        showDmNotification(row.sender_name, row.sender_avatar, row.sender_avatar_url, row.content, uid);
+      }
+    })
+    .subscribe();
 }
-window.sendWhisper = async function() {
-  const inp = document.getElementById('ucDmInput');
-  const msg = inp?.value?.trim();
-  if(!msg || !ucWhisperTarget) return;
-  const content = `💬 *whispers to @${ucWhisperTarget.name}:* ${msg}`;
-  inp.value = '';
-  document.getElementById('ucDmBar')?.classList.remove('open');
-  ucWhisperTarget = null;
-  const ta = document.getElementById('mta');
-  if(ta) { ta.value = content; await sendMsg(); ta.value=''; }
+
+function dmRowToMsg(r) {
+  return {
+    id: r.id,
+    senderId: r.sender_id,
+    content: r.content,
+    ts: new Date(r.created_at).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',hour12:false}),
+    time: new Date(r.created_at).getTime()
+  };
+}
+
+// ── Open DM panel ──
+window.openDmPanel = async function(uid, name, avatar, avatarUrl) {
+  dmOpenUid = uid;
+  dmOpenName = name;
+  // Clear unread
+  dmUnread[uid] = 0;
+  renderUsersSidebar();
+  // Header
+  const avEl = document.getElementById('dmHeaderAv');
+  if(avatarUrl) avEl.innerHTML=`<img src="${avatarUrl}" alt="">`;
+  else avEl.textContent = avatar||'👤';
+  document.getElementById('dmHeaderName').textContent = name;
+  // Load history if not cached
+  if(!dmCache[uid]) {
+    dmCache[uid] = [];
+    document.getElementById('dmMsgs').innerHTML = '<div class="dm-empty"><div class="dm-empty-icon" style="animation:spin .75s linear infinite;display:inline-block;border:2px solid var(--purple4);border-top-color:var(--purple);border-radius:50%;width:22px;height:22px;"></div></div>';
+    try {
+      const { data } = await sb.from('direct_messages')
+        .select('*')
+        .or(`and(sender_id.eq.${me.id},recipient_id.eq.${uid}),and(sender_id.eq.${uid},recipient_id.eq.${me.id})`)
+        .order('created_at', {ascending:true})
+        .limit(200);
+      dmCache[uid] = (data||[]).map(dmRowToMsg);
+    } catch(e) { dmCache[uid] = []; }
+  }
+  renderDmMessages();
+  document.getElementById('dmPanel').classList.add('open');
+  document.getElementById('dmTa').focus();
+}
+
+window.closeDmPanel = function() {
+  document.getElementById('dmPanel').classList.remove('open');
+  dmOpenUid = null;
+}
+
+// ── Render all DM messages ──
+function renderDmMessages() {
+  const el = document.getElementById('dmMsgs');
+  const msgs = dmCache[dmOpenUid] || [];
+  if(!msgs.length) {
+    el.innerHTML = '<div class="dm-empty"><div class="dm-empty-icon">💬</div>No messages yet.<br>Say something!</div>';
+    return;
+  }
+  el.innerHTML = '';
+  msgs.forEach(m => appendDmMsg(m, false));
+  dmScrollBot();
+}
+
+function appendDmMsg(m, scroll=true) {
+  const el = document.getElementById('dmMsgs');
+  // Remove empty placeholder
+  const ph = el.querySelector('.dm-empty'); if(ph) ph.remove();
+  const mine = m.senderId === me.id;
+  const div = document.createElement('div');
+  div.className = 'dm-msg ' + (mine ? 'dm-me' : 'dm-them');
+  div.innerHTML = `<div class="dm-bubble">${linkify(x(m.content))}</div><div class="dm-ts">${m.ts}</div>`;
+  el.appendChild(div);
+  if(scroll) dmScrollBot();
+}
+
+function dmScrollBot() {
+  const el = document.getElementById('dmMsgs');
+  requestAnimationFrame(() => el.scrollTop = el.scrollHeight);
+}
+
+// ── Send a DM ──
+window.sendDm = async function() {
+  if(!dmOpenUid) return;
+  const ta = document.getElementById('dmTa');
+  const content = ta.value.trim(); if(!content) return;
+  ta.value = ''; ta.style.height = 'auto';
+  // Optimistic
+  const temp = { id:'tmp_'+Date.now(), senderId:me.id, content, ts:nowTs(), time:Date.now() };
+  if(!dmCache[dmOpenUid]) dmCache[dmOpenUid] = [];
+  dmCache[dmOpenUid].push(temp);
+  appendDmMsg(temp);
+  const { error } = await sb.from('direct_messages').insert({
+    sender_id: me.id,
+    recipient_id: dmOpenUid,
+    sender_name: me.name,
+    sender_avatar: me.avatar,
+    sender_avatar_url: me.avatar_url||null,
+    content
+  });
+  if(error) { toast('Failed to send DM','error'); dmCache[dmOpenUid]=dmCache[dmOpenUid].filter(m=>m.id!==temp.id); renderDmMessages(); }
+}
+
+// ── Incoming DM notification ──
+function showDmNotification(name, avatar, avatarUrl, content, uid) {
+  const w = document.getElementById('tw');
+  const el = document.createElement('div');
+  el.className = 'dm-notif';
+  const avHtml = avatarUrl
+    ? `<div class="dm-notif-av"><img src="${avatarUrl}" alt=""></div>`
+    : `<div class="dm-notif-av">${avatar||'👤'}</div>`;
+  el.innerHTML = `${avHtml}<div class="dm-notif-body"><div class="dm-notif-name">💬 ${x(name)}</div><div class="dm-notif-msg">${x(content)}</div></div>`;
+  el.onclick = () => {
+    // Find user data from presence or msgCache
+    const state = realtimeCh ? realtimeCh.presenceState() : {};
+    const found = Object.values(state).flat().find(u=>u.uid===uid);
+    openDmPanel(uid, name, found?.avatar||avatar, found?.avatar_url||avatarUrl);
+    el.remove();
+  };
+  w.appendChild(el);
+  setTimeout(()=>{ el.style.transition='all .3s';el.style.opacity='0';el.style.transform='translateY(12px)';setTimeout(()=>el.remove(),300); }, 5000);
 }
 
 window.callUser = function(uid) {
@@ -2750,11 +3007,35 @@ document.addEventListener('click',e=>{
 });
 document.addEventListener('keydown',e=>{
   if(e.key==='Escape'){
+    if(dmOpenUid){ closeDmPanel(); return; }
     closeLb(); closeProf(); closeDelModal();
     closeAdminDelOne(); closeNuke();
     document.getElementById('drop').classList.remove('on');
   }
 });
 </script>
+
+<!--
+  ═══════════════════════════════════════════════
+  SUPABASE SQL — run in your Supabase SQL Editor:
+
+  CREATE TABLE IF NOT EXISTS direct_messages (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    sender_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    recipient_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    sender_name TEXT,
+    sender_avatar TEXT,
+    sender_avatar_url TEXT,
+    content TEXT NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+  );
+  ALTER TABLE direct_messages ENABLE ROW LEVEL SECURITY;
+  CREATE POLICY "DM read own" ON direct_messages
+    FOR SELECT USING (auth.uid() = sender_id OR auth.uid() = recipient_id);
+  CREATE POLICY "DM insert own" ON direct_messages
+    FOR INSERT WITH CHECK (auth.uid() = sender_id);
+  ALTER PUBLICATION supabase_realtime ADD TABLE direct_messages;
+  ═══════════════════════════════════════════════
+-->
 </body>
 </html>
