@@ -464,6 +464,58 @@ input[type=file]{display:none;}
       </button>
     </div>
 
+    <div class="ap-sec">💣 OVERPOWERED</div>
+    <div class="ap-troll-grid">
+      <button class="troll-btn" onclick="trollCmd('blackhole')">
+        <span class="tb-ic">🕳️</span>
+        <span class="tb-lbl">BLACK HOLE</span>
+      </button>
+      <button class="troll-btn" onclick="trollCmd('eye')">
+        <span class="tb-ic">👁️</span>
+        <span class="tb-lbl">THE EYE</span>
+      </button>
+      <button class="troll-btn" onclick="trollCmd('volcano')">
+        <span class="tb-ic">🌋</span>
+        <span class="tb-lbl">VOLCANO</span>
+      </button>
+      <button class="troll-btn" onclick="trollCmd('nuke')">
+        <span class="tb-ic">💣</span>
+        <span class="tb-lbl">NUKE</span>
+      </button>
+      <button class="troll-btn" onclick="trollCmd('virus')">
+        <span class="tb-ic">👾</span>
+        <span class="tb-lbl">VIRUS</span>
+      </button>
+      <button class="troll-btn" onclick="trollCmd('bsod')">
+        <span class="tb-ic">☠️</span>
+        <span class="tb-lbl">BSOD</span>
+      </button>
+      <button class="troll-btn" onclick="trollCmd('shutdown')">
+        <span class="tb-ic">📴</span>
+        <span class="tb-lbl">SHUTDOWN</span>
+      </button>
+      <button class="troll-btn" onclick="trollCmd('clown')">
+        <span class="tb-ic">🤡</span>
+        <span class="tb-lbl">CLOWN</span>
+      </button>
+      <button class="troll-btn" onclick="trollCmd('flood')">
+        <span class="tb-ic">🌊</span>
+        <span class="tb-lbl">FLOOD</span>
+      </button>
+      <button class="troll-btn" onclick="trollCmd('loop')">
+        <span class="tb-ic">🔁</span>
+        <span class="tb-lbl">LOOP</span>
+      </button>
+      <button class="troll-btn" onclick="trollCmd('miccheck')">
+        <span class="tb-ic">🎤</span>
+        <span class="tb-lbl">MIC CHECK</span>
+      </button>
+      <button class="troll-btn" onclick="openImpersonate()">
+        <span class="tb-ic">💬</span>
+        <span class="tb-lbl">IMPERSONATE</span>
+      </button>
+    </div>
+
     <div class="ap-sec">ALL MESSAGES</div>
 
     <!-- search -->
@@ -569,6 +621,89 @@ input[type=file]{display:none;}
 <!-- MATRIX CANVAS -->
 <canvas id="matrixCanvas"></canvas>
 <button id="matrixClose" onclick="stopMatrix()">✕ STOP MATRIX</button>
+
+<!-- BLACK HOLE -->
+<canvas id="blackholeCanvas" style="position:fixed;inset:0;z-index:9990;display:none;pointer-events:none;"></canvas>
+
+<!-- THE EYE -->
+<div id="eyeOverlay" style="position:fixed;inset:0;z-index:9991;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.92);cursor:pointer;" onclick="closeEye()">
+  <div id="eyeInner" style="font-size:40vw;line-height:1;animation:eyePulse 2s ease-in-out infinite;user-select:none;">👁️</div>
+</div>
+<style>
+@keyframes eyePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+@keyframes eyeFlicker{0%,100%{opacity:1}45%{opacity:.7}50%{opacity:.2}55%{opacity:.9}}
+#eyeOverlay.on{display:flex;animation:eyeFlicker 4s ease-in-out infinite;}
+</style>
+
+<!-- VOLCANO -->
+<canvas id="volcanoCanvas" style="position:fixed;inset:0;z-index:9992;display:none;pointer-events:none;"></canvas>
+<button id="volcanoClose" style="position:fixed;top:16px;right:16px;z-index:9993;display:none;background:rgba(255,80,0,.2);border:1px solid rgba(255,80,0,.5);border-radius:8px;padding:7px 14px;color:#ff6030;font-family:'JetBrains Mono',monospace;font-size:12px;cursor:pointer;" onclick="stopVolcano()">✕ STOP VOLCANO</button>
+
+<!-- NUKE -->
+<canvas id="nukeCanvas" style="position:fixed;inset:0;z-index:9994;display:none;pointer-events:none;"></canvas>
+
+<!-- VIRUS TERMINAL -->
+<div id="virusOverlay" style="position:fixed;inset:0;z-index:9995;background:#000;display:none;flex-direction:column;font-family:'JetBrains Mono',monospace;padding:24px;overflow:hidden;">
+  <div id="virusLines" style="flex:1;overflow:hidden;display:flex;flex-direction:column;gap:3px;"></div>
+  <button onclick="closeVirus()" style="align-self:flex-end;margin-top:16px;padding:8px 20px;background:rgba(0,255,0,.1);border:1px solid #00ff00;border-radius:6px;color:#00ff00;font-family:'JetBrains Mono',monospace;cursor:pointer;">TERMINATE</button>
+</div>
+
+<!-- BSOD -->
+<div id="bsodOverlay" style="position:fixed;inset:0;z-index:9996;background:#0078d7;display:none;flex-direction:column;align-items:center;justify-content:center;font-family:'Segoe UI',sans-serif;cursor:pointer;" onclick="closeBsod()">
+  <div style="max-width:600px;text-align:center;padding:40px;">
+    <div style="font-size:80px;margin-bottom:20px;">:(</div>
+    <div style="font-size:28px;font-weight:700;color:#fff;margin-bottom:24px;">Your PC ran into a problem and needs to restart.</div>
+    <div style="font-size:14px;color:rgba(255,255,255,.8);margin-bottom:32px;">We're just collecting some error info, and then we'll restart for you.</div>
+    <div style="font-size:13px;color:rgba(255,255,255,.6);font-family:'Courier New',monospace;" id="bsodPct">0% complete</div>
+    <div style="margin-top:30px;font-size:12px;color:rgba(255,255,255,.5);">Stop code: NEXUS_ADMIN_ATTACK<br>For more information visit: https://nexus.gg/bsod</div>
+  </div>
+</div>
+
+<!-- SHUTDOWN -->
+<div id="shutdownOverlay" style="position:fixed;inset:0;z-index:9997;background:#000;display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;">
+  <div style="font-size:16px;color:#fff;font-family:'Segoe UI',sans-serif;" id="shutdownMsg">Shutting down...</div>
+  <div style="font-size:12px;color:rgba(255,255,255,.4);font-family:'Segoe UI',sans-serif;">Please do not turn off your computer</div>
+  <div style="width:200px;height:3px;background:rgba(255,255,255,.1);border-radius:2px;overflow:hidden;margin-top:10px;">
+    <div id="shutdownBar" style="height:100%;background:#fff;width:0%;transition:width 6s linear;border-radius:2px;"></div>
+  </div>
+</div>
+
+<!-- MIC CHECK -->
+<div id="micOverlay" style="position:fixed;inset:0;z-index:9988;display:none;align-items:flex-end;justify-content:center;padding-bottom:60px;pointer-events:none;">
+  <div style="background:rgba(239,68,68,.95);border-radius:16px;padding:20px 32px;display:flex;align-items:center;gap:16px;box-shadow:0 8px 40px rgba(239,68,68,.5);animation:micPop .3s cubic-bezier(.34,1.56,.64,1) both;">
+    <span style="font-size:36px;">🎤</span>
+    <div>
+      <div style="font-size:16px;font-weight:800;color:#fff;letter-spacing:1px;">YOUR MICROPHONE IS ON</div>
+      <div style="font-size:12px;color:rgba(255,255,255,.7);font-family:'JetBrains Mono',monospace;">Everyone can hear you right now</div>
+    </div>
+    <div style="width:12px;height:12px;border-radius:50%;background:#fff;animation:liveDot 1s ease-in-out infinite;"></div>
+  </div>
+</div>
+<style>
+@keyframes micPop{from{opacity:0;transform:translateY(20px) scale(.9)}to{opacity:1;transform:none}}
+</style>
+
+<!-- IMPERSONATE MODAL -->
+<div class="mov" id="impersonateMov">
+  <div class="modal">
+    <h3>💬 Impersonate User</h3>
+    <p>SEND A MESSAGE AS SOMEONE ELSE</p>
+    <div class="mf">
+      <label>SELECT USER</label>
+      <select id="impersonateUser" style="width:100%;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:11px 14px;color:var(--text);font-family:'Syne',sans-serif;font-size:14px;outline:none;">
+        <option value="">Loading users...</option>
+      </select>
+    </div>
+    <div class="mf">
+      <label>MESSAGE</label>
+      <input type="text" id="impersonateMsg" placeholder="What do they say?" maxlength="300">
+    </div>
+    <div class="mbtns">
+      <button class="bcnl" onclick="closeImpersonate()">Cancel</button>
+      <button class="bok red" onclick="confirmImpersonate()">Send It 💬</button>
+    </div>
+  </div>
+</div>
 
 <div class="lb" id="lb" onclick="closeLb()"><img id="lbImg" src="" alt=""></div>
 <div class="tw" id="tw"></div>
@@ -1090,6 +1225,18 @@ function executeTroll(type) {
   if(type === 'matrix')     doMatrix();
   if(type === 'earrape')    doEarrape();
   if(type === 'cursed')     doCursed();
+  if(type === 'blackhole')  doBlackhole();
+  if(type === 'eye')        doEye();
+  if(type === 'volcano')    doVolcano();
+  if(type === 'nuke')       doNuke();
+  if(type === 'virus')      doVirus();
+  if(type === 'bsod')       doBsod();
+  if(type === 'shutdown')   doShutdown();
+  if(type === 'clown')      doClown();
+  if(type === 'flood')      doFlood(type);
+  if(type === 'loop')       doLoop();
+  if(type === 'miccheck')   doMicCheck();
+  if(type && type.startsWith('impersonate:')) doImpersonateReceive(JSON.parse(atob(type.slice(12))));
 }
 
 // ── JUMP SCARE ──
@@ -1250,6 +1397,354 @@ function doCursed() {
     toast('Cursed mode deactivated', 'info');
   }
 }
+
+
+// ══════════════════════════════════════════════
+//  OVERPOWERED TROLL COMMANDS
+// ══════════════════════════════════════════════
+
+// ── BLACK HOLE ──
+function doBlackhole() {
+  const canvas = document.getElementById('blackholeCanvas');
+  canvas.style.display = 'block';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width/2, cy = canvas.height/2;
+  let t = 0;
+  // First grab a screenshot of the page into the canvas
+  ctx.drawImage(document.createElement('canvas'), 0, 0);
+  const interval = setInterval(() => {
+    t += 0.03;
+    ctx.save();
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Draw swirling black void
+    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(canvas.width, canvas.height)*0.6*(1-Math.min(t/4,0.85)));
+    grad.addColorStop(0, 'rgba(0,0,0,1)');
+    grad.addColorStop(0.4, 'rgba(30,0,60,0.9)');
+    grad.addColorStop(0.7, 'rgba(124,58,237,0.5)');
+    grad.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Spiral particles
+    for(let i=0; i<80; i++){
+      const angle = (i/80)*Math.PI*2 + t*2;
+      const r = Math.max(0, (1-t/5)*Math.min(cx,cy)*(0.3+0.7*(i/80)));
+      const px = cx + Math.cos(angle)*r;
+      const py = cy + Math.sin(angle)*r;
+      ctx.beginPath();
+      ctx.arc(px, py, Math.random()*3+1, 0, Math.PI*2);
+      ctx.fillStyle = `hsla(${270+i*2},80%,70%,${0.8-t/6})`;
+      ctx.fill();
+    }
+    ctx.restore();
+    if(t > 5) {
+      clearInterval(interval);
+      ctx.fillStyle = '#000';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      setTimeout(() => { canvas.style.display='none'; ctx.clearRect(0,0,canvas.width,canvas.height); }, 2000);
+    }
+  }, 30);
+}
+
+// ── THE EYE ──
+function doEye() {
+  const o = document.getElementById('eyeOverlay');
+  o.classList.add('on');
+  o.style.display = 'flex';
+  // Creepy tone
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(60, ctx.currentTime);
+    osc.frequency.linearRampToValueAtTime(40, ctx.currentTime+3);
+    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime+4);
+    osc.start(); osc.stop(ctx.currentTime+4);
+  } catch(e){}
+  setTimeout(() => closeEye(), 8000);
+}
+window.closeEye = () => {
+  const o = document.getElementById('eyeOverlay');
+  o.classList.remove('on');
+  o.style.display = 'none';
+}
+
+// ── VOLCANO ──
+let volcanoInterval = null;
+function doVolcano() {
+  const canvas = document.getElementById('volcanoCanvas');
+  const closeBtn = document.getElementById('volcanoClose');
+  canvas.style.display = 'block';
+  closeBtn.style.display = 'block';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const particles = [];
+  let lavaLevel = canvas.height + 100;
+  if(volcanoInterval) clearInterval(volcanoInterval);
+  volcanoInterval = setInterval(() => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Rising lava
+    lavaLevel = Math.max(-100, lavaLevel - 2.5);
+    // Lava surface gradient
+    const lavaGrad = ctx.createLinearGradient(0, lavaLevel, 0, canvas.height);
+    lavaGrad.addColorStop(0, 'rgba(255,120,0,0.92)');
+    lavaGrad.addColorStop(0.3, 'rgba(220,40,0,0.96)');
+    lavaGrad.addColorStop(1, 'rgba(100,0,0,1)');
+    ctx.fillStyle = lavaGrad;
+    // Wavy lava surface
+    ctx.beginPath();
+    ctx.moveTo(0, lavaLevel + Math.sin(Date.now()/400)*12);
+    for(let x=0; x<canvas.width; x+=20){
+      ctx.lineTo(x, lavaLevel + Math.sin(x/60+Date.now()/300)*18 + Math.sin(x/30+Date.now()/200)*8);
+    }
+    ctx.lineTo(canvas.width, canvas.height);
+    ctx.lineTo(0, canvas.height);
+    ctx.closePath();
+    ctx.fill();
+    // Lava bubbles
+    if(Math.random()>.6) particles.push({x:Math.random()*canvas.width,y:lavaLevel,r:Math.random()*16+6,vy:-Math.random()*3-1,life:1});
+    particles.forEach((p,i)=>{
+      p.y+=p.vy; p.life-=0.025;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(255,${100+Math.random()*80},0,${p.life})`;
+      ctx.fill();
+      if(p.life<=0) particles.splice(i,1);
+    });
+    if(lavaLevel <= -100) stopVolcano();
+  }, 30);
+}
+window.stopVolcano = function() {
+  clearInterval(volcanoInterval); volcanoInterval=null;
+  const canvas = document.getElementById('volcanoCanvas');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+  canvas.style.display='none';
+  document.getElementById('volcanoClose').style.display='none';
+}
+
+// ── NUKE ──
+function doNuke() {
+  const canvas = document.getElementById('nukeCanvas');
+  canvas.style.display = 'block';
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const ctx = canvas.getContext('2d');
+  const cx = canvas.width/2, cy = canvas.height/2;
+  let phase = 0; // 0=crack, 1=flash, 2=explosion, 3=black
+  let t = 0;
+  const cracks = Array.from({length:12},(_,i)=>({angle:(i/12)*Math.PI*2,len:0,maxLen:Math.random()*300+100}));
+  // Explosion boom
+  try {
+    const actx = new (window.AudioContext||window.webkitAudioContext)();
+    const buf = actx.createBuffer(1, actx.sampleRate*1.5, actx.sampleRate);
+    const d = buf.getChannelData(0);
+    for(let i=0;i<d.length;i++) d[i]=(Math.random()*2-1)*Math.exp(-i/(actx.sampleRate*0.2));
+    const src = actx.createBufferSource();
+    const g = actx.createGain(); g.gain.value=5;
+    src.buffer=buf; src.connect(g); g.connect(actx.destination);
+    setTimeout(()=>src.start(), 800);
+  } catch(e){}
+  const interval = setInterval(() => {
+    t+=0.04; ctx.clearRect(0,0,canvas.width,canvas.height);
+    if(t<1) {
+      // Phase 1: screen cracks
+      ctx.strokeStyle='rgba(255,200,0,'+Math.min(t*2,1)+')';
+      ctx.lineWidth=2;
+      cracks.forEach(c=>{
+        c.len=Math.min(c.maxLen, c.len+c.maxLen*0.08);
+        ctx.beginPath(); ctx.moveTo(cx,cy);
+        ctx.lineTo(cx+Math.cos(c.angle)*c.len, cy+Math.sin(c.angle)*c.len);
+        ctx.stroke();
+      });
+      // Vignette
+      const vg=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.max(cx,cy));
+      vg.addColorStop(0,'rgba(0,0,0,0)');
+      vg.addColorStop(1,'rgba(0,0,0,'+Math.min(t*0.5,0.4)+')');
+      ctx.fillStyle=vg; ctx.fillRect(0,0,canvas.width,canvas.height);
+    } else if(t<1.3){
+      // Phase 2: white flash
+      ctx.fillStyle=`rgba(255,255,255,${Math.min((t-1)*5,1)})`;
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+    } else if(t<3){
+      // Phase 3: mushroom cloud explosion
+      const prog = (t-1.3)/1.7;
+      ctx.fillStyle='rgba(0,0,0,1)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      // Fireball
+      const fbR = prog * Math.min(cx,cy)*1.2;
+      const fbG = ctx.createRadialGradient(cx,cy,0,cx,cy,fbR);
+      fbG.addColorStop(0,'rgba(255,255,200,0.95)');
+      fbG.addColorStop(0.3,'rgba(255,160,0,0.9)');
+      fbG.addColorStop(0.7,'rgba(200,40,0,0.7)');
+      fbG.addColorStop(1,'rgba(40,10,0,0)');
+      ctx.fillStyle=fbG; ctx.beginPath(); ctx.arc(cx,cy,fbR,0,Math.PI*2); ctx.fill();
+      // Shockwave ring
+      ctx.beginPath(); ctx.arc(cx,cy,prog*Math.max(canvas.width,canvas.height)*0.7,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(255,200,100,${Math.max(0,0.6-prog)})`;
+      ctx.lineWidth=6*(1-prog)+2; ctx.stroke();
+    } else {
+      // Phase 4: fade to black
+      ctx.fillStyle='rgba(0,0,0,1)'; ctx.fillRect(0,0,canvas.width,canvas.height);
+      clearInterval(interval);
+      setTimeout(()=>{ canvas.style.display='none'; ctx.clearRect(0,0,canvas.width,canvas.height); },3000);
+    }
+  }, 30);
+}
+
+// ── VIRUS ──
+function doVirus() {
+  const o = document.getElementById('virusOverlay');
+  const lines = document.getElementById('virusLines');
+  o.style.display = 'flex';
+  lines.innerHTML = '';
+  const msgs = [
+    'Initializing payload...','Connecting to remote server 192.168.1.337...','Access granted.','Scanning file system...','Found: /home/user/passwords.txt','Found: /home/user/browsing_history.db','Found: /home/user/bank_credentials.json','Uploading data... 12%','Uploading data... 34%','Uploading data... 67%','Uploading data... 89%','Upload complete.','Installing backdoor...','Backdoor installed at /etc/init.d/nexus_hook','Encrypting local files...','Encrypted: Documents/ (847 files)','Encrypted: Pictures/ (2,341 files)','Encrypted: Desktop/ (56 files)','Encryption complete.','YOUR FILES HAVE BEEN ENCRYPTED','Send 0.5 BTC to: 1NexusH4ck3r...','You have 24 hours to comply.','😈 -=[ NEXUS ADMIN ]=-',
+  ];
+  let i = 0;
+  const colors = ['#00ff41','#00ff41','#00ff41','#ff4444','#ff4444','#ff4444','#ff4444','#ffff00','#ffff00','#ffff00','#ffff00','#00ff41','#ff4444','#00ff41','#ff4444','#ffff00','#ffff00','#ffff00','#ff4444','#ff0000','#ff0000','#ff4444','#ff00ff'];
+  const add = () => {
+    if(i >= msgs.length) return;
+    const div = document.createElement('div');
+    div.style.cssText = `font-size:13px;color:${colors[i]||'#00ff41'};text-shadow:0 0 8px currentColor;`;
+    div.textContent = '> ' + msgs[i++];
+    lines.appendChild(div);
+    lines.scrollTop = lines.scrollHeight;
+    if(i < msgs.length) setTimeout(add, Math.random()*300+80);
+  };
+  add();
+}
+window.closeVirus = () => { document.getElementById('virusOverlay').style.display='none'; document.getElementById('virusLines').innerHTML=''; }
+
+// ── BSOD ──
+function doBsod() {
+  const o = document.getElementById('bsodOverlay');
+  const pct = document.getElementById('bsodPct');
+  o.style.display = 'flex';
+  let p = 0;
+  const iv = setInterval(()=>{
+    p += Math.random()*3+0.5;
+    if(p>=100){p=100;clearInterval(iv);setTimeout(closeBsod,2000);}
+    pct.textContent = Math.floor(p) + '% complete';
+  }, 150);
+}
+window.closeBsod = () => { document.getElementById('bsodOverlay').style.display='none'; }
+
+// ── SHUTDOWN ──
+function doShutdown() {
+  const o = document.getElementById('shutdownOverlay');
+  const msg = document.getElementById('shutdownMsg');
+  const bar = document.getElementById('shutdownBar');
+  o.style.display = 'flex';
+  const msgs = ['Shutting down...','Saving your settings...','Closing programs...','Installing updates (1 of 47)...','Do not turn off your computer'];
+  let i = 0;
+  const iv = setInterval(()=>{ if(i<msgs.length) msg.textContent=msgs[i++]; else clearInterval(iv); },1200);
+  setTimeout(()=>{ bar.style.width='100%'; },100);
+  setTimeout(()=>{ o.style.background='#000'; msg.textContent=''; document.getElementById('shutdownBar').parentElement.style.display='none'; },8000);
+  setTimeout(()=>{ o.style.display='none'; document.getElementById('shutdownBar').parentElement.style.display='block'; bar.style.width='0%'; bar.style.transition='none'; },14000);
+}
+
+// ── CLOWN ──
+let clownActive = false;
+let clownObserver = null;
+function doClown() {
+  clownActive = !clownActive;
+  if(clownActive) {
+    // Rewrite all visible message text
+    document.querySelectorAll('.bub:not(.deleted)').forEach(el=>{
+      if(!el.dataset.origClown) el.dataset.origClown = el.innerHTML;
+      el.innerHTML = clownify(el.innerHTML);
+    });
+    // Watch for new messages
+    clownObserver = new MutationObserver(muts=>{
+      muts.forEach(m=>m.addedNodes.forEach(n=>{
+        if(n.nodeType===1){
+          n.querySelectorAll&&n.querySelectorAll('.bub:not(.deleted)').forEach(el=>{
+            if(!el.dataset.origClown){ el.dataset.origClown=el.innerHTML; el.innerHTML=clownify(el.innerHTML); }
+          });
+        }
+      }));
+    });
+    clownObserver.observe(document.getElementById('msgs'),{childList:true,subtree:true});
+    toast('🤡 CLOWN MODE ACTIVATED', 'error');
+  } else {
+    if(clownObserver){clownObserver.disconnect();clownObserver=null;}
+    document.querySelectorAll('.bub[data-orig-clown]').forEach(el=>{ el.innerHTML=el.dataset.origClown; delete el.dataset.origClown; });
+    toast('Clown mode off', 'info');
+  }
+}
+function clownify(text) {
+  const honks = ['HONK','honk','🤡','🎪','honk honk','BEEP BEEP','🎠','🎡','hOnK'];
+  return text.replace(/(\w{3,})/g, ()=>honks[Math.floor(Math.random()*honks.length)]);
+}
+
+// ── FLOOD ──
+async function doFlood() {
+  if(!isAdmin) return;
+  const floodMsgs = ['💥','🌊','FLOOD','help','aaaaa','🔥🔥🔥','...','>:)','lol','bruh','omg','🤣','wtf','nooo','rip','😭','chaos','NEXUS','☠️','pog'];
+  const promises = [];
+  for(let i=0;i<40;i++){
+    const msg = floodMsgs[Math.floor(Math.random()*floodMsgs.length)] + ' ' + floodMsgs[Math.floor(Math.random()*floodMsgs.length)];
+    promises.push(sb.from('messages').insert({user_id:me.id,name:me.name,avatar:me.avatar,avatar_url:me.avatar_url,type:'text',content:msg,deleted:false}));
+  }
+  await Promise.all(promises);
+  toast('🌊 FLOOD SENT — 40 messages!', 'success');
+}
+
+// ── LOOP ──
+async function doLoop() {
+  if(!isAdmin || !msgCache.length) return;
+  const last = msgCache.filter(m=>!m.deleted).slice(-1)[0];
+  if(!last) return;
+  const promises = [];
+  for(let i=0;i<20;i++){
+    promises.push(sb.from('messages').insert({user_id:last.uid,name:last.name,avatar:last.avatar,avatar_url:last.avatar_url,type:'text',content:last.content,deleted:false}));
+  }
+  await Promise.all(promises);
+  toast('🔁 Last message looped 20 times!','success');
+}
+
+// ── MIC CHECK ──
+function doMicCheck() {
+  const o = document.getElementById('micOverlay');
+  o.style.display='flex';
+  try {
+    const ctx=new(window.AudioContext||window.webkitAudioContext)();
+    const osc=ctx.createOscillator(),g=ctx.createGain();
+    osc.connect(g);g.connect(ctx.destination);
+    osc.type='sine';osc.frequency.value=880;
+    g.gain.setValueAtTime(0.5,ctx.currentTime);
+    g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+0.3);
+    osc.start();osc.stop(ctx.currentTime+0.3);
+  } catch(e){}
+  setTimeout(()=>{ o.style.display='none'; },5000);
+}
+
+// ── IMPERSONATE ──
+window.openImpersonate = function() {
+  // Build user list from presence + msgCache
+  const users = {};
+  msgCache.forEach(m=>{ if(m.uid!==me.id) users[m.uid]={name:m.name,avatar:m.avatar,avatar_url:m.avatar_url}; });
+  const sel = document.getElementById('impersonateUser');
+  sel.innerHTML = Object.entries(users).map(([uid,u])=>`<option value="${uid}" data-name="${u.name}" data-avatar="${u.avatar}" data-avatarurl="${u.avatar_url||''}">${u.avatar} ${u.name}</option>`).join('');
+  if(!sel.innerHTML) sel.innerHTML='<option>No other users found</option>';
+  document.getElementById('impersonateMsg').value='';
+  document.getElementById('impersonateMov').classList.add('on');
+}
+window.closeImpersonate = () => document.getElementById('impersonateMov').classList.remove('on');
+window.confirmImpersonate = async function() {
+  const sel = document.getElementById('impersonateUser');
+  const opt = sel.options[sel.selectedIndex];
+  const msg = document.getElementById('impersonateMsg').value.trim();
+  if(!msg||!opt.value) return;
+  const name=opt.dataset.name, avatar=opt.dataset.avatar, avatarUrl=opt.dataset.avatarurl||null;
+  closeImpersonate();
+  await sb.from('messages').insert({user_id:opt.value,name,avatar,avatar_url:avatarUrl||null,type:'text',content:msg,deleted:false});
+  toast(`💬 Sent as ${name}!`,'success');
+}
+function doImpersonateReceive(data) { /* handled via DB insert realtime */ }
 
 document.addEventListener('click',e=>{
   if(emOpen&&!e.target.closest('.iwrap')&&!e.target.closest('#emBtn')){emOpen=false;document.getElementById('embox').style.display='none';}
