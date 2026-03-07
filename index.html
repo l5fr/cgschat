@@ -356,6 +356,16 @@ body.cursed-mode #app{animation:cursedFlicker 3s ease-in-out infinite;}
 .vg-videos.count-3,.vg-videos.count-4{grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;}
 .vg-videos.count-many{grid-template-columns:repeat(3,1fr);}
 .vid-tile{position:relative;background:var(--bg3);border-radius:14px;overflow:hidden;border:2px solid var(--border2);}
+
+/* ── VOLUME METERS ── */
+.vol-meter-wrap{display:flex;align-items:center;gap:6px;padding:0 4px;}
+.vol-bar-local{width:120px;height:8px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;position:relative;}
+.vol-bar-fill{height:100%;width:0%;border-radius:4px;transition:width .05s linear;background:linear-gradient(90deg,#22c55e,#86efac);}
+.vol-bar-fill.loud{background:linear-gradient(90deg,#f59e0b,#ef4444);}
+.vol-label{font-size:9px;font-family:'JetBrains Mono',monospace;color:var(--text3);letter-spacing:1px;white-space:nowrap;}
+.speaking-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;opacity:0;transition:opacity .1s;}
+.speaking-dot.active{opacity:1;box-shadow:0 0 6px #22c55e;}
+
 .vid-tile.speaking{border-color:var(--green);box-shadow:0 0 16px rgba(34,197,94,.3);}
 .vid-tile video{width:100%;height:100%;object-fit:cover;display:block;}
 .vid-tile .vid-label{position:absolute;bottom:10px;left:10px;background:rgba(0,0,0,.65);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:700;color:#fff;font-family:'JetBrains Mono',monospace;}
@@ -1951,25 +1961,36 @@ async function handleSignal(p) {
   // ── WebRTC offer ──
   else if(type === 'offer') {
     if(!peers[fromUid]) await createPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, false);
-    const pc = peers[fromUid]?.pc; if(!pc) return;
+    const peer = peers[fromUid]; if(!peer) return;
+    const pc = peer.pc;
     try {
       await pc.setRemoteDescription(new RTCSessionDescription(data));
+      peer.remoteSet = true;
+      // Flush buffered ICE candidates
+      for(const c of peer.iceBuf) { try{ await pc.addIceCandidate(new RTCIceCandidate(c)); }catch(e){} }
+      peer.iceBuf = [];
       const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
-      sendSignal(fromUid, 'answer', pc.localDescription);
+      sendSignal(fromUid, 'answer', pc.localDescription.toJSON());
     } catch(e){ console.error('offer err',e); }
   }
 
   // ── WebRTC answer ──
   else if(type === 'answer') {
-    const pc = peers[fromUid]?.pc; if(!pc) return;
-    try { await pc.setRemoteDescription(new RTCSessionDescription(data)); } catch(e){ console.error('answer err',e); }
+    const peer = peers[fromUid]; if(!peer) return;
+    try {
+      await peer.pc.setRemoteDescription(new RTCSessionDescription(data));
+      peer.remoteSet = true;
+      for(const c of peer.iceBuf) { try{ await peer.pc.addIceCandidate(new RTCIceCandidate(c)); }catch(e){} }
+      peer.iceBuf = [];
+    } catch(e){ console.error('answer err',e); }
   }
 
   // ── ICE candidate ──
   else if(type === 'ice') {
-    const pc = peers[fromUid]?.pc; if(!pc) return;
-    try { await pc.addIceCandidate(new RTCIceCandidate(data)); } catch(e){}
+    const peer = peers[fromUid]; if(!peer) return;
+    if(peer.remoteSet) { try{ await peer.pc.addIceCandidate(new RTCIceCandidate(data)); }catch(e){} }
+    else peer.iceBuf.push(data);
   }
 }
 
@@ -1979,56 +2000,77 @@ async function handleSignal(p) {
 async function createPeer(uid, name, avatar, avatarUrl, imOfferer) {
   if(peers[uid]) return peers[uid];
   const pc = new RTCPeerConnection(STUN);
-  peers[uid] = {pc, name, avatar, avatar_url:avatarUrl, stream:null};
+  // iceBuf: buffer candidates until remoteDescription is set
+  peers[uid] = {pc, name, avatar, avatar_url:avatarUrl, audioStream:new MediaStream(), videoStream:new MediaStream(), iceBuf:[], remoteSet:false};
 
-  // Add all local tracks
+  // Add local audio track
   if(localStream) localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-  if(screenStream) screenStream.getTracks().forEach(t => pc.addTrack(t, screenStream));
 
-  // ICE
-  pc.onicecandidate = e => { if(e.candidate) sendSignal(uid,'ice',e.candidate.toJSON()); };
+  // ICE — buffer until remote desc ready
+  pc.onicecandidate = e => {
+    if(!e.candidate) return;
+    if(peers[uid]?.remoteSet) sendSignal(uid,'ice',e.candidate.toJSON());
+    else peers[uid]?.iceBuf.push(e.candidate.toJSON());
+  };
   pc.oniceconnectionstatechange = () => {
-    console.log(`ICE [${name}]: ${pc.iceConnectionState}`);
-    if(pc.iceConnectionState==='failed') pc.restartIce();
+    if(pc.iceConnectionState==='failed') { try{pc.restartIce();}catch(e){} }
   };
   pc.onconnectionstatechange = () => {
-    console.log(`Conn [${name}]: ${pc.connectionState}`);
-    if(pc.connectionState==='disconnected'||pc.connectionState==='failed'||pc.connectionState==='closed') {
-      removePeer(uid);
-    }
+    if(pc.connectionState==='disconnected'||pc.connectionState==='failed'||pc.connectionState==='closed') removePeer(uid);
   };
 
-  // Remote tracks
+  // Remote tracks — keep audio and video in separate streams
   pc.ontrack = e => {
-    console.log(`Track from ${name}:`, e.track.kind);
     if(!peers[uid]) return;
-    peers[uid].stream = e.streams[0] || new MediaStream([e.track]);
-    updatePeerTile(uid);
+    const track = e.track;
+    if(track.kind==='audio') {
+      peers[uid].audioStream.addTrack(track);
+      attachPeerAudio(uid);
+      startPeerVolumeMeter(uid);
+    } else {
+      peers[uid].videoStream.addTrack(track);
+      track.onunmute = () => updatePeerVideo(uid);
+      track.onended  = () => updatePeerVideo(uid);
+      updatePeerVideo(uid);
+    }
     updateCallPeers();
   };
 
   addPeerTile(uid, name, avatar, avatarUrl);
 
   if(imOfferer) {
-    // Small delay to let the peer get created on the other side first
     setTimeout(async () => {
       try {
         const offer = await pc.createOffer({offerToReceiveAudio:true, offerToReceiveVideo:true});
         await pc.setLocalDescription(offer);
         sendSignal(uid, 'offer', pc.localDescription.toJSON());
       } catch(e){ console.error('createOffer err',e); }
-    }, 400);
+    }, 500);
   }
 
   return peers[uid];
+}
+
+// Attach peer audio to a dedicated <audio> element (bypasses autoplay block)
+function attachPeerAudio(uid) {
+  const p=peers[uid]; if(!p) return;
+  let aud = document.getElementById('paud-'+uid);
+  if(!aud){
+    aud=document.createElement('audio');
+    aud.id='paud-'+uid; aud.autoplay=true; aud.style.display='none';
+    document.body.appendChild(aud);
+  }
+  aud.srcObject = p.audioStream;
+  aud.play().catch(()=>{});
 }
 
 function removePeer(uid) {
   const p = peers[uid]; if(!p) return;
   try { p.pc.close(); } catch(e){}
   delete peers[uid];
-  const tile = document.getElementById('vt-'+uid);
-  if(tile) tile.remove();
+  stopPeerVolumeMeter(uid);
+  const tile = document.getElementById('vt-'+uid); if(tile) tile.remove();
+  const aud  = document.getElementById('paud-'+uid); if(aud){ aud.srcObject=null; aud.remove(); }
   updateCallPeers(); updateVideoGrid();
   toast(`${p.name} left the call`,'info');
 }
@@ -2045,7 +2087,7 @@ async function startCall() {
   if(!stream) return;
   callState = 'incall';
   callMembers[me.id] = {name:me.name, avatar:me.avatar, avatar_url:me.avatar_url};
-  updateCallBtn(); startCallBar(); addLocalTile();
+  updateCallBtn(); startCallBar(); addLocalTile(); startLocalVolumeMeter();
   // Invite everyone online using presence state
   const state = realtimeCh.presenceState();
   const onlineUids = Object.values(state).flat().map(u=>u.uid).filter(uid=>uid&&uid!==me.id);
@@ -2096,6 +2138,7 @@ window.leaveCall = function() {
   if(localStream){ localStream.getTracks().forEach(t=>t.stop()); localStream=null; }
   if(screenStream){ screenStream.getTracks().forEach(t=>t.stop()); screenStream=null; }
   callState='idle'; isMuted=false; isCamOff=true; isScreenSharing=false;
+  stopLocalVolumeMeter(); Object.keys(peerAnalysers).forEach(stopPeerVolumeMeter);
   updateCallBtn(); stopCallBar();
   document.getElementById('videoGrid').classList.remove('on');
   document.getElementById('vgVideos').innerHTML='';
@@ -2151,8 +2194,12 @@ window.toggleCamera = async function() {
 window.toggleScreen = async function() {
   if(isScreenSharing) {
     if(screenStream){screenStream.getTracks().forEach(t=>t.stop());screenStream=null;}
-    const vt=localStream?.getVideoTracks()[0]||null;
-    Object.values(peers).forEach(p=>{const s=p.pc.getSenders().find(s=>s.track?.kind==='video');if(s)s.replaceTrack(vt).catch(()=>{});});
+    // Revert to camera track or null
+    const vt=localStream?.getVideoTracks().find(t=>t.readyState==='live')||null;
+    await Promise.all(Object.values(peers).map(p=>{
+      const s=p.pc.getSenders().find(s=>s.track?.kind==='video');
+      return s ? s.replaceTrack(vt).catch(()=>{}) : Promise.resolve();
+    }));
     isScreenSharing=false;
     document.getElementById('screenBtn').classList.remove('active');
     document.getElementById('screenBtn').textContent='🖥️ Screen';
@@ -2162,7 +2209,11 @@ window.toggleScreen = async function() {
       screenStream = await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
       const vt=screenStream.getVideoTracks()[0];
       vt.onended=()=>{if(isScreenSharing)toggleScreen();};
-      Object.values(peers).forEach(p=>{const s=p.pc.getSenders().find(s=>s.track?.kind==='video');if(s)s.replaceTrack(vt);else p.pc.addTrack(vt,localStream);});
+      await Promise.all(Object.values(peers).map(async p=>{
+        const vs=p.pc.getSenders().find(s=>s.track?.kind==='video');
+        if(vs) await vs.replaceTrack(vt).catch(()=>{});
+        else p.pc.addTrack(vt, screenStream);
+      }));
       isScreenSharing=true;
       document.getElementById('screenBtn').classList.add('active');
       document.getElementById('screenBtn').textContent='🖥️ Sharing';
@@ -2204,20 +2255,28 @@ function addPeerTile(uid, name, avatar, avatarUrl) {
   vg.appendChild(t); updateVideoGrid();
 }
 
-function updatePeerTile(uid) {
-  const p=peers[uid]; if(!p||!p.stream) return;
+// updatePeerVideo — called when a video track arrives/changes
+function updatePeerVideo(uid) {
+  const p=peers[uid]; if(!p) return;
   const tile=document.getElementById('vt-'+uid); if(!tile) return;
-  const hasVid=p.stream.getVideoTracks().some(t=>t.readyState==='live'&&t.enabled);
+  const hasVid = p.videoStream.getVideoTracks().some(t=>t.readyState==='live'&&!t.muted);
   if(hasVid){
-    tile.innerHTML=`<video autoplay playsinline style="width:100%;height:100%;object-fit:cover;"></video><div class="vid-label">${x(p.name)}</div>`;
-    tile.querySelector('video').srcObject=p.stream;
+    let vid=tile.querySelector('video.main-vid');
+    if(!vid){
+      tile.innerHTML=`<video class="main-vid" autoplay playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video><div class="vid-label">${x(p.name)}</div><canvas class="vol-bar" width="4" height="60" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);border-radius:2px;opacity:.8;"></canvas>`;
+      vid=tile.querySelector('video.main-vid');
+    }
+    vid.srcObject=p.videoStream;
+    vid.play().catch(()=>{});
   } else {
     const avH=p.avatar_url?`<img src="${p.avatar_url}" style="width:72px;height:72px;border-radius:20px;object-fit:cover;">`:`<div class="vnc-av">${p.avatar}</div>`;
-    tile.innerHTML=`<div class="vid-no-cam">${avH}<div class="vnc-name">${x(p.name)}</div></div><div class="vid-label">${x(p.name)}</div>`;
-    // Still attach stream for audio
-    if(p.stream){ const v=document.createElement('video');v.srcObject=p.stream;v.autoplay=true;v.style.display='none';tile.appendChild(v); }
+    tile.innerHTML=`<div class="vid-no-cam">${avH}<div class="vnc-name">${x(p.name)}</div><canvas class="vol-bar" width="4" height="60" style="border-radius:2px;opacity:.8;margin-top:6px;"></canvas></div><div class="vid-label">${x(p.name)}</div>`;
   }
 }
+
+// Legacy alias
+function updatePeerTile(uid){ updatePeerVideo(uid); }
+function ensureAudioPlays(uid){ attachPeerAudio(uid); }
 
 function updateVideoGrid() {
   const vg=document.getElementById('vgVideos');
@@ -2290,6 +2349,87 @@ function stopRingtone(){
 // ── no-op kept for compat ──
 function attachCallSignalListener(){}
 
+
+
+// ─────────────────────────────────────
+//  VOLUME METERS
+// ─────────────────────────────────────
+let localAnalyser = null, localVolInterval = null;
+let peerAnalysers = {}; // uid -> {analyser, interval}
+
+function startLocalVolumeMeter() {
+  if(localVolInterval) return;
+  if(!localStream) return;
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const src = ctx.createMediaStreamSource(localStream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
+    src.connect(analyser);
+    localAnalyser = analyser;
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const fill = document.getElementById('localVolFill');
+    const label = document.getElementById('localVolLabel');
+    const dot = document.getElementById('localSpeakDot');
+    localVolInterval = setInterval(() => {
+      analyser.getByteFrequencyData(data);
+      const avg = data.reduce((a,b)=>a+b,0)/data.length;
+      const pct = Math.min(100, avg * 2.5);
+      if(fill){ fill.style.width=pct+'%'; fill.classList.toggle('loud', pct>70); }
+      const speaking = pct > 8;
+      if(dot){ dot.classList.toggle('active', speaking && !isMuted); }
+      if(label){ label.textContent = isMuted ? '🔇 MUTED' : (speaking ? '🎤 LIVE' : 'MIC'); }
+    }, 50);
+  } catch(e){ console.warn('vol meter err', e); }
+}
+
+function stopLocalVolumeMeter() {
+  clearInterval(localVolInterval); localVolInterval=null;
+  try { localAnalyser?.context?.close(); } catch(e){}
+  localAnalyser=null;
+  const fill=document.getElementById('localVolFill'); if(fill) fill.style.width='0%';
+  const dot=document.getElementById('localSpeakDot'); if(dot) dot.classList.remove('active');
+}
+
+function startPeerVolumeMeter(uid) {
+  if(peerAnalysers[uid]) return;
+  const p = peers[uid]; if(!p||!p.audioStream) return;
+  const audioTracks = p.audioStream.getAudioTracks();
+  if(!audioTracks.length) return;
+  try {
+    const ctx = new (window.AudioContext||window.webkitAudioContext)();
+    const src = ctx.createMediaStreamSource(p.audioStream);
+    const analyser = ctx.createAnalyser();
+    analyser.fftSize = 256;
+    src.connect(analyser);
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    const interval = setInterval(() => {
+      const tile = document.getElementById('vt-'+uid); if(!tile){ stopPeerVolumeMeter(uid); return; }
+      analyser.getByteFrequencyData(data);
+      const avg = data.reduce((a,b)=>a+b,0)/data.length;
+      const pct = Math.min(100, avg * 2.5);
+      const speaking = pct > 8;
+      tile.classList.toggle('speaking', speaking);
+      // Draw on canvas if present
+      const canvas = tile.querySelector('canvas.vol-bar');
+      if(canvas){
+        const ctx2=canvas.getContext('2d');
+        ctx2.clearRect(0,0,canvas.width,canvas.height);
+        ctx2.fillStyle=speaking?'#22c55e':'rgba(255,255,255,.15)';
+        const barH=Math.max(2,(pct/100)*canvas.height);
+        ctx2.fillRect(0,canvas.height-barH,canvas.width,barH);
+      }
+    }, 50);
+    peerAnalysers[uid] = {analyser, interval, ctx};
+  } catch(e){ console.warn('peer vol meter err', e); }
+}
+
+function stopPeerVolumeMeter(uid) {
+  const a=peerAnalysers[uid]; if(!a) return;
+  clearInterval(a.interval);
+  try { a.ctx?.close(); } catch(e){}
+  delete peerAnalysers[uid];
+}
 
 document.addEventListener('click',e=>{
   if(emOpen&&!e.target.closest('.iwrap')&&!e.target.closest('#emBtn')){emOpen=false;document.getElementById('embox').style.display='none';}
