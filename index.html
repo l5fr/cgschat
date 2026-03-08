@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>NEXUS — Global Chat</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -466,7 +468,48 @@ body.cursed-mode .app-body{animation:cursedFlicker 3s ease-in-out infinite;}
 .mention{color:var(--ac);font-weight:600;}
 input[type=file]{display:none;}
 @keyframes spin{to{transform:rotate(360deg);}}
-@media(max-width:700px){#adminCol{display:none!important;}.msgs{padding:10px;}.iarea{padding:8px 10px 12px;}}
+/* ══ MOBILE / RESPONSIVE ══ */
+@media(max-width:700px){
+  /* Hide admin, collapse sidebar by default */
+  #adminCol{display:none!important;}
+  #usersCol{position:fixed;top:52px;left:0;bottom:0;z-index:200;width:240px!important;transform:translateX(-100%);transition:transform .28s cubic-bezier(.4,0,.2,1)!important;border-right:1px solid var(--border)!important;}
+  #usersCol.mobile-open{transform:translateX(0)!important;}
+  #usersCol.collapsed{transform:translateX(-100%)!important;width:240px!important;}
+  .sidebar-toggle{display:flex;}
+
+  /* Chat takes full width */
+  .main-col{width:100%;}
+  .msgs{padding:10px 12px;}
+  .chat-head{padding:10px 14px 8px;}
+  .bub{max-width:85vw;}
+  .iarea{padding:8px 10px 10px;}
+  .itoolbar{gap:3px;}
+  .itb-btn{font-size:9px;padding:0 7px;height:24px;}
+
+  /* Call bar — stack vertically on mobile */
+  #callBar{flex-wrap:wrap;gap:7px;padding:8px 12px;}
+  .cb-vol{display:none;} /* hide bars on mobile — no space */
+  .cb-btns{gap:4px;flex-wrap:wrap;width:100%;}
+  .cb-btn{height:36px;padding:0 10px;font-size:11px;flex:1;min-width:60px;justify-content:center;}
+  .cb-peers{order:-1;width:100%;}
+  .cb-who{width:100%;}
+  .cb-gap{display:none;}
+  .cb-info{font-size:11px;}
+
+  /* Call panel — bottom sheet on mobile */
+  #callPanel{bottom:0;right:0;left:0;width:100%;border-radius:18px 18px 0 0;border-bottom:none;max-height:50vh;overflow-y:auto;}
+  .cp-members{flex-direction:row;flex-wrap:wrap;gap:8px;}
+  .cp-member{flex:1;min-width:120px;}
+
+  /* Incoming call — full width */
+  #incomingCall{left:12px;right:12px;transform:none;min-width:unset;width:auto;}
+  #incomingCall.on{animation:slideDownMobile .3s cubic-bezier(.34,1.56,.64,1) both;}
+  @keyframes slideDownMobile{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
+
+  /* topbar */
+  .tbar-name{display:none;}
+  .tbar{padding:0 10px;}
+}
 </style>
 </head>
 <body>
@@ -1058,7 +1101,22 @@ function updTopbar() {
   else av.textContent=me.avatar;
   document.getElementById('tbarName').innerHTML=esc(me.name)+(isAdmin?'<span class="admin-badge">ADMIN</span>':'');
 }
-window.toggleSidebar = () => { sidebarOpen=!sidebarOpen; document.getElementById('usersCol').classList.toggle('collapsed',!sidebarOpen); };
+window.toggleSidebar = () => {
+  const isMobile = window.innerWidth <= 700;
+  const col = document.getElementById('usersCol');
+  if(isMobile){
+    col.classList.toggle('mobile-open');
+    // close on outside tap
+    if(col.classList.contains('mobile-open')){
+      setTimeout(()=>document.addEventListener('click', function closer(e){
+        if(!col.contains(e.target)){col.classList.remove('mobile-open');document.removeEventListener('click',closer);}
+      }),100);
+    }
+  } else {
+    sidebarOpen=!sidebarOpen;
+    col.classList.toggle('collapsed',!sidebarOpen);
+  }
+};
 window.togDrop = () => document.getElementById('drop').classList.toggle('on');
 window.toggleAdminPanel = () => { document.getElementById('drop').classList.remove('on'); document.getElementById('adminCol').classList.toggle('visible'); };
 
@@ -1625,84 +1683,138 @@ function sendSignal(toUid, type, data={}) {
 }
 
 async function getLocalStream() {
-  if(localStream && localStream.active) return localStream;
+  if(localStream && localStream.active && localStream.getAudioTracks().some(t=>t.readyState==='live')) return localStream;
+  if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+    // Mobile-compatible audio constraints
+    localStream = await navigator.mediaDevices.getUserMedia({
+      audio:{
+        echoCancellation:true,
+        noiseSuppression:true,
+        autoGainControl:true,
+        sampleRate:48000
+      },
+      video:false
+    });
     return localStream;
   } catch(e) {
-    toast('Microphone access denied — cannot join call','error');
-    return null;
+    // Fallback: minimal constraints (iOS Safari sometimes needs this)
+    try{
+      localStream = await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+      return localStream;
+    }catch(e2){
+      toast('🎙️ Microphone access denied — check browser permissions','error');
+      return null;
+    }
   }
 }
 
 function createPeer(uid, name, avatar, avatarUrl) {
   if(peers[uid]) return peers[uid];
-  const pc = new RTCPeerConnection(ICE_CFG);
-  const polite = !amOfferer(uid);
-  let makingOffer=false, ignoreOffer=false, remoteSet=false;
-  const iceBuf=[];
 
-  peers[uid]={pc,name,avatar,avatar_url:avatarUrl,polite};
-  peers[uid]._iceBuf=iceBuf;
-  peers[uid]._setRemote=async(desc)=>{
-    const collision=desc.type==='offer'&&(makingOffer||pc.signalingState!=='stable');
-    ignoreOffer=!polite&&collision;
-    if(ignoreOffer) return;
-    if(collision&&polite) await pc.setLocalDescription({type:'rollback'}).catch(()=>{});
-    await pc.setRemoteDescription(new RTCSessionDescription(desc));
-    remoteSet=true;
-    for(const c of iceBuf.splice(0)) { try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch(_){} }
-    if(desc.type==='offer'){
-      const ans=await pc.createAnswer();
-      await pc.setLocalDescription(ans);
-      sendSignal(uid,'answer',pc.localDescription.toJSON());
-    }
-  };
-  peers[uid]._addIce=async(candidate)=>{
-    if(remoteSet){try{await pc.addIceCandidate(new RTCIceCandidate(candidate));}catch(_){}}
-    else iceBuf.push(candidate);
-  };
+  function buildPC(){
+    const pc = new RTCPeerConnection(ICE_CFG);
+    let makingOffer=false, ignoreOffer=false, remoteSet=false;
+    const iceBuf=[];
+    const polite=!amOfferer(uid);
+    let restartCount=0, restartTimer=null, destroyed=false;
 
-  pc.onnegotiationneeded=async()=>{
-    try{
-      makingOffer=true;
-      const offer=await pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true});
-      if(pc.signalingState!=='stable'){makingOffer=false;return;}
-      await pc.setLocalDescription(offer);
-      sendSignal(uid,'offer',pc.localDescription.toJSON());
-    }catch(e){console.error('[nego]',e);}finally{makingOffer=false;}
-  };
-  pc.onicecandidate=({candidate})=>{ if(candidate) sendSignal(uid,'ice',candidate.toJSON()); };
-  pc.oniceconnectionstatechange=()=>{
-    const s=pc.iceConnectionState;
-    if(s==='failed') pc.restartIce();
-    if(s==='disconnected') setTimeout(()=>{ if(peers[uid]?.pc.iceConnectionState==='disconnected') removePeer(uid); },8000);
-    if(s==='closed') removePeer(uid);
-  };
-  pc.onconnectionstatechange=()=>{
-    const s=pc.connectionState;
-    if(s==='connected') toast(`📞 Connected to ${name}`,'success');
-    if(s==='failed'){toast(`⚠️ Call to ${name} failed — retrying`,'error');pc.restartIce();}
-  };
-  pc.ontrack=({track,streams})=>{
-    const p=peers[uid];if(!p)return;
-    const stream=(streams&&streams[0])?streams[0]:new MediaStream([track]);
-    if(track.kind==='audio'){
-      attachRemoteAudio(uid,stream);
-    } else {
-      p.videoStream=stream;
-      track.onunmute=()=>updatePeerVideo(uid);
-      track.onended=()=>updatePeerVideo(uid);
-      updatePeerVideo(uid);
-    }
-    updateCallUI();
-  };
+    const peer={pc,name,avatar,avatar_url:avatarUrl,polite,_iceBuf:iceBuf};
 
-  if(localStream) localStream.getTracks().forEach(t=>{ try{pc.addTrack(t,localStream);}catch(_){} });
-  if(icePre[uid]){ for(const c of icePre[uid]) iceBuf.push(c); delete icePre[uid]; }
+    peer._setRemote=async(desc)=>{
+      if(destroyed) return;
+      const collision=desc.type==='offer'&&(makingOffer||pc.signalingState!=='stable');
+      ignoreOffer=!polite&&collision;
+      if(ignoreOffer) return;
+      if(collision&&polite) await pc.setLocalDescription({type:'rollback'}).catch(()=>{});
+      await pc.setRemoteDescription(new RTCSessionDescription(desc));
+      remoteSet=true;
+      for(const c of iceBuf.splice(0)){try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch(_){}}
+      if(desc.type==='offer'){
+        const ans=await pc.createAnswer();
+        await pc.setLocalDescription(ans);
+        sendSignal(uid,'answer',pc.localDescription.toJSON());
+      }
+    };
+    peer._addIce=async(candidate)=>{
+      if(destroyed) return;
+      if(remoteSet){try{await pc.addIceCandidate(new RTCIceCandidate(candidate));}catch(_){}}
+      else iceBuf.push(candidate);
+    };
 
+    pc.onnegotiationneeded=async()=>{
+      if(destroyed) return;
+      try{
+        makingOffer=true;
+        const offer=await pc.createOffer({offerToReceiveAudio:true,offerToReceiveVideo:true});
+        if(pc.signalingState!=='stable'){makingOffer=false;return;}
+        await pc.setLocalDescription(offer);
+        sendSignal(uid,'offer',pc.localDescription.toJSON());
+      }catch(e){console.error('[nego]',e);}finally{makingOffer=false;}
+    };
+    pc.onicecandidate=({candidate})=>{ if(candidate&&!destroyed) sendSignal(uid,'ice',candidate.toJSON()); };
+
+    const doRestart=()=>{
+      if(destroyed||!peers[uid]) return;
+      if(pc.connectionState==='connected') return;
+      if(restartCount>=3){
+        toast(`❌ Could not reach ${name} — network issue`,'error');
+        destroyed=true;
+        setTimeout(()=>removePeer(uid),300);
+        return;
+      }
+      restartCount++;
+      console.log(`[ICE] rebuilding PC for ${name} (attempt ${restartCount})`);
+      // Rebuild entire PC — restartIce() fails after 'failed' state
+      destroyed=true;
+      const oldPeer=peers[uid];
+      try{oldPeer.pc.close();}catch(_){}
+      delete peers[uid];
+      const newPeer=buildPC();
+      peers[uid]=newPeer;
+      // Re-add local tracks
+      if(localStream) localStream.getTracks().forEach(t=>{try{newPeer.pc.addTrack(t,localStream);}catch(_){}});
+      // Offerer triggers negotiation
+      if(amOfferer(uid)) newPeer.pc.onnegotiationneeded?.();
+    };
+
+    pc.oniceconnectionstatechange=()=>{
+      if(destroyed) return;
+      const s=pc.iceConnectionState;
+      console.log(`[ICE] ${name}: ${s}`);
+      if(s==='failed'){clearTimeout(restartTimer);restartTimer=setTimeout(doRestart,1000);}
+      if(s==='disconnected'){restartTimer=setTimeout(()=>{if(pc.iceConnectionState==='disconnected')doRestart();},6000);}
+      if(s==='connected'||s==='completed'){clearTimeout(restartTimer);restartCount=0;}
+    };
+    pc.onconnectionstatechange=()=>{
+      if(destroyed) return;
+      const s=pc.connectionState;
+      console.log(`[PC] ${name}: ${s}`);
+      if(s==='connected'){clearTimeout(restartTimer);restartCount=0;toast(`📞 Connected to ${name}`,'success');}
+    };
+    pc.ontrack=({track,streams})=>{
+      if(destroyed) return;
+      const stream=(streams&&streams[0])?streams[0]:new MediaStream([track]);
+      if(track.kind==='audio'){
+        attachRemoteAudio(uid,stream);
+      } else {
+        peer.videoStream=stream;
+        track.onunmute=()=>updatePeerVideo(uid);
+        track.onended=()=>updatePeerVideo(uid);
+        updatePeerVideo(uid);
+      }
+      updateCallUI();
+    };
+
+    return peer;
+  }
+
+  const peer=buildPC();
+  peers[uid]=peer;
+  if(localStream) localStream.getTracks().forEach(t=>{try{peer.pc.addTrack(t,localStream);}catch(_){}});
+  if(icePre[uid]){for(const c of icePre[uid]) peer._iceBuf.push(c);delete icePre[uid];}
   addPeerTile(uid,name,avatar,avatarUrl);
-  return peers[uid];
+  return peer;
 }
 
 async function handleSignal(p) {
@@ -1715,6 +1827,8 @@ async function handleSignal(p) {
   }
   if(type==='call-join'){
     if(callState!=='incall') return;
+    // Clear no-answer timer for this uid
+    if(window._callTimers?.[fromUid]){clearTimeout(window._callTimers[fromUid]);delete window._callTimers[fromUid];}
     callMembers[fromUid]={name:fromName,avatar:fromAvatar,avatar_url:fromAvatarUrl};
     const memberList=Object.entries(callMembers).filter(([uid])=>uid!==fromUid).map(([uid,m])=>({uid,...m}));
     sendSignal(fromUid,'call-member-list',{members:memberList});
@@ -1744,23 +1858,31 @@ function attachRemoteAudio(uid,stream){
   let el=document.getElementById('paud-'+uid);
   if(!el){
     el=document.createElement('audio');
-    el.id='paud-'+uid;el.autoplay=true;el.playsInline=true;
+    el.id='paud-'+uid;
+    el.autoplay=true;
+    el.playsInline=true;
     el.setAttribute('playsinline','');
+    el.setAttribute('webkit-playsinline',''); // iOS Safari
+    el.muted=true; // start muted so autoplay works, then unmute
     el.style.display='none';
     document.body.appendChild(el);
   }
   el.srcObject=stream;
-  el.muted=false;
+  // iOS trick: play muted first, then unmute
   el.play().then(()=>{
-    startPeerMeter(uid); // uses createMediaElementSource on the audio element
+    el.muted=false;
+    startPeerMeter(uid);
   }).catch(()=>{
+    // Still blocked — show unlock button
     if(!document.getElementById('audioUnlock')){
       const btn=document.createElement('button');
       btn.id='audioUnlock';btn.className='cb-btn';
-      btn.style.cssText='background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.5);color:#4ade80;font-weight:700;';
+      btn.style.cssText='background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.5);color:#4ade80;font-weight:700;flex:1;';
       btn.innerHTML='🔊 Tap to Enable Audio';
       btn.onclick=()=>{
+        getAudioCtx();
         document.querySelectorAll('audio[id^="paud-"]').forEach(a=>{
+          a.muted=false;
           a.play().then(()=>startPeerMeter(a.id.replace('paud-',''))).catch(()=>{});
         });
         btn.remove();
@@ -1772,9 +1894,13 @@ function attachRemoteAudio(uid,stream){
 
 function getAudioCtx(){
   if(!sharedAudioCtx||sharedAudioCtx.state==='closed')
-    sharedAudioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    sharedAudioCtx=new(window.AudioContext||window.webkitAudioContext)({sampleRate:48000});
+  if(sharedAudioCtx.state==='suspended') sharedAudioCtx.resume().catch(()=>{});
   return sharedAudioCtx;
 }
+// Unlock AudioContext on first user gesture (required by iOS Safari)
+document.addEventListener('touchstart',()=>{try{getAudioCtx();}catch(_){}},{once:true,passive:true});
+document.addEventListener('click',()=>{try{getAudioCtx();}catch(_){}},{once:true});
 function setSpeaking(uid, talking) {
   if(speakingState[uid]===talking) return;
   speakingState[uid]=talking;
@@ -1910,6 +2036,16 @@ window.callUser = async function(uid){
   startCallUI();addLocalTile();startLocalMeter();
   sendSignal(uid,'call-invite',{});
   toast('📞 Calling...','info');
+  // Auto-cancel if no answer in 30s
+  const noAnswerTimer=setTimeout(()=>{
+    if(callState==='incall'&&!peers[uid]){
+      toast('No answer','info');
+      leaveCall();
+    }
+  },30000);
+  // Store so we can clear it if they answer
+  if(!window._callTimers) window._callTimers={};
+  window._callTimers[uid]=noAnswerTimer;
 };
 
 async function startCall(){
@@ -1934,7 +2070,7 @@ window.acceptCall = async function(){
   callMembers[me.id]={name:me.name,avatar:me.avatar,avatar_url:me.avatar_url};
   callMembers[fromUid]={name:fromName,avatar:fromAvatar,avatar_url:fromAvatarUrl};
   startCallUI();addLocalTile();startLocalMeter();
-  // Broadcast call-join so all existing members know we joined
+  // Tell the caller (and anyone else in their call) that we joined
   const onlineUids=Object.values(realtimeCh?.presenceState()||{}).flat().map(u=>u.uid).filter(u=>u&&u!==me.id);
   onlineUids.forEach(uid=>sendSignal(uid,'call-join',{}));
 };
@@ -1954,6 +2090,7 @@ window.leaveCall = function(){
   screenStream?.getTracks().forEach(t=>t.stop());
   localStream=null;screenStream=null;
   callState='idle';callMembers={};
+  if(window._callTimers){Object.values(window._callTimers).forEach(t=>clearTimeout(t));window._callTimers={};}
   Object.keys(speakingState).forEach(k=>delete speakingState[k]);
   isMuted=false;isCamOff=true;isScreenSharing=false;
   stopLocalMeter();
