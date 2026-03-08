@@ -176,7 +176,7 @@
   }
 
   .game-info{padding:10px 12px 12px;display:flex;align-items:center;gap:8px}
-  .game-title{flex:1;font-size:12px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .game-title{flex:1;font-size:12px;font-weight:600;color:var(--t1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:capitalize}
   .play-btn{
     flex-shrink:0;height:25px;padding:0 11px;
     background:linear-gradient(135deg,var(--p),var(--p2));
@@ -288,15 +288,16 @@
   async function loadGames() {
     try {
       const res   = await fetch(API_URL);
-      const files = await res.json();
+      const items = await res.json();
 
-      ALL_GAMES = files
-        .filter(f => f.name.endsWith('.html'))
-        .map(f => ({
-          title: f.name.replace('.html', ''),
+      // Pick up subfolders (type === 'dir') — each folder is one game
+      ALL_GAMES = items
+        .filter(item => item.type === 'dir')
+        .map(item => ({
+          title: item.name.replace(/[-_]/g, ' '), // e.g. "csgo-clicker" → "csgo clicker"
           emoji: '🎮',
           thumb: null,
-          url:   `${BASE_URL}/${f.name}`
+          url:   `${BASE_URL}/${item.name}/index.html`
         }));
 
       buildGrid(ALL_GAMES);
