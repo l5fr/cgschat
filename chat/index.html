@@ -1023,7 +1023,41 @@ window.onKey = e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()
 function renderTy(){const bar=document.getElementById('tybar'),names=Object.values(typUsers).map(u=>u.name);if(!names.length){bar.innerHTML='';return;}bar.innerHTML=`<div class="tydots"><span></span><span></span><span></span></div><span>${esc(names.join(', '))} ${names.length===1?'is':'are'} typing...</span>`;}
 window.askDelete = id=>{pendingDeleteId=id;document.getElementById('delMov').classList.add('on');};
 window.closeDelModal = ()=>{document.getElementById('delMov').classList.remove('on');pendingDeleteId=null;};
-window.confirmDelete = async function(){if(!pendingDeleteId)return;const id=pendingDeleteId;closeDelModal();const {error}=await sb.from('messages').update({deleted:true,content:''}).eq('id',id).eq('user_id',me.id);if(error){toast('Could not delete','error');return;}const idx=msgCache.findIndex(m=>m.id===id);if(idx>=0){msgCache[idx].deleted=true;msgCache[idx].content='';}const bEl=document.querySelector(`.bub[data-id="${id}"]`);if(bEl){bEl.classList.add('deleted');bEl.innerHTML='🗑️ deleted';const w=bEl.closest('.bub-wrap');if(w){const db=w.querySelector('.del-btn');if(db)db.style.display='none';}}if(isAdmin)renderAdminPanel();toast('Message deleted','success');};
+window.confirmDelete = async function(){
+  if(!pendingDeleteId) return;
+  const id = pendingDeleteId;
+  closeDelModal();
+  // Try soft-delete first (update)
+  const {data, error} = await sb.from('messages')
+    .update({deleted: true, content: ''})
+    .eq('id', id)
+    .select();
+  if(error){
+    console.error('[delete error]', error);
+    toast('Could not delete: ' + error.message, 'error');
+    return;
+  }
+  // If no rows updated, try hard delete
+  if(!data || data.length === 0){
+    const {error: delErr} = await sb.from('messages').delete().eq('id', id);
+    if(delErr){
+      console.error('[hard delete error]', delErr);
+      toast('Could not delete message', 'error');
+      return;
+    }
+    msgCache = msgCache.filter(m => m.id !== id);
+    renderAll();
+    if(isAdmin) renderAdminPanel();
+    toast('Message deleted', 'success');
+    return;
+  }
+  const idx = msgCache.findIndex(m => m.id === id);
+  if(idx >= 0){msgCache[idx].deleted = true; msgCache[idx].content = '';}
+  const bEl = document.querySelector(`.bub[data-id="${id}"]`);
+  if(bEl){bEl.classList.add('deleted');bEl.innerHTML='🗑️ deleted';const w=bEl.closest('.bub-wrap');if(w){const db=w.querySelector('.del-btn');if(db)db.style.display='none';}}
+  if(isAdmin) renderAdminPanel();
+  toast('Message deleted','success');
+};
 window.adminDelMsg = function(id){const m=msgCache.find(m2=>m2.id===id);if(!m)return;pendingAdminDelId=id;document.getElementById('adminDelOneWarn').innerHTML=`<strong>TARGET</strong>From <b>${esc(m.name)}</b> — "${esc((m.content||'[media]').slice(0,80))}"`;document.getElementById('adminDelOneMov').classList.add('on');};
 window.closeAdminDelOne = ()=>{document.getElementById('adminDelOneMov').classList.remove('on');pendingAdminDelId=null;};
 window.confirmAdminDelOne = async function(){if(!isAdmin||!pendingAdminDelId)return;const id=pendingAdminDelId;closeAdminDelOne();const {error}=await sb.from('messages').delete().eq('id',id);if(error){toast('Delete failed','error');return;}msgCache=msgCache.filter(m=>m.id!==id);renderAll();renderAdminPanel();toast('Message deleted','success');};
