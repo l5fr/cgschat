@@ -1704,600 +1704,744 @@ function renderAdminPanel() {
 window.filterApMsgs = function(){apFilter=document.getElementById('apSearch').value;renderAdminPanel();};
 
 // ═══════════════════════════════════════════════════════
-// WEBRTC CALLING SYSTEM — CLEAN REWRITE
+// ═══════════════════════════════════════════════════════
+// WEBRTC CALLING SYSTEM  v3
 //
-// Offerer determination: lexicographic UID comparison
-//   if (me.id < theirUid) → I am offerer
-//   if (me.id > theirUid) → I am non-offerer
-// This eliminates ALL race conditions and ambiguity.
+// PROTOCOL:
+//  Every pair (me, peer) has exactly one offerer: lower UUID.
+//  amOfferer(uid) = (me.id < uid)
 //
-// Flow:
-//  A starts call → broadcasts call-invite to all online
-//  B accepts → acquires mic → broadcasts call-join to all
-//  Everyone in call receives call-join:
-//    → add B to callMembers
-//    → send call-member-list to B  (only one sender needed but all can)
-//    → create peer with correct offerer role → makeOffer if offerer
-//  B receives call-member-list from first reply:
-//    → for each member, create peer with correct offerer role → makeOffer if offerer
+//  FLOW — 2 users (A=lower, B=higher):
+//    1. A or B starts call → sends call-invite to all online
+//    2. Recipient accepts → acquires mic → sends call-join to ALL online
+//    3. A receives call-join from B:
+//         • adds B to callMembers
+//         • sends call-member-list to B  (members = ALL of callMembers INCLUDING A, EXCLUDING B)
+//         • creates peer to B; since A.id < B.id → A is offerer → makeOffer(B)
+//    4. B receives call-member-list from A:
+//         • for each member uid in list (including A):
+//             creates peer; if B.id < uid → B is offerer → makeOffer(uid)
+//                           else → wait for offer from that uid
+//    5. ICE candidates buffered until remoteDescription set
+//    6. leave → pc.close() → removePeer() → send call-left
 //
-// This means for A-B pair:
-//  Whoever has the lower UID sends the offer.
-//  Both sides create a peer, only the offerer calls makeOffer().
+//  KEY BUGS FIXED vs v2:
+//   • member-list filter was excluding ME (A) → B got empty list, never connected
+//   • ICE handler was creating rogue peers as non-offerers, blocking offer/answer
+//   • duplicate peer-creation race from multiple call-member-list signals
+//   • AudioContext not resumed before audio playback
+//   • ontrack stream sometimes had no tracks (now uses MediaStream constructor)
+//   • answer guard `signalingState==='stable'` was bailing before setting remoteDesc
 // ═══════════════════════════════════════════════════════
 
-// Is I the offerer toward this uid?
+// ── Offerer role: lower UUID is always offerer ──────────
 function amOfferer(uid) { return me.id < uid; }
 
+// ── Shared AudioContext ──────────────────────────────────
 function getAudioCtx() {
-  if(!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+  if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
     sharedAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
   }
+  if (sharedAudioCtx.state === 'suspended') sharedAudioCtx.resume().catch(() => {});
   return sharedAudioCtx;
 }
 
-function sendSignal(toUid, type, data={}) {
-  if(!realtimeCh) return;
+// ── Signaling ────────────────────────────────────────────
+function sendSignal(toUid, type, data = {}) {
+  if (!realtimeCh) return;
   realtimeCh.send({
-    type:'broadcast', event:'call_signal',
-    payload:{ toUid, fromUid:me.id, fromName:me.name, fromAvatar:me.avatar, fromAvatarUrl:me.avatar_url||null, type, data }
+    type: 'broadcast', event: 'call_signal',
+    payload: {
+      toUid, fromUid: me.id,
+      fromName: me.name, fromAvatar: me.avatar, fromAvatarUrl: me.avatar_url || null,
+      type, data
+    }
   });
 }
 
+// ── Mic stream ───────────────────────────────────────────
 async function getLocalStream() {
-  if(localStream) return localStream;
+  if (localStream && localStream.active) return localStream;
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({audio:true, video:false});
+    localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
     return localStream;
-  } catch(e) {
-    toast('Microphone access denied — cannot join call','error');
+  } catch (e) {
+    toast('Microphone access denied — cannot join call', 'error');
     return null;
   }
 }
 
-// ── createPeer: create RTCPeerConnection for a remote user ──
+// ── ICE pending buffer (keyed by uid) ────────────────────
+// Keeps ICE candidates that arrive before the peer exists.
+// Separate from peer.iceBuf which stores candidates that arrive
+// before remoteDescription is set.
+const icePending = {};
+
+// ── createPeer ───────────────────────────────────────────
+// Safe to call multiple times for same uid (idempotent).
 async function createPeer(uid, name, avatar, avatarUrl, imOfferer) {
-  if(peers[uid]) return peers[uid];
+  if (peers[uid]) return peers[uid]; // already exists
 
   const pc = new RTCPeerConnection(STUN);
-  peers[uid] = { pc, name, avatar, avatar_url:avatarUrl, iceBuf:[], remoteSet:false };
+  peers[uid] = {
+    pc, name, avatar, avatar_url: avatarUrl,
+    iceBuf: [],        // candidates waiting for remoteDesc
+    remoteSet: false,  // has setRemoteDescription been called?
+    makingOffer: false // glare guard
+  };
 
-  // CRITICAL: register ALL handlers BEFORE addTrack
+  // ── handlers BEFORE addTrack ──────────────────────────
   pc.onicecandidate = e => {
-    if(e.candidate) sendSignal(uid, 'ice', e.candidate.toJSON());
+    if (e.candidate) sendSignal(uid, 'ice', e.candidate.toJSON());
+  };
+
+  pc.onicegatheringstatechange = () => {
+    console.log(`[ICE gather ${uid.slice(0,6)}] ${pc.iceGatheringState}`);
   };
 
   pc.oniceconnectionstatechange = () => {
     const s = pc.iceConnectionState;
-    console.log(`[ICE ${uid.slice(0,8)}] ${s}`);
-    if(s==='failed') { try{pc.restartIce();}catch(e){} }
-    if(s==='disconnected') setTimeout(()=>{ if(peers[uid]?.pc?.iceConnectionState==='disconnected') removePeer(uid); },5000);
-    if(s==='closed') removePeer(uid);
+    console.log(`[ICE conn ${uid.slice(0,6)}] ${s}`);
+    if (s === 'failed') {
+      console.log(`[ICE] restarting for ${uid.slice(0,6)}`);
+      pc.restartIce();
+    }
+    if (s === 'disconnected') {
+      setTimeout(() => {
+        if (peers[uid]?.pc?.iceConnectionState === 'disconnected') removePeer(uid);
+      }, 8000);
+    }
   };
 
   pc.onconnectionstatechange = () => {
     const s = pc.connectionState;
-    console.log(`[Conn ${uid.slice(0,8)}] ${s}`);
-    if(s==='failed'||s==='closed') removePeer(uid);
+    console.log(`[Conn ${uid.slice(0,6)}] ${s}`);
+    if (s === 'failed') {
+      // attempt full renegotiation before giving up
+      if (amOfferer(uid)) setTimeout(() => makeOffer(uid), 300);
+    }
+    if (s === 'closed') removePeer(uid);
+  };
+
+  pc.onsignalingstatechange = () => {
+    console.log(`[Signal ${uid.slice(0,6)}] ${pc.signalingState}`);
   };
 
   pc.ontrack = e => {
-    const p=peers[uid]; if(!p) return;
-    const track=e.track;
-    const stream=(e.streams&&e.streams[0])?e.streams[0]:(()=>{const s=new MediaStream();s.addTrack(track);return s;})();
-    if(track.kind==='audio') {
-      attachRemoteAudio(uid, stream);
-      startPeerVolumeMeter(uid, stream);
+    const p = peers[uid]; if (!p) return;
+    // Always build a fresh MediaStream — avoids stale stream issues
+    let stream;
+    if (e.streams && e.streams[0] && e.streams[0].getTracks().length > 0) {
+      stream = e.streams[0];
     } else {
-      p.videoStream=stream;
-      track.onunmute=()=>updatePeerVideo(uid);
-      track.onended=()=>updatePeerVideo(uid);
+      stream = new MediaStream([e.track]);
+    }
+    if (e.track.kind === 'audio') {
+      attachRemoteAudio(uid, stream);
+      startPeerMeter(uid, stream);
+    } else {
+      p.videoStream = stream;
+      e.track.onunmute = () => updatePeerVideo(uid);
+      e.track.onended  = () => updatePeerVideo(uid);
       updatePeerVideo(uid);
     }
     updateCallUI();
   };
 
-  // Add local tracks AFTER handlers are registered
-  if(localStream) {
-    localStream.getTracks().forEach(t => { try{pc.addTrack(t,localStream);}catch(e){} });
+  // ── Add local audio tracks ─────────────────────────────
+  if (localStream) {
+    localStream.getAudioTracks().forEach(t => {
+      try { pc.addTrack(t, localStream); } catch (_) {}
+    });
+    // Also add any active video track (camera or screen)
+    const vt = screenStream?.getVideoTracks()[0] || localStream.getVideoTracks()[0];
+    if (vt) { try { pc.addTrack(vt, localStream); } catch (_) {} }
+  }
+
+  // ── Drain any ICE that arrived before this peer existed ─
+  if (icePending[uid]) {
+    for (const c of icePending[uid]) {
+      peers[uid].iceBuf.push(c);
+    }
+    delete icePending[uid];
   }
 
   addPeerTile(uid, name, avatar, avatarUrl);
 
-  // Offerer sends the offer after a brief delay (let addTrack settle)
-  if(imOfferer) {
-    setTimeout(() => makeOffer(uid), 200);
-  }
+  // ── Offerer kicks off negotiation ─────────────────────
+  if (imOfferer) setTimeout(() => makeOffer(uid), 150);
 
   return peers[uid];
 }
 
-// ── makeOffer: called by offerer to initiate negotiation ──
+// ── makeOffer ────────────────────────────────────────────
 async function makeOffer(uid) {
-  const peer=peers[uid]; if(!peer) return;
-  const pc=peer.pc;
-  if(pc.signalingState!=='stable') {
-    console.log(`[Offer] ${uid.slice(0,8)}: not stable (${pc.signalingState}), retry in 500ms`);
-    setTimeout(()=>makeOffer(uid), 500);
+  const peer = peers[uid]; if (!peer) return;
+  const pc = peer.pc;
+
+  if (pc.signalingState !== 'stable') {
+    console.log(`[Offer ${uid.slice(0,6)}] not stable (${pc.signalingState}) — retry`);
+    setTimeout(() => makeOffer(uid), 400);
     return;
   }
+  if (peer.makingOffer) return;
+  peer.makingOffer = true;
+
   try {
-    const offer=await pc.createOffer();
+    const offer = await pc.createOffer({ offerToReceiveAudio: true, offerToReceiveVideo: true });
+    if (pc.signalingState !== 'stable') { peer.makingOffer = false; return; }
     await pc.setLocalDescription(offer);
-    sendSignal(uid,'offer',pc.localDescription.toJSON());
-    console.log(`[Offer] sent to ${uid.slice(0,8)}`);
-  } catch(e) { console.error('[makeOffer]',e); }
+    sendSignal(uid, 'offer', pc.localDescription.toJSON());
+    console.log(`[Offer ${uid.slice(0,6)}] sent`);
+  } catch (e) {
+    console.error('[makeOffer]', e);
+  }
+  peer.makingOffer = false;
 }
 
-// ── handleSignal: process all incoming WebRTC signals ──
+// ── handleSignal — master signal dispatcher ───────────────
 async function handleSignal(p) {
-  const {fromUid,fromName,fromAvatar,fromAvatarUrl,type,data}=p;
+  const { fromUid, fromName, fromAvatar, fromAvatarUrl, type, data } = p;
 
-  if(type==='call-invite') {
-    if(callState==='incall'){sendSignal(fromUid,'call-busy',{});return;}
-    pendingInvite={fromUid,fromName,fromAvatar,fromAvatarUrl};
-    showIncomingCall(fromName,fromAvatar,fromAvatarUrl);
+  // ── Call management signals ───────────────────────────
+  if (type === 'call-invite') {
+    if (callState === 'incall') { sendSignal(fromUid, 'call-busy', {}); return; }
+    pendingInvite = { fromUid, fromName, fromAvatar, fromAvatarUrl };
+    showIncomingCall(fromName, fromAvatar, fromAvatarUrl);
     return;
   }
 
-  if(type==='call-join') {
-    if(callState!=='incall') return;
-    if(peers[fromUid]||callMembers[fromUid]) {
-      // Already connected — just update members
-      callMembers[fromUid]={name:fromName,avatar:fromAvatar,avatar_url:fromAvatarUrl};
-      updateCallUI(); return;
+  if (type === 'call-join') {
+    if (callState !== 'incall') return;
+    // Guard: ignore if already have a full peer connection to this uid
+    if (peers[fromUid] && peers[fromUid].pc.connectionState === 'connected') return;
+
+    // Add to members
+    callMembers[fromUid] = { name: fromName, avatar: fromAvatar, avatar_url: fromAvatarUrl };
+
+    // Send the joiner the FULL member list — everyone currently in the call
+    // INCLUDING me (critical: v2 bug was filtering out me, leaving empty list)
+    const memberList = Object.entries(callMembers)
+      .filter(([uid]) => uid !== fromUid)   // exclude ONLY the joiner
+      .map(([uid, m]) => ({ uid, ...m }));
+    sendSignal(fromUid, 'call-member-list', { members: memberList });
+
+    // Create/reuse our peer to the joiner
+    if (!peers[fromUid]) {
+      await createPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, amOfferer(fromUid));
     }
-    callMembers[fromUid]={name:fromName,avatar:fromAvatar,avatar_url:fromAvatarUrl};
-    // Send member list so the new joiner knows who's in the call
-    const memberList=Object.entries(callMembers)
-      .filter(([uid])=>uid!==fromUid&&uid!==me.id)
-      .map(([uid,m])=>({uid,...m}));
-    sendSignal(fromUid,'call-member-list',{members:memberList});
-    // Create peer — offerer determined by UID comparison
-    await createPeer(fromUid,fromName,fromAvatar,fromAvatarUrl, amOfferer(fromUid));
     updateCallUI();
     return;
   }
 
-  if(type==='call-member-list') {
-    // We just joined — the caller sent us the list of OTHER existing members
-    const {members}=data;
-    for(const m of members) {
-      if(m.uid===me.id||peers[m.uid]) continue;
-      callMembers[m.uid]={name:m.name,avatar:m.avatar,avatar_url:m.avatar_url};
-      await createPeer(m.uid,m.name,m.avatar,m.avatar_url, amOfferer(m.uid));
+  if (type === 'call-member-list') {
+    // We just joined. The existing member sent us everyone in the call.
+    // members includes the sender themselves (A), and any other members.
+    const { members } = data;
+    for (const m of members) {
+      if (m.uid === me.id) continue;             // skip self
+      if (peers[m.uid]) continue;                // skip already-connected
+      callMembers[m.uid] = { name: m.name, avatar: m.avatar, avatar_url: m.avatar_url };
+      await createPeer(m.uid, m.name, m.avatar, m.avatar_url, amOfferer(m.uid));
     }
-    updateCallUI(); return;
+    updateCallUI();
+    return;
   }
 
-  if(type==='call-declined'){toast(`${fromName} declined`,'info');return;}
-  if(type==='call-busy'){toast(`${fromName} is already in a call`,'info');return;}
-  if(type==='call-left'){removePeer(fromUid);delete callMembers[fromUid];updateCallUI();return;}
+  if (type === 'call-declined') { toast(`${fromName} declined the call`, 'info'); return; }
+  if (type === 'call-busy')     { toast(`${fromName} is already in a call`, 'info'); return; }
+  if (type === 'call-left')     { removePeer(fromUid); delete callMembers[fromUid]; updateCallUI(); return; }
 
-  // ── SDP ──
-  if(type==='offer') {
-    if(!peers[fromUid]) await createPeer(fromUid,fromName,fromAvatar,fromAvatarUrl, false);
-    const peer=peers[fromUid]; if(!peer) return;
-    const pc=peer.pc;
+  // ── WebRTC SDP / ICE signals ───────────────────────────
+  if (type === 'offer') {
+    // Ensure peer exists (non-offerer creates it on offer receipt)
+    if (!peers[fromUid]) {
+      await createPeer(fromUid, fromName, fromAvatar, fromAvatarUrl, false);
+    }
+    const peer = peers[fromUid]; if (!peer) return;
+    const pc = peer.pc;
+
+    // Perfect negotiation: polite peer rolls back on glare
+    const isPolite = !amOfferer(fromUid); // non-offerer is polite
+    const offerCollision = peer.makingOffer || pc.signalingState !== 'stable';
+    if (offerCollision && !isPolite) {
+      console.log(`[Offer ${fromUid.slice(0,6)}] collision, ignoring (impolite)`);
+      return;
+    }
+    if (offerCollision && isPolite) {
+      await Promise.all([
+        pc.setLocalDescription({ type: 'rollback' }).catch(() => {}),
+      ]);
+    }
+
     try {
-      // Roll back if we're mid-negotiation ourselves
-      if(pc.signalingState!=='stable') {
-        await pc.setLocalDescription({type:'rollback'}).catch(()=>{});
-      }
       await pc.setRemoteDescription(new RTCSessionDescription(data));
-      peer.remoteSet=true;
-      // Drain buffered ICE
-      for(const c of peer.iceBuf){try{await pc.addIceCandidate(new RTCIceCandidate(c));}catch(e){}}
-      peer.iceBuf=[];
-      const answer=await pc.createAnswer();
+      peer.remoteSet = true;
+      // drain ICE buffer
+      for (const c of peer.iceBuf) {
+        try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch (_) {}
+      }
+      peer.iceBuf = [];
+
+      const answer = await pc.createAnswer();
       await pc.setLocalDescription(answer);
-      sendSignal(fromUid,'answer',pc.localDescription.toJSON());
-      console.log(`[Answer] sent to ${fromUid.slice(0,8)}`);
-    } catch(e){console.error('[handleOffer]',e);}
+      sendSignal(fromUid, 'answer', pc.localDescription.toJSON());
+      console.log(`[Answer ${fromUid.slice(0,6)}] sent`);
+    } catch (e) { console.error('[handleOffer]', e); }
     return;
   }
 
-  if(type==='answer') {
-    const peer=peers[fromUid]; if(!peer) return;
-    if(peer.pc.signalingState==='stable') return; // already done
-    try {
-      await peer.pc.setRemoteDescription(new RTCSessionDescription(data));
-      peer.remoteSet=true;
-      for(const c of peer.iceBuf){try{await peer.pc.addIceCandidate(new RTCIceCandidate(c));}catch(e){}}
-      peer.iceBuf=[];
-      console.log(`[Answer] received from ${fromUid.slice(0,8)}`);
-    } catch(e){console.error('[handleAnswer]',e);}
-    return;
-  }
-
-  if(type==='ice') {
-    if(!peers[fromUid]) {
-      // Peer not created yet — create as non-offerer to buffer ICE
-      await createPeer(fromUid,fromName,fromAvatar,fromAvatarUrl,false);
+  if (type === 'answer') {
+    const peer = peers[fromUid]; if (!peer) return;
+    const pc = peer.pc;
+    // Only set answer if we're waiting for one
+    if (pc.signalingState !== 'have-local-offer') {
+      console.log(`[Answer ${fromUid.slice(0,6)}] ignored, state=${pc.signalingState}`);
+      return;
     }
-    const peer=peers[fromUid]; if(!peer) return;
-    if(peer.remoteSet) {
-      try{await peer.pc.addIceCandidate(new RTCIceCandidate(data));}catch(e){}
+    try {
+      await pc.setRemoteDescription(new RTCSessionDescription(data));
+      peer.remoteSet = true;
+      for (const c of peer.iceBuf) {
+        try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch (_) {}
+      }
+      peer.iceBuf = [];
+      console.log(`[Answer ${fromUid.slice(0,6)}] applied`);
+    } catch (e) { console.error('[handleAnswer]', e); }
+    return;
+  }
+
+  if (type === 'ice') {
+    if (!peers[fromUid]) {
+      // Peer doesn't exist yet — buffer the candidate globally
+      if (!icePending[fromUid]) icePending[fromUid] = [];
+      icePending[fromUid].push(data);
+      return;
+    }
+    const peer = peers[fromUid];
+    if (peer.remoteSet) {
+      try { await peer.pc.addIceCandidate(new RTCIceCandidate(data)); } catch (_) {}
     } else {
       peer.iceBuf.push(data);
     }
+    return;
   }
 }
 
-// ── Remote audio: Web Audio API (bypasses autoplay blocks) ──
+// ── Remote audio via Web Audio API ───────────────────────
 function attachRemoteAudio(uid, stream) {
-  const p=peers[uid]; if(!p) return;
-  try{p.audioSrc?.disconnect();}catch(e){}
-  if(!stream.getAudioTracks().length) return;
+  const p = peers[uid]; if (!p) return;
+  // Disconnect old nodes
+  try { p.audioSrc?.disconnect(); } catch (_) {}
+  try { p.audioGain?.disconnect(); } catch (_) {}
+
+  if (!stream.getAudioTracks().length) return;
+
   try {
-    const ctx=getAudioCtx();
-    if(ctx.state==='suspended') ctx.resume();
-    const src=ctx.createMediaStreamSource(stream);
-    const gain=ctx.createGain(); gain.gain.value=1.0;
-    src.connect(gain); gain.connect(ctx.destination);
-    if(peers[uid]){peers[uid].audioSrc=src;peers[uid].audioGain=gain;peers[uid].audioStream=stream;}
-  } catch(e) {
-    console.warn('[Audio] Web Audio API failed, using <audio>',e);
-    let aud=document.getElementById('paud-'+uid);
-    if(!aud){aud=document.createElement('audio');aud.id='paud-'+uid;aud.autoplay=true;aud.style.display='none';document.body.appendChild(aud);}
-    aud.srcObject=stream; aud.volume=1; aud.muted=false;
-    aud.play().catch(()=>{
-      const btn=document.createElement('button');btn.className='cb-btn';btn.style.cssText='background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.4);color:#4ade80;';btn.innerHTML='🔊 Enable Audio';
-      btn.onclick=()=>{aud.play();btn.remove();};
+    const ctx = getAudioCtx();
+    const src  = ctx.createMediaStreamSource(stream);
+    const gain = ctx.createGain(); gain.gain.value = 1.0;
+    src.connect(gain);
+    gain.connect(ctx.destination);
+    p.audioSrc  = src;
+    p.audioGain = gain;
+    p.audioStream = stream;
+    console.log(`[Audio ${uid.slice(0,6)}] attached via Web Audio API`);
+  } catch (e) {
+    // Fallback to <audio> element
+    console.warn('[Audio] Web Audio failed, falling back to <audio>', e);
+    let el = document.getElementById('paud-' + uid);
+    if (!el) {
+      el = document.createElement('audio');
+      el.id = 'paud-' + uid;
+      el.autoplay = true;
+      el.style.display = 'none';
+      document.body.appendChild(el);
+    }
+    el.srcObject = stream;
+    el.muted = false;
+    el.play().catch(() => {
+      // Show unlock button in call bar
+      const btn = document.createElement('button');
+      btn.className = 'cb-btn';
+      btn.style.cssText = 'background:rgba(34,197,94,.2);border-color:rgba(34,197,94,.4);color:#4ade80;';
+      btn.innerHTML = '🔊 Enable Audio';
+      btn.onclick = () => { el.play(); btn.remove(); };
       document.querySelector('.cb-btns')?.prepend(btn);
     });
   }
 }
 
-// ── Volume meters ──
-function startLocalVolumeMeter() {
-  stopLocalVolumeMeter();
-  if(!localStream) return;
+// ── Volume meters ─────────────────────────────────────────
+function startLocalMeter() {
+  stopLocalMeter();
+  if (!localStream) return;
   try {
-    const ctx=getAudioCtx();
-    localAnalyser=ctx.createAnalyser();
-    localAnalyser.fftSize=256;
-    const src=ctx.createMediaStreamSource(localStream);
-    src.connect(localAnalyser);
-    const buf=new Uint8Array(localAnalyser.frequencyBinCount);
-    const bars=document.querySelectorAll('#cbBars .cb-bar');
-    const speak=document.getElementById('cbSpeak');
-    const lbl=document.getElementById('cbVlbl');
-    function tick(){
-      localMeterRaf=requestAnimationFrame(tick);
+    const ctx = getAudioCtx();
+    localAnalyser = ctx.createAnalyser();
+    localAnalyser.fftSize = 256;
+    ctx.createMediaStreamSource(localStream).connect(localAnalyser);
+    const buf  = new Uint8Array(localAnalyser.frequencyBinCount);
+    const bars = document.querySelectorAll('#cbBars .cb-bar');
+    const speak = document.getElementById('cbSpeak');
+    const lbl   = document.getElementById('cbVlbl');
+    function tick() {
+      localMeterRaf = requestAnimationFrame(tick);
       localAnalyser.getByteFrequencyData(buf);
-      const avg=buf.reduce((a,b)=>a+b,0)/buf.length;
-      const norm=Math.min(avg/80,1);
-      const isSpeaking=norm>0.08;
-      speak.classList.toggle('on',isSpeaking);
-      lbl.textContent=isSpeaking?(norm>0.5?'LOUD':'SPEAKING'):'QUIET';
-      bars.forEach((b,i)=>{
-        const h=4+Math.floor(norm*(i%2===0?14:18));
-        b.style.height=h+'px';
-        b.classList.toggle('on',norm>0.1);
-        b.classList.toggle('loud',norm>0.6);
+      const avg  = buf.reduce((a, b) => a + b, 0) / buf.length;
+      const norm = Math.min(avg / 80, 1);
+      const isSpeaking = norm > 0.06;
+      speak.classList.toggle('on', isSpeaking);
+      lbl.textContent = isSpeaking ? (norm > 0.5 ? 'LOUD' : 'SPEAKING') : 'QUIET';
+      bars.forEach((b, i) => {
+        b.style.height = (4 + norm * (i % 2 === 0 ? 14 : 18)) + 'px';
+        b.classList.toggle('on',   norm > 0.08);
+        b.classList.toggle('loud', norm > 0.6);
       });
     }
     tick();
-  } catch(e){}
+  } catch (_) {}
 }
-function stopLocalVolumeMeter(){if(localMeterRaf){cancelAnimationFrame(localMeterRaf);localMeterRaf=null;}localAnalyser=null;}
+function stopLocalMeter() {
+  if (localMeterRaf) { cancelAnimationFrame(localMeterRaf); localMeterRaf = null; }
+  localAnalyser = null;
+}
 
-function startPeerVolumeMeter(uid, stream) {
-  stopPeerVolumeMeter(uid);
+function startPeerMeter(uid, stream) {
+  stopPeerMeter(uid);
   try {
-    const ctx=getAudioCtx();
-    const analyser=ctx.createAnalyser(); analyser.fftSize=256;
-    const src=ctx.createMediaStreamSource(stream); src.connect(analyser);
-    const buf=new Uint8Array(analyser.frequencyBinCount);
-    const raf=requestAnimationFrame(function tick(){
-      peerAnalysers[uid]={analyser,raf:requestAnimationFrame(tick),buf};
+    const ctx = getAudioCtx();
+    const analyser = ctx.createAnalyser(); analyser.fftSize = 256;
+    ctx.createMediaStreamSource(stream).connect(analyser);
+    const buf = new Uint8Array(analyser.frequencyBinCount);
+    let raf;
+    const tick = () => {
+      raf = requestAnimationFrame(tick);
       analyser.getByteFrequencyData(buf);
-      const avg=buf.reduce((a,b)=>a+b,0)/buf.length;
-      const speaking=avg>8;
-      const tile=document.getElementById('vt-'+uid);
-      if(tile) tile.classList.toggle('speaking',speaking);
-      const pav=document.querySelector(`.cb-pav[data-uid="${uid}"]`);
-      if(pav) pav.classList.toggle('speaking',speaking);
-    });
-    peerAnalysers[uid]={analyser,raf,buf};
-  } catch(e){}
+      const avg = buf.reduce((a, b) => a + b, 0) / buf.length;
+      const speaking = avg > 8;
+      document.getElementById('vt-' + uid)?.classList.toggle('speaking', speaking);
+      document.querySelector(`.cb-pav[data-uid="${uid}"]`)?.classList.toggle('speaking', speaking);
+    };
+    tick();
+    peerAnalysers[uid] = { analyser, raf };
+  } catch (_) {}
 }
-function stopPeerVolumeMeter(uid){
-  if(peerAnalysers[uid]){cancelAnimationFrame(peerAnalysers[uid].raf);delete peerAnalysers[uid];}
-  const tile=document.getElementById('vt-'+uid); if(tile) tile.classList.remove('speaking');
+function stopPeerMeter(uid) {
+  if (peerAnalysers[uid]) { cancelAnimationFrame(peerAnalysers[uid].raf); delete peerAnalysers[uid]; }
 }
 
-// ── removePeer ──
+// ── removePeer ───────────────────────────────────────────
 function removePeer(uid) {
-  const p=peers[uid]; if(!p) return;
-  try{p.pc.close();}catch(e){}
-  try{p.audioSrc?.disconnect();}catch(e){}
-  try{p.audioGain?.disconnect();}catch(e){}
+  const p = peers[uid]; if (!p) return;
+  stopPeerMeter(uid);
+  try { p.pc.close(); }              catch (_) {}
+  try { p.audioSrc?.disconnect(); }  catch (_) {}
+  try { p.audioGain?.disconnect(); } catch (_) {}
   delete peers[uid];
-  stopPeerVolumeMeter(uid);
-  const tile=document.getElementById('vt-'+uid); if(tile) tile.remove();
-  const aud=document.getElementById('paud-'+uid); if(aud){aud.srcObject=null;aud.remove();}
-  updateCallUI(); updateVideoGrid();
-  toast(`${p.name} left the call`,'info');
+  delete icePending[uid];
+  document.getElementById('vt-' + uid)?.remove();
+  const aud = document.getElementById('paud-' + uid);
+  if (aud) { aud.srcObject = null; aud.remove(); }
+  updateCallUI();
+  updateGridLayout();
+  toast(`${p.name} left the call`, 'info');
 }
 
-// ── CALL CONTROLS ──
-window.toggleCall = async function() {
-  if(callState==='idle') await startCall(); else leaveCall();
+// ── Call controls ─────────────────────────────────────────
+window.toggleCall = async function () {
+  if (callState === 'idle') await startCall(); else leaveCall();
 };
-window.callUser = async function(uid) {
-  if(callState==='incall'){toast('Already in a call','info');return;}
-  const stream=await getLocalStream(); if(!stream) return;
-  // Resume AudioContext in user gesture
-  try{getAudioCtx().resume();}catch(e){}
-  callState='incall';
-  callMembers[me.id]={name:me.name,avatar:me.avatar,avatar_url:me.avatar_url};
-  startCallUI(); addLocalTile(); startLocalVolumeMeter();
-  sendSignal(uid,'call-invite',{});
-  toast(`📞 Calling ${uid.slice(0,8)}...`,'info');
+
+// Called from DM panel "call" button
+window.callUser = async function (uid) {
+  if (callState === 'incall') { toast('Already in a call', 'info'); return; }
+  const stream = await getLocalStream(); if (!stream) return;
+  getAudioCtx(); // create + resume inside user gesture
+  callState = 'incall';
+  callMembers[me.id] = { name: me.name, avatar: me.avatar, avatar_url: me.avatar_url };
+  startCallUI();
+  addLocalTile();
+  startLocalMeter();
+  sendSignal(uid, 'call-invite', {});
+  toast(`📞 Calling...`, 'info');
 };
 
 async function startCall() {
-  const stream=await getLocalStream(); if(!stream) return;
-  try{getAudioCtx().resume();}catch(e){}
-  callState='incall';
-  callMembers[me.id]={name:me.name,avatar:me.avatar,avatar_url:me.avatar_url};
-  startCallUI(); addLocalTile(); startLocalVolumeMeter();
-  // Invite all online users
-  const state=realtimeCh?.presenceState()||{};
-  const uids=Object.values(state).flat().map(u=>u.uid).filter(u=>u&&u!==me.id);
-  if(!uids.length){toast('📞 Call started — no one else online','info');return;}
-  uids.forEach(uid=>sendSignal(uid,'call-invite',{}));
-  toast(`📞 Calling ${uids.length} user${uids.length!==1?'s':''}...`,'info');
+  const stream = await getLocalStream(); if (!stream) return;
+  getAudioCtx(); // create + resume inside user gesture
+  callState = 'incall';
+  callMembers[me.id] = { name: me.name, avatar: me.avatar, avatar_url: me.avatar_url };
+  startCallUI();
+  addLocalTile();
+  startLocalMeter();
+  const state = realtimeCh?.presenceState() || {};
+  const uids = Object.values(state).flat().map(u => u.uid).filter(u => u && u !== me.id);
+  if (!uids.length) { toast('📞 Call started — waiting for others...', 'info'); return; }
+  uids.forEach(uid => sendSignal(uid, 'call-invite', {}));
+  toast(`📞 Calling ${uids.length} user${uids.length !== 1 ? 's' : ''}...`, 'info');
 }
 
-window.acceptCall = async function() {
+window.acceptCall = async function () {
   stopRingtone();
   document.getElementById('incomingCall').classList.remove('on');
-  if(!pendingInvite) return;
-  const {fromUid,fromName,fromAvatar,fromAvatarUrl}=pendingInvite; pendingInvite=null;
-  const stream=await getLocalStream(); if(!stream) return;
-  // CRITICAL: resume AudioContext inside user gesture
-  try{getAudioCtx().resume();}catch(e){}
-  callState='incall';
-  callMembers[me.id]={name:me.name,avatar:me.avatar,avatar_url:me.avatar_url};
-  callMembers[fromUid]={name:fromName,avatar:fromAvatar,avatar_url:fromAvatarUrl};
-  startCallUI(); addLocalTile(); startLocalVolumeMeter();
-  // Broadcast to ALL so every existing member can connect with us
-  const state=realtimeCh?.presenceState()||{};
-  const onlineUids=Object.values(state).flat().map(u=>u.uid).filter(u=>u&&u!==me.id);
-  onlineUids.forEach(uid=>sendSignal(uid,'call-join',{}));
+  if (!pendingInvite) return;
+  const { fromUid, fromName, fromAvatar, fromAvatarUrl } = pendingInvite;
+  pendingInvite = null;
+
+  const stream = await getLocalStream(); if (!stream) return;
+  // CRITICAL: AudioContext.resume() MUST happen inside a user gesture handler
+  getAudioCtx();
+
+  callState = 'incall';
+  callMembers[me.id]     = { name: me.name,  avatar: me.avatar,  avatar_url: me.avatar_url };
+  callMembers[fromUid]   = { name: fromName, avatar: fromAvatar, avatar_url: fromAvatarUrl };
+
+  startCallUI();
+  addLocalTile();
+  startLocalMeter();
+
+  // Broadcast call-join to ALL online so every existing member connects to us
+  const state = realtimeCh?.presenceState() || {};
+  Object.values(state).flat()
+    .map(u => u.uid)
+    .filter(u => u && u !== me.id)
+    .forEach(uid => sendSignal(uid, 'call-join', {}));
 };
 
-window.declineCall = function() {
+window.declineCall = function () {
   stopRingtone();
   document.getElementById('incomingCall').classList.remove('on');
-  if(pendingInvite){sendSignal(pendingInvite.fromUid,'call-declined',{});pendingInvite=null;}
+  if (pendingInvite) { sendSignal(pendingInvite.fromUid, 'call-declined', {}); pendingInvite = null; }
 };
 
-window.leaveCall = function() {
+window.leaveCall = function () {
   stopRingtone();
-  Object.keys(callMembers).forEach(uid=>{if(uid!==me.id)sendSignal(uid,'call-left',{});});
-  Object.keys(peers).forEach(uid=>{
-    const p=peers[uid];if(p){try{p.pc.close();}catch(e){}try{p.audioSrc?.disconnect();}catch(e){}try{p.audioGain?.disconnect();}catch(e){}}
-    delete peers[uid];
-    const t=document.getElementById('vt-'+uid);if(t)t.remove();
-    const a=document.getElementById('paud-'+uid);if(a){a.srcObject=null;a.remove();}
-  });
-  peers={}; callMembers={};
-  if(localStream){localStream.getTracks().forEach(t=>t.stop());localStream=null;}
-  if(screenStream){screenStream.getTracks().forEach(t=>t.stop());screenStream=null;}
-  try{sharedAudioCtx?.close();sharedAudioCtx=null;}catch(e){}
-  callState='idle'; isMuted=false; isCamOff=true; isScreenSharing=false;
-  stopLocalVolumeMeter();
-  Object.keys(peerAnalysers).forEach(uid=>stopPeerVolumeMeter(uid));
-  peerAnalysers={};
+  // Notify everyone
+  Object.keys(callMembers).filter(uid => uid !== me.id).forEach(uid => sendSignal(uid, 'call-left', {}));
+  // Tear down all peers
+  Object.keys(peers).forEach(uid => removePeer(uid));
+  // Stop streams
+  localStream?.getTracks().forEach(t => t.stop());
+  screenStream?.getTracks().forEach(t => t.stop());
+  localStream = null; screenStream = null;
+  // Reset state
+  try { sharedAudioCtx?.close(); } catch (_) {}
+  sharedAudioCtx = null;
+  callState = 'idle'; callMembers = {};
+  isMuted = false; isCamOff = true; isScreenSharing = false;
+  stopLocalMeter();
+  Object.keys(peerAnalysers).forEach(uid => stopPeerMeter(uid));
+  peerAnalysers = {};
+  // Clear ICE pending
+  Object.keys(icePending).forEach(k => delete icePending[k]);
   stopCallUI();
   document.getElementById('videoGrid').classList.remove('on');
-  document.getElementById('vgVideos').innerHTML='';
-  videoGridOpen=false;
+  document.getElementById('vgVideos').innerHTML = '';
+  videoGridOpen = false;
   updateCallBtnUI();
-  toast('Call ended','info');
+  toast('Call ended', 'info');
 };
 
-// ── Toggle mute ──
-window.toggleMute = function() {
-  isMuted=!isMuted;
-  if(localStream) localStream.getAudioTracks().forEach(t=>t.enabled=!isMuted);
-  const btn=document.getElementById('muteBtn');
-  btn.textContent=isMuted?'🔇 Unmute':'🎙️ Mute';
-  btn.classList.toggle('on',isMuted);
+// ── Mute ──────────────────────────────────────────────────
+window.toggleMute = function () {
+  isMuted = !isMuted;
+  localStream?.getAudioTracks().forEach(t => t.enabled = !isMuted);
+  const btn = document.getElementById('muteBtn');
+  btn.textContent = isMuted ? '🔇 Unmute' : '🎙️ Mute';
+  btn.classList.toggle('on', isMuted);
 };
 
-// ── Toggle camera ──
-window.toggleCam = async function() {
-  if(isCamOff) {
+// ── Camera ────────────────────────────────────────────────
+window.toggleCam = async function () {
+  if (isCamOff) {
     try {
-      const vs=await navigator.mediaDevices.getUserMedia({video:true});
-      const vt=vs.getVideoTracks()[0];
+      const vs = await navigator.mediaDevices.getUserMedia({ video: true });
+      const vt = vs.getVideoTracks()[0];
       localStream.addTrack(vt);
-      isCamOff=false;
+      isCamOff = false;
       updateLocalTile();
-      // Renegotiate with all peers
-      for(const [uid] of Object.entries(peers)) {
-        const p=peers[uid];
-        const sender=p.pc.getSenders().find(s=>s.track?.kind==='video');
-        if(sender) await sender.replaceTrack(vt).catch(()=>{});
-        else { p.pc.addTrack(vt,localStream); setTimeout(()=>makeOffer(uid),200); }
+      // Replace/add video track in all peer connections
+      for (const [uid, p] of Object.entries(peers)) {
+        const sender = p.pc.getSenders().find(s => s.track?.kind === 'video');
+        if (sender) {
+          await sender.replaceTrack(vt).catch(() => {});
+        } else {
+          p.pc.addTrack(vt, localStream);
+          setTimeout(() => makeOffer(uid), 200);
+        }
       }
-    } catch(e){toast('Camera access denied','error');}
+    } catch (e) { toast('Camera access denied', 'error'); }
   } else {
-    const vts=localStream?.getVideoTracks()||[];
-    vts.forEach(t=>{t.stop();try{localStream.removeTrack(t);}catch(e){}});
-    for(const p of Object.values(peers)){
-      const s=p.pc.getSenders().find(s=>s.track?.kind==='video');
-      if(s) await s.replaceTrack(null).catch(()=>{});
+    localStream?.getVideoTracks().forEach(t => { t.stop(); try { localStream.removeTrack(t); } catch (_) {} });
+    for (const p of Object.values(peers)) {
+      const s = p.pc.getSenders().find(s => s.track?.kind === 'video');
+      if (s) await s.replaceTrack(null).catch(() => {});
     }
-    isCamOff=true; updateLocalTile();
+    isCamOff = true;
+    updateLocalTile();
   }
-  const btn=document.getElementById('camBtn');
-  btn.textContent=isCamOff?'📹 Camera':'📷 On';
-  btn.classList.toggle('on',!isCamOff);
+  const btn = document.getElementById('camBtn');
+  btn.textContent = isCamOff ? '📹 Camera' : '📷 On';
+  btn.classList.toggle('on', !isCamOff);
 };
 
-// ── Toggle screen share ──
-window.toggleScreen = async function() {
-  if(isScreenSharing) {
-    const sts=screenStream?.getTracks()||[];
-    sts.forEach(t=>{t.stop();});
-    for(const p of Object.values(peers)){
-      const s=p.pc.getSenders().find(s=>s.track?.kind==='video');
-      if(s) await s.replaceTrack(localStream?.getVideoTracks()[0]||null).catch(()=>{});
+// ── Screen share ──────────────────────────────────────────
+window.toggleScreen = async function () {
+  if (isScreenSharing) {
+    screenStream?.getTracks().forEach(t => t.stop());
+    const fallback = localStream?.getVideoTracks()[0] || null;
+    for (const p of Object.values(peers)) {
+      const s = p.pc.getSenders().find(s => s.track?.kind === 'video');
+      if (s) await s.replaceTrack(fallback).catch(() => {});
     }
-    screenStream=null; isScreenSharing=false;
+    screenStream = null; isScreenSharing = false;
     document.getElementById('screenBtn').classList.remove('on');
-    document.getElementById('screenBtn').textContent='🖥️ Screen';
-    toast('Screen share stopped','info');
+    document.getElementById('screenBtn').textContent = '🖥️ Screen';
+    toast('Screen share stopped', 'info');
   } else {
     try {
-      screenStream=await navigator.mediaDevices.getDisplayMedia({video:true,audio:true});
-      const vt=screenStream.getVideoTracks()[0];
-      vt.onended=()=>toggleScreen(); // user stops sharing via browser UI
-      for(const [uid] of Object.entries(peers)){
-        const p=peers[uid];
-        const sender=p.pc.getSenders().find(s=>s.track?.kind==='video');
-        if(sender) await sender.replaceTrack(vt).catch(()=>{});
-        else { p.pc.addTrack(vt,screenStream); setTimeout(()=>makeOffer(uid),200); }
+      screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+      const vt = screenStream.getVideoTracks()[0];
+      vt.onended = () => toggleScreen();
+      for (const [uid, p] of Object.entries(peers)) {
+        const sender = p.pc.getSenders().find(s => s.track?.kind === 'video');
+        if (sender) { await sender.replaceTrack(vt).catch(() => {}); }
+        else { p.pc.addTrack(vt, screenStream); setTimeout(() => makeOffer(uid), 200); }
       }
-      isScreenSharing=true;
+      isScreenSharing = true;
       document.getElementById('screenBtn').classList.add('on');
-      document.getElementById('screenBtn').textContent='🖥️ Sharing';
-      toast('📺 Screen sharing started','success');
-    } catch(e){toast('Screen share cancelled','info');}
+      document.getElementById('screenBtn').textContent = '🖥️ Sharing';
+      toast('Screen sharing started', 'success');
+    } catch (_) { toast('Screen share cancelled', 'info'); }
   }
 };
 
-// ── Call UI helpers ──
+// ── Call UI ───────────────────────────────────────────────
 function startCallUI() {
   document.getElementById('callBar').classList.add('on');
-  callStartTime=Date.now();
+  callStartTime = Date.now();
   clearInterval(callDurInt);
-  callDurInt=setInterval(()=>{
-    const s=Math.floor((Date.now()-callStartTime)/1000);
-    const m=Math.floor(s/60),sec=s%60;
-    document.getElementById('cbDur').textContent=m+':'+(sec<10?'0':'')+sec;
-  },1000);
+  callDurInt = setInterval(() => {
+    const s = Math.floor((Date.now() - callStartTime) / 1000);
+    document.getElementById('cbDur').textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+  }, 1000);
   updateCallBtnUI();
 }
 function stopCallUI() {
   document.getElementById('callBar').classList.remove('on');
-  clearInterval(callDurInt);
-  callDurInt=null;
-  document.getElementById('cbDur').textContent='0:00';
-  document.getElementById('cbPeers').innerHTML='';
+  clearInterval(callDurInt); callDurInt = null;
+  document.getElementById('cbDur').textContent = '0:00';
+  document.getElementById('cbPeers').innerHTML = '';
   updateCallBtnUI();
 }
 function updateCallBtnUI() {
-  const inCall=callState==='incall';
-  const btn=document.getElementById('callBtn');
-  btn.classList.toggle('in-call',inCall);
-  document.getElementById('callBtnTxt').textContent=inCall?'📵 Leave Call':'📞 Call';
-  document.getElementById('callDot').style.animation=inCall?'liveDot 1.5s ease-in-out infinite':'none';
-  document.getElementById('callDot').style.background=inCall?'var(--red)':'var(--t3)';
-  document.getElementById('ucInCall').textContent=Object.keys(callMembers).length||'0';
+  const inCall = callState === 'incall';
+  document.getElementById('callBtn').classList.toggle('in-call', inCall);
+  document.getElementById('callBtnTxt').textContent = inCall ? '📵 Leave Call' : '📞 Call';
+  document.getElementById('callDot').style.animation = inCall ? 'liveDot 1.5s ease-in-out infinite' : 'none';
+  document.getElementById('callDot').style.background = inCall ? 'var(--red)' : 'var(--t3)';
+  document.getElementById('ucInCall').textContent = Object.keys(callMembers).length || '0';
 }
 function updateCallUI() {
   updateCallBtnUI();
-  // Update call bar peers display
-  const peersEl=document.getElementById('cbPeers');peersEl.innerHTML='';
-  Object.entries(peers).forEach(([uid,p])=>{
-    const d=document.createElement('div');d.className='cb-pav';d.dataset.uid=uid;d.title=p.name;
-    if(p.avatar_url)d.innerHTML=`<img src="${p.avatar_url}" alt="">`;else d.textContent=p.avatar;
+  const peersEl = document.getElementById('cbPeers'); peersEl.innerHTML = '';
+  Object.entries(peers).forEach(([uid, p]) => {
+    const d = document.createElement('div');
+    d.className = 'cb-pav'; d.dataset.uid = uid; d.title = p.name;
+    if (p.avatar_url) d.innerHTML = `<img src="${p.avatar_url}" alt="">`;
+    else d.textContent = p.avatar;
     peersEl.appendChild(d);
   });
-  document.getElementById('cbInfo').textContent=Object.keys(peers).length?`In Call · ${Object.keys(peers).length} peer${Object.keys(peers).length!==1?'s':''}`:'In Call';
+  const n = Object.keys(peers).length;
+  document.getElementById('cbInfo').textContent = n ? `In Call · ${n} peer${n !== 1 ? 's' : ''}` : 'In Call';
 }
 
 function showIncomingCall(name, avatar, avatarUrl) {
-  const icAv=document.getElementById('icAv');
-  if(avatarUrl) icAv.innerHTML=`<img src="${avatarUrl}" alt="">`;
-  else icAv.textContent=avatar||'🦊';
-  document.getElementById('icName').textContent=name;
+  const icAv = document.getElementById('icAv');
+  if (avatarUrl) icAv.innerHTML = `<img src="${avatarUrl}" alt="">`;
+  else icAv.textContent = avatar || '🦊';
+  document.getElementById('icName').textContent = name;
   document.getElementById('incomingCall').classList.add('on');
   playRingtone();
 }
 
-// ── Ringtone ──
-let ringtoneCtx=null, ringtoneNodes=[];
+// ── Ringtone ──────────────────────────────────────────────
+let ringtoneCtx = null;
 function playRingtone() {
   stopRingtone();
   try {
-    ringtoneCtx=new(window.AudioContext||window.webkitAudioContext)();
-    function beep(freq,start,dur){
-      const osc=ringtoneCtx.createOscillator(),g=ringtoneCtx.createGain();
-      osc.connect(g);g.connect(ringtoneCtx.destination);
-      osc.type='sine';osc.frequency.value=freq;
-      g.gain.setValueAtTime(0,ringtoneCtx.currentTime+start);
-      g.gain.linearRampToValueAtTime(0.3,ringtoneCtx.currentTime+start+0.02);
-      g.gain.exponentialRampToValueAtTime(0.001,ringtoneCtx.currentTime+start+dur);
-      osc.start(ringtoneCtx.currentTime+start);
-      osc.stop(ringtoneCtx.currentTime+start+dur+0.05);
-      ringtoneNodes.push(osc);
-    }
-    // Two-tone ring pattern
-    function ring(){beep(880,0,.2);beep(1100,.22,.2);beep(880,.5,.2);beep(1100,.72,.2);}
+    ringtoneCtx = new (window.AudioContext || window.webkitAudioContext)();
+    const ring = () => {
+      [[880, 0], [1100, 0.22], [880, 0.5], [1100, 0.72]].forEach(([freq, t]) => {
+        const osc = ringtoneCtx.createOscillator(), g = ringtoneCtx.createGain();
+        osc.connect(g); g.connect(ringtoneCtx.destination);
+        osc.type = 'sine'; osc.frequency.value = freq;
+        g.gain.setValueAtTime(0, ringtoneCtx.currentTime + t);
+        g.gain.linearRampToValueAtTime(0.3, ringtoneCtx.currentTime + t + 0.03);
+        g.gain.exponentialRampToValueAtTime(0.001, ringtoneCtx.currentTime + t + 0.22);
+        osc.start(ringtoneCtx.currentTime + t);
+        osc.stop(ringtoneCtx.currentTime + t + 0.25);
+      });
+    };
     ring();
-    ringtoneCtx._loop=setInterval(ring, 2000);
-  } catch(e){}
+    ringtoneCtx._loop = setInterval(ring, 2000);
+  } catch (_) {}
 }
-function stopRingtone(){
-  if(ringtoneCtx){clearInterval(ringtoneCtx._loop);try{ringtoneCtx.close();}catch(e){}ringtoneCtx=null;}
-  ringtoneNodes=[];
+function stopRingtone() {
+  if (ringtoneCtx) {
+    clearInterval(ringtoneCtx._loop);
+    try { ringtoneCtx.close(); } catch (_) {}
+    ringtoneCtx = null;
+  }
 }
 
-// ── Video grid ──
-window.toggleVideoGrid = function(){
-  videoGridOpen=!videoGridOpen;
-  document.getElementById('videoGrid').classList.toggle('on',videoGridOpen);
-  document.getElementById('vidGridBtn').classList.toggle('on',videoGridOpen);
-  if(videoGridOpen) updateVideoGrid();
+// ── Video grid ────────────────────────────────────────────
+window.toggleVideoGrid = function () {
+  videoGridOpen = !videoGridOpen;
+  document.getElementById('videoGrid').classList.toggle('on', videoGridOpen);
+  document.getElementById('vidGridBtn').classList.toggle('on', videoGridOpen);
+  if (videoGridOpen) updateVideoGrid();
 };
 function addLocalTile() {
-  const grid=document.getElementById('vgVideos');
-  let tile=document.getElementById('vt-local');
-  if(!tile){tile=document.createElement('div');tile.className='vid-tile';tile.id='vt-local';}
-  updateLocalTile();
+  const grid = document.getElementById('vgVideos');
+  let tile = document.getElementById('vt-local');
+  if (!tile) { tile = document.createElement('div'); tile.className = 'vid-tile'; tile.id = 'vt-local'; }
+  updateLocalTile(tile);
   grid.prepend(tile);
   updateGridLayout();
 }
-function updateLocalTile(){
-  const tile=document.getElementById('vt-local'); if(!tile) return;
-  const vt=localStream?.getVideoTracks()[0];
-  if(vt&&vt.enabled&&!isCamOff){
-    tile.innerHTML=`<video autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1);"></video><div class="vid-label">You${isScreenSharing?' 🖥️':''}</div>${isMuted?'<div class="vid-muted">🔇</div>':''}`;
-    tile.querySelector('video').srcObject=localStream;
+function updateLocalTile(tile) {
+  tile = tile || document.getElementById('vt-local'); if (!tile) return;
+  const vt = localStream?.getVideoTracks().find(t => t.enabled && t.readyState === 'live');
+  if (vt) {
+    tile.innerHTML = `<video autoplay muted playsinline style="width:100%;height:100%;object-fit:cover;transform:scaleX(-1);display:block;"></video><div class="vid-label">You${isScreenSharing ? ' 🖥️' : ''}${isMuted ? ' 🔇' : ''}</div>`;
+    tile.querySelector('video').srcObject = localStream;
   } else {
-    tile.innerHTML=`<div class="vid-no-cam"><div class="vnc-av">${me.avatar_url?`<img src="${me.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:18px;" alt="">`:me.avatar}</div><div class="vnc-name">You${isMuted?' 🔇':''}</div></div>`;
+    tile.innerHTML = `<div class="vid-no-cam"><div class="vnc-av">${me.avatar_url ? `<img src="${me.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:18px;" alt="">` : me.avatar}</div><div class="vnc-name">You${isMuted ? ' 🔇' : ''}</div></div>`;
   }
 }
-function addPeerTile(uid,name,avatar,avatarUrl) {
-  const grid=document.getElementById('vgVideos');
-  let tile=document.getElementById('vt-'+uid);
-  if(!tile){tile=document.createElement('div');tile.className='vid-tile';tile.id='vt-'+uid;}
-  tile.innerHTML=`<div class="vid-no-cam"><div class="vnc-av">${avatarUrl?`<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:18px;" alt="">`:avatar}</div><div class="vnc-name">${esc(name)}</div></div>`;
+function addPeerTile(uid, name, avatar, avatarUrl) {
+  const grid = document.getElementById('vgVideos');
+  let tile = document.getElementById('vt-' + uid);
+  if (!tile) { tile = document.createElement('div'); tile.className = 'vid-tile'; tile.id = 'vt-' + uid; }
+  tile.innerHTML = `<div class="vid-no-cam"><div class="vnc-av">${avatarUrl ? `<img src="${avatarUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:18px;" alt="">` : avatar}</div><div class="vnc-name">${esc(name)}</div></div>`;
   grid.appendChild(tile);
   updateGridLayout();
 }
-function updatePeerVideo(uid){
-  const tile=document.getElementById('vt-'+uid); if(!tile) return;
-  const p=peers[uid]; if(!p) return;
-  if(p.videoStream){
-    tile.innerHTML=`<video class="main-vid" autoplay playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video><div class="vid-label">${esc(p.name)}</div>`;
-    tile.querySelector('video').srcObject=p.videoStream;
-  }
+function updatePeerVideo(uid) {
+  const tile = document.getElementById('vt-' + uid); if (!tile) return;
+  const p = peers[uid]; if (!p?.videoStream) return;
+  tile.innerHTML = `<video autoplay playsinline style="width:100%;height:100%;object-fit:cover;display:block;"></video><div class="vid-label">${esc(p.name)}</div>`;
+  tile.querySelector('video').srcObject = p.videoStream;
 }
-function updateVideoGrid(){updateLocalTile();Object.keys(peers).forEach(uid=>updatePeerVideo(uid));updateGridLayout();}
-function updateGridLayout(){
-  const grid=document.getElementById('vgVideos');
-  const n=grid.children.length;
-  grid.className='vg-videos '+(n<=1?'c1':n<=2?'c2':n<=4?'c'+n:'many');
+function updateVideoGrid() { updateLocalTile(); Object.keys(peers).forEach(uid => updatePeerVideo(uid)); updateGridLayout(); }
+function updateGridLayout() {
+  const grid = document.getElementById('vgVideos');
+  const n = grid.children.length;
+  grid.className = 'vg-videos ' + (n <= 1 ? 'c1' : n <= 2 ? 'c2' : n <= 4 ? 'c' + n : 'many');
 }
+
 
 // ═══════════════════════════════════════════════════════
 // PROFILE
