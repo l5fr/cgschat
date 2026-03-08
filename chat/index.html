@@ -1027,6 +1027,13 @@ window.confirmDelete = async function(){
   if(!pendingDeleteId) return;
   const id = pendingDeleteId;
   closeDelModal();
+  // Message hasn't saved to DB yet — just remove from local cache
+  if(String(id).startsWith('tmp_')){
+    msgCache = msgCache.filter(m => m.id !== id);
+    renderAll();
+    toast('Message deleted','success');
+    return;
+  }
   // Try soft-delete first (update)
   const {data, error} = await sb.from('messages')
     .update({deleted: true, content: ''})
