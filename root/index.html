@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEXUS</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #000008;
+    --purple: #3a0060;
+    --purple2: #5b0099;
+    --blue: #0000cc;
+    --blue2: #0033ff;
+    --glow-blue: rgba(0, 80, 255, 0.6);
+    --glow-purple: rgba(80, 0, 160, 0.5);
+    --t1: #f0eeff;
+    --t2: #a89fc7;
+    --t3: #5f5680;
+    --border: rgba(255,255,255,0.12);
+    --border-hover: rgba(255,255,255,0.35);
+  }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--t1);
+    font-family: 'Space Grotesk', sans-serif;
+    overflow: hidden;
+  }
+
+  /* ── BACKGROUND ── */
+  .bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background-image: url('appsbg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: brightness(0.7) saturate(1.2);
+  }
+
+  /* Scanline + vignette overlay */
+  .bg::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.07) 2px,
+        rgba(0,0,0,0.07) 4px
+      ),
+      radial-gradient(ellipse 70% 70% at 50% 50%, transparent 30%, rgba(0,0,8,0.65) 100%);
+  }
+
+  /* ── LOAD SCREEN ── */
+  #loadScreen {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: #000008;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.7s ease, visibility 0.7s;
+  }
+  #loadScreen.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+  #loadScreen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 50% 50%, rgba(60,0,120,0.2) 0%, transparent 70%);
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+  @keyframes glowPulse { 0%,100%{opacity:.5;} 50%{opacity:1;} }
+
+  .ls-corner { position: absolute; width: 36px; height: 36px; opacity: .25; }
+  .ls-corner.tl { top: 22px; left: 22px; border-top: 1px solid #a78bfa; border-left: 1px solid #a78bfa; }
+  .ls-corner.tr { top: 22px; right: 22px; border-top: 1px solid #a78bfa; border-right: 1px solid #a78bfa; }
+  .ls-corner.bl { bottom: 22px; left: 22px; border-bottom: 1px solid #a78bfa; border-left: 1px solid #a78bfa; }
+  .ls-corner.br { bottom: 22px; right: 22px; border-bottom: 1px solid #a78bfa; border-right: 1px solid #a78bfa; }
+
+  .ls-logo {
+    font-size: clamp(52px, 10vw, 90px);
+    font-weight: 700;
+    letter-spacing: 18px;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow: 0 0 40px rgba(120,80,255,0.8), 0 0 80px rgba(60,0,200,0.4);
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    transform: translateY(18px) scale(.96);
+    animation: lsLogoIn .9s cubic-bezier(.22,1,.36,1) .3s forwards;
+  }
+  @keyframes lsLogoIn { to { opacity:1; transform:none; } }
+
+  .ls-sub {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    letter-spacing: 5px;
+    color: #a78bfa;
+    margin-top: 16px;
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    animation: fadeUp .7s ease .9s forwards;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(8px);} to{opacity:1;transform:none;} }
+
+  .ls-sub .dot { display: inline-block; animation: dotBlink 1.4s ease-in-out infinite; }
+  .ls-sub .dot:nth-child(2) { animation-delay: .2s; }
+  .ls-sub .dot:nth-child(3) { animation-delay: .4s; }
+  @keyframes dotBlink { 0%,80%,100%{opacity:0;} 40%{opacity:1;} }
+
+  .ls-bar {
+    position: absolute;
+    bottom: 0; left: 0;
+    height: 2px; width: 0;
+    background: linear-gradient(90deg, #5b21b6, #a78bfa, #60a5fa);
+    box-shadow: 0 0 12px rgba(167,139,250,.7);
+    animation: lsBar 2.4s cubic-bezier(.4,0,.2,1) .2s forwards;
+    z-index: 1;
+  }
+  @keyframes lsBar { 0%{width:0;} 60%{width:72%;} 85%{width:91%;} 100%{width:100%;} }
+
+  /* ── MAIN PAGE ── */
+  #page {
+    position: fixed;
+    inset: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    opacity: 0;
+    transform: translateY(12px);
+    pointer-events: none;
+    transition: opacity .7s ease .1s, transform .7s ease .1s;
+  }
+  #page.visible {
+    opacity: 1;
+    transform: none;
+    pointer-events: all;
+  }
+
+  /* ── LOGO ── */
+  .logo {
+    font-size: clamp(52px, 9vw, 88px);
+    font-weight: 700;
+    letter-spacing: 16px;
+    text-transform: uppercase;
+    color: #fff;
+    text-shadow:
+      0 0 30px rgba(120,80,255,0.7),
+      0 0 60px rgba(60,0,200,0.35),
+      0 2px 0 rgba(0,0,0,0.5);
+    margin-bottom: 10px;
+    animation: logoGlow 4s ease-in-out infinite;
+  }
+  @keyframes logoGlow {
+    0%,100% { text-shadow: 0 0 30px rgba(120,80,255,0.7), 0 0 60px rgba(60,0,200,0.35), 0 2px 0 rgba(0,0,0,0.5); }
+    50% { text-shadow: 0 0 50px rgba(140,100,255,1), 0 0 100px rgba(80,20,220,0.5), 0 2px 0 rgba(0,0,0,0.5); }
+  }
+
+  .version {
+    font-family: 'Fira Code', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 52px;
+  }
+
+  /* ── CATEGORY BOXES ── */
+  .categories {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cat-box {
+    width: 160px;
+    height: 160px;
+    background: rgba(10, 5, 25, 0.72);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    color: var(--t1);
+    position: relative;
+    overflow: hidden;
+    transition: border-color .25s, background .25s, transform .2s;
+    backdrop-filter: blur(10px);
+  }
+
+  /* Corner accents */
+  .cat-box::before, .cat-box::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    opacity: 0;
+    transition: opacity .25s;
+  }
+  .cat-box::before {
+    top: 6px; left: 6px;
+    border-top: 1.5px solid #a78bfa;
+    border-left: 1.5px solid #a78bfa;
+  }
+  .cat-box::after {
+    bottom: 6px; right: 6px;
+    border-bottom: 1.5px solid #a78bfa;
+    border-right: 1.5px solid #a78bfa;
+  }
+
+  .cat-box:hover {
+    border-color: var(--border-hover);
+    background: rgba(20, 8, 50, 0.85);
+    transform: translateY(-3px);
+  }
+  .cat-box:hover::before,
+  .cat-box:hover::after {
+    opacity: 1;
+  }
+
+  /* Glow on hover */
+  .cat-box .glow {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity .3s;
+    background: radial-gradient(ellipse 80% 80% at 50% 50%, rgba(120,80,255,0.1), transparent 70%);
+  }
+  .cat-box:hover .glow { opacity: 1; }
+
+  .cat-icon {
+    font-size: 44px;
+    line-height: 1;
+    filter: drop-shadow(0 0 8px rgba(167,139,250,0.4));
+    transition: transform .2s, filter .2s;
+    position: relative;
+    z-index: 1;
+  }
+  .cat-box:hover .cat-icon {
+    transform: scale(1.08);
+    filter: drop-shadow(0 0 16px rgba(167,139,250,0.7));
+  }
+
+  .cat-label {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 4px;
+    text-transform: lowercase;
+    color: rgba(255,255,255,0.9);
+    position: relative;
+    z-index: 1;
+    transition: color .2s;
+  }
+  .cat-box:hover .cat-label { color: #fff; }
+
+  /* ── FOOTER ── */
+  .footer {
+    margin-top: 52px;
+    font-family: 'Fira Code', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: rgba(255,255,255,0.3);
+    text-align: center;
+  }
+  .footer span { color: rgba(167,139,250,0.5); }
+
+  /* ── MOBILE ── */
+  @media (max-width: 480px) {
+    .categories { gap: 14px; }
+    .cat-box { width: 136px; height: 136px; }
+    .cat-icon { font-size: 36px; }
+    .logo { letter-spacing: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Background -->
+<div class="bg"></div>
+
+<!-- Load Screen -->
+<div id="loadScreen">
+  <div class="ls-corner tl"></div>
+  <div class="ls-corner tr"></div>
+  <div class="ls-corner bl"></div>
+  <div class="ls-corner br"></div>
+  <div class="ls-logo">NEXUS</div>
+  <div class="ls-sub">LOADING<span class="dot">.</span><span class="dot">.</span><span class="dot">.</span></div>
+  <div class="ls-bar"></div>
+</div>
+
+<!-- Main Page -->
+<div id="page">
+  <div class="logo">nexus</div>
+  <div class="version">version 1.0 / release build</div>
+
+  <div class="categories">
+    <!-- Games -->
+    <a href="https://l5fr.net/games" class="cat-box">
+      <div class="glow"></div>
+      <div class="cat-icon">🎮</div>
+      <div class="cat-label">games</div>
+    </a>
+
+    <!-- Chat -->
+    <a href="https://l5fr.net/chat" class="cat-box">
+      <div class="glow"></div>
+      <div class="cat-icon">💬</div>
+      <div class="cat-label">chat</div>
+    </a>
+  </div>
+
+  <div class="footer">
+    -_&nbsp;<span>✦</span>&nbsp;website created &amp; developed by <span>@jio</span>&nbsp;<span>✦</span>&nbsp;_-
+  </div>
+</div>
+
+<script>
+  // Dismiss load screen after 2.5s, then show page
+  setTimeout(() => {
+    const ls = document.getElementById('loadScreen');
+    ls.classList.add('fade-out');
+    setTimeout(() => {
+      ls.style.display = 'none';
+      document.getElementById('page').classList.add('visible');
+    }, 700);
+  }, 2500);
+</script>
+</body>
+</html>
