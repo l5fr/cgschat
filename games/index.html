@@ -290,13 +290,13 @@
       const res   = await fetch(API_URL);
       const items = await res.json();
 
-      // Pick up subfolders (type === 'dir') — each folder is one game
       ALL_GAMES = items
         .filter(item => item.type === 'dir')
         .map(item => ({
-          title: item.name.replace(/[-_]/g, ' '), // e.g. "csgo-clicker" → "csgo clicker"
+          title: item.name.replace(/[-_]/g, ' '),
           emoji: '🎮',
-          thumb: null,
+          // Looks for thumb.png inside each game folder — fallback to emoji if missing
+          thumb: `${BASE_URL}/${item.name}/thumb.png`,
           url:   `${BASE_URL}/${item.name}/index.html`
         }));
 
@@ -322,11 +322,12 @@
       card.className = 'game-card';
       card.style.animationDelay = (i * 0.055) + 's';
       card.onclick = () => openGame(g);
+
       card.innerHTML = `
-        <div class="thumb-fallback">🎮
-          <div class="thumb-overlay" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);opacity:0;transition:opacity .2s">
-            <div class="play-circle">▶</div>
-          </div>
+        <div class="game-thumb">
+          <img src="${g.thumb}" alt="${g.title}" loading="lazy"
+            onerror="this.closest('.game-thumb').outerHTML='<div class=\\'thumb-fallback\\'>🎮<div class=\\'thumb-overlay\\'style=\\'position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.4);opacity:0;transition:opacity .2s\\'><div class=\\'play-circle\\'>▶</div></div></div>'">
+          <div class="thumb-overlay"><div class="play-circle">▶</div></div>
         </div>
         <div class="game-info">
           <div class="game-title">${g.title}</div>
