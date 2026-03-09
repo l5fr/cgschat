@@ -99,7 +99,10 @@
   </div>
 </div>
 <script>
-  const API_KEY = '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'; // ← paste your Groq API key here
+  // !! ONLY EDIT THIS LINE — paste your NEW Groq key between the quotes !!
+  const API_KEY = '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';
+  // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   const history = [];
 
   function autoResize(el) {
@@ -161,7 +164,7 @@
           'Authorization': `Bearer ${API_KEY}`
         },
         body: JSON.stringify({
-          model: 'model: 'llama-3.1-8b-instant',',
+          model: 'mixtral-8x7b-32768',
           messages: [
             { role: 'system', content: 'You are NEXUS AI, a helpful and friendly AI assistant built into the NEXUS website. Be concise, engaging, and occasionally playful. Keep responses relatively short unless asked for detail.' },
             ...history
@@ -170,13 +173,18 @@
         })
       });
       const data = await res.json();
-      const reply = data.choices?.[0]?.message?.content || 'Sorry, something went wrong.';
-      document.getElementById('typing')?.remove();
-      addMsg('ai', reply);
-      history.push({ role: 'assistant', content: reply });
+      if (data.error) {
+        document.getElementById('typing')?.remove();
+        addMsg('ai', 'API Error: ' + data.error.message);
+      } else {
+        const reply = data.choices?.[0]?.message?.content || 'No response received.';
+        document.getElementById('typing')?.remove();
+        addMsg('ai', reply);
+        history.push({ role: 'assistant', content: reply });
+      }
     } catch (e) {
       document.getElementById('typing')?.remove();
-      addMsg('ai', 'Connection error. Please try again.');
+      addMsg('ai', 'Network error: ' + e.message);
     }
     btn.disabled = false;
     document.getElementById('messages').scrollTop = 999999;
