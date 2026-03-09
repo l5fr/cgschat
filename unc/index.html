@@ -256,6 +256,8 @@ body::after{content:'';position:fixed;inset:0;background:radial-gradient(ellipse
 .mav{width:24px;height:24px;border-radius:6px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;overflow:hidden;}
 .mav img{width:100%;height:100%;object-fit:cover;}
 .mname{font-size:11px;font-weight:600;color:var(--t2);}
+.usr-badge{font-size:11px;margin-left:2px;vertical-align:middle;}
+@keyframes ncRainbow{0%{color:#f43f5e}17%{color:#f97316}33%{color:#eab308}50%{color:#22c55e}67%{color:#3b82f6}83%{color:#a855f7}100%{color:#f43f5e}}
 .mtime{font-family:'Fira Code',monospace;font-size:9px;color:var(--t3);}
 .bub-wrap{position:relative;display:flex;align-items:center;gap:5px;max-width:100%;}
 .mg.me .bub-wrap{flex-direction:row-reverse;}
@@ -1507,6 +1509,7 @@ const ICE_CFG = {iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l
 const sb = supabase.createClient(SB_URL, SB_KEY);
 let me = null, isAdmin = false, realtimeCh = null, dmCh = null;
 let msgCache = [], dmCache = {}, dmUnread = {};
+let profCache = {}; // uid → {name_color, status_badge, bubble_style, bubble_color, rainbow_name}
 let typUsers = {}, isTyp = false, typTimer = null;
 let onlineCount = 0, msgTodayCount = 0;
 let emOpen = false, regAv = '🦊', editAvSel = '🦊', pendingProfPic = null;
@@ -1637,6 +1640,18 @@ window.addEventListener('DOMContentLoaded', async () => {
 async function loadMe(user) {
   const { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).single();
   me = { id: user.id, email: user.email, name: prof?.name || user.email.split('@')[0], avatar: prof?.avatar || '🦊', avatar_url: prof?.avatar_url || null };
+  // Load saved prefs from DB (overrides localStorage if DB has newer data)
+  if (prof?.prefs && typeof prof.prefs === 'object' && Object.keys(prof.prefs).length > 0) {
+    try { Object.assign(userPrefs, prof.prefs); localStorage.setItem('nexus_prefs', JSON.stringify(userPrefs)); } catch(e) {}
+  }
+  // Load public customizations back into userPrefs
+  if (prof?.name_color)   userPrefs.nameColor    = prof.name_color;
+  if (prof?.bubble_color) userPrefs.bubbleColor  = prof.bubble_color;
+  if (prof?.bubble_style) userPrefs.bubbleStyle  = prof.bubble_style;
+  if (prof?.status_badge != null) userPrefs.statusBadge = prof.status_badge;
+  if (prof?.chat_bg)      userPrefs.chatBg       = prof.chat_bg;
+  if (prof?.name_font)    userPrefs.font         = prof.name_font;
+  if (prof?.rainbow_name != null) userPrefs.rainbowName = prof.rainbow_name;
   bootApp();
 }
 function showAuth() { window._dismissLoad?.(); document.getElementById('auth').style.display = 'flex'; }
@@ -1682,7 +1697,41 @@ function bootApp() {
   isAdmin = ADMIN_IDS.includes(me.id);
   updTopbar();
   if(isAdmin){document.getElementById('adminDropItem').style.display='flex';document.getElementById('adminDropSep').style.display='block';document.getElementById('adminCol').classList.add('visible');}
+  loadProfCache(); // load all users' public styles
   loadHistory(); subscribeRealtime(); subscribeDms();
+}
+
+// ── Profile cache — fetches ALL users' public customization columns ──
+async function loadProfCache(){
+  try{
+    const {data,error}=await sb.from('profiles').select('id,name_color,status_badge,bubble_style,bubble_color,rainbow_name,name_font');
+    if(error||!data)return;
+    data.forEach(p=>{profCache[p.id]=p;});
+    // Also insert own prefs into cache so renderGrp reads consistently
+    profCache[me.id]={
+      name_color:  userPrefs.nameColor   ||'#c084fc',
+      status_badge:userPrefs.statusBadge ||'',
+      bubble_style:userPrefs.bubbleStyle ||'default',
+      bubble_color:userPrefs.bubbleColor ||'default',
+      rainbow_name:!!userPrefs.rainbowName,
+      name_font:   userPrefs.font        ||'space',
+    };
+  }catch(e){}
+}
+
+// Update profCache whenever the current user saves prefs
+function updateOwnProfCache(){
+  profCache[me.id]={
+    name_color:  userPrefs.nameColor   ||'#c084fc',
+    status_badge:userPrefs.statusBadge ||'',
+    bubble_style:userPrefs.bubbleStyle ||'default',
+    bubble_color:userPrefs.bubbleColor ||'default',
+    rainbow_name:!!userPrefs.rainbowName,
+    name_font:   userPrefs.font        ||'space',
+  };
+  // Re-render messages so own messages update instantly
+  renderAll();
+  const el=document.getElementById('msgs');if(el)el.scrollTop=el.scrollHeight;
 }
 function updTopbar() {
   const av=document.getElementById('tbarAv');
@@ -1719,6 +1768,23 @@ function subscribeRealtime() {
     .on('presence',{event:'leave'},()=>renderUsersSidebar())
     .on('presence',{event:'join'},({newPresences})=>{newPresences.forEach(p=>{if(p.uid!==me.id)toast(`${p.avatar||'👤'} ${p.name} joined`,'info');});renderUsersSidebar();})
     .subscribe(async status=>{if(status==='SUBSCRIBED'){await realtimeCh.track({uid:me.id,name:me.name,avatar:me.avatar_url||me.avatar});setPill('live',`${onlineCount} online`);}});
+
+  // Subscribe to profiles table changes — updates other users' public styles live
+  sb.channel('profiles-changes')
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},p=>{
+      const uid=p.new?.id;if(!uid)return;
+      profCache[uid]={
+        name_color:  p.new.name_color  ||'#c084fc',
+        status_badge:p.new.status_badge||'',
+        bubble_style:p.new.bubble_style||'default',
+        bubble_color:p.new.bubble_color||'default',
+        rainbow_name:!!p.new.rainbow_name,
+        name_font:   p.new.name_font   ||'space',
+      };
+      // Re-render to show updated styles
+      if(uid!==me.id)renderAll();
+    })
+    .subscribe();
 }
 window.sendMsg = async function() {
   const ta=document.getElementById('mta'),txt=ta.value.trim();
@@ -1783,8 +1849,46 @@ function buildVmBars(count=24){let out='';for(let i=0;i<count;i++)out+=`<div cla
 function renderAll(){const el=document.getElementById('msgs');el.innerHTML='';if(!msgCache.length){el.innerHTML='<div class="sys">Be the first to say hello 👋</div>';return;}grpMsgs(msgCache).forEach(g=>renderGrp(g,el));}
 function appendMsg(m){const el=document.getElementById('msgs');const ph=el.querySelector('.sys');if(ph&&ph.textContent.includes('first'))ph.remove();if(m.type==='system'){const d=document.createElement('div');d.className='sys';d.textContent=m.content;el.appendChild(d);return;}const last=el.querySelector('.mg:last-child');if(last&&last.dataset.uid===m.uid&&m.time-parseInt(last.dataset.t||0)<90000){renderBub(m,last);last.dataset.t=m.time;}else{grpMsgs([m]).forEach(g=>renderGrp(g,el));}}
 function grpMsgs(msgs){const out=[];let cur=null;msgs.forEach(m=>{if(m.type==='system'){if(cur){out.push(cur);cur=null;}out.push({sys:true,content:m.content});return;}if(!cur||cur.uid!==m.uid||m.time-cur.lt>90000){if(cur)out.push(cur);cur={uid:m.uid,name:m.name,avatar:m.avatar,avatar_url:m.avatar_url,msgs:[m],lt:m.time};}else{cur.msgs.push(m);cur.lt=m.time;}});if(cur)out.push(cur);return out;}
-function renderGrp(g,container){if(g.sys){const d=document.createElement('div');d.className='sys';d.textContent=g.content;container.appendChild(d);return;}const mine=g.uid===me.id;const el=document.createElement('div');el.className=`mg ${mine?'me':'them'}`;el.dataset.uid=g.uid;el.dataset.t=g.lt;const hdr=document.createElement('div');hdr.className='mmeta';const avHtml=g.avatar_url?`<div class="mav"><img src="${g.avatar_url}" alt=""></div>`:`<div class="mav">${g.avatar}</div>`;hdr.innerHTML=`${avHtml}<span class="mname">${esc(mine?'You':g.name)}</span><span class="mtime">${g.msgs[0].ts}</span>`;el.appendChild(hdr);g.msgs.forEach(m=>renderBub(m,el));container.appendChild(el);}
-function renderBub(m,grpEl){const mine=m.uid===me.id;
+function renderGrp(g,container){
+  if(g.sys){const d=document.createElement('div');d.className='sys';d.textContent=g.content;container.appendChild(d);return;}
+  const mine=g.uid===me.id;
+  // Get this user's public profile styles
+  const prof=profCache[g.uid]||{};
+  const nc  = mine ? (userPrefs.nameColor||'#c084fc') : (prof.name_color||'#c084fc');
+  const badge = mine ? (userPrefs.statusBadge||'') : (prof.status_badge||'');
+  const isRainbow = mine ? !!userPrefs.rainbowName : !!prof.rainbow_name;
+  const bs  = mine ? (userPrefs.bubbleStyle||'default') : (prof.bubble_style||'default');
+  const bc  = mine ? (userPrefs.bubbleColor||'default') : (prof.bubble_color||'default');
+
+  const el=document.createElement('div');
+  el.className=`mg ${mine?'me':'them'}`;
+  el.dataset.uid=g.uid;el.dataset.t=g.lt;
+  // Apply per-user bubble style as data attr so CSS can target it
+  if(bs!=='default')el.dataset.bubbleStyle=bs;
+  if(bc!=='default')el.dataset.bubbleColor=bc;
+
+  // Name color style
+  const ncStyle = isRainbow
+    ? 'animation:ncRainbow 2s linear infinite;'
+    : (nc&&nc!=='#c084fc'?`color:${nc};text-shadow:0 0 8px ${nc}55;`:'');
+
+  const hdr=document.createElement('div');hdr.className='mmeta';
+  const avHtml=g.avatar_url?`<div class="mav"><img src="${g.avatar_url}" alt=""></div>`:`<div class="mav">${g.avatar}</div>`;
+  const displayName=mine?'You':g.name;
+  const badgeHtml=badge?`<span class="usr-badge">${badge}</span>`:'';
+  hdr.innerHTML=`${avHtml}<span class="mname" style="${ncStyle}">${esc(displayName)}${badgeHtml}</span><span class="mtime">${g.msgs[0].ts}</span>`;
+  el.appendChild(hdr);
+  g.msgs.forEach(m=>renderBub(m,el,{bs,bc}));
+  container.appendChild(el);
+}
+function renderBub(m,grpEl,userStyle={}){const mine=m.uid===me.id;
+  const {bs='default',bc='default'}=userStyle;
+  // Build bubble style overrides
+  const bubbleClrs={red:'rgba(239,68,68,.12)',orange:'rgba(249,115,22,.12)',yellow:'rgba(234,179,8,.12)',green:'rgba(34,197,94,.12)',blue:'rgba(14,165,233,.12)',purple:'rgba(168,85,247,.12)',pink:'rgba(236,72,153,.12)',dark:'rgba(0,0,0,.3)',white:'rgba(255,255,255,.05)'};
+  const bubbleStyles={pill:'border-radius:999px;padding:7px 18px;',sharp:'border-radius:4px;',glass:'background:rgba(255,255,255,.06);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);',neon:'border:1px solid var(--p);box-shadow:0 0 8px var(--glow);',paper:'background:rgba(245,240,255,.05);border:1px solid rgba(245,240,255,.09);box-shadow:2px 2px 0 rgba(0,0,0,.25);',cloud:'border-radius:22px;',default:''};
+  let extraBubStyle='';
+  if(mine&&bc&&bc!=='default')extraBubStyle+=`background:${bubbleClrs[bc]||''};`;
+  if(bs&&bs!=='default')extraBubStyle+=bubbleStyles[bs]||'';
   // Reply quote
   if(m.reply){const rq=document.createElement('div');rq.className='reply-quote';rq.innerHTML=`<span class="rq-name">${esc(m.reply.name)}</span>${esc(m.reply.text||'')}`;grpEl.appendChild(rq);}
   if(m.type==='text'){const wrap=document.createElement('div');wrap.className='bub-wrap';wrap.dataset.id=m.id;
@@ -1794,14 +1898,14 @@ function renderBub(m,grpEl){const mine=m.uid===me.id;
     if(isAdmin){const pinBtn=document.createElement('button');pinBtn.className='bub-act-btn'+(pinnedMsg?.id===m.id?' pin-active':'');pinBtn.title='Pin';pinBtn.innerHTML='📌';pinBtn.onclick=()=>pinMsg(m.id);actions.appendChild(pinBtn);}
     if(mine&&!m.deleted){const db=document.createElement('button');db.className='bub-act-btn del';db.title='Delete';db.innerHTML='🗑️';db.onclick=()=>askDelete(m.id);actions.appendChild(db);}
     wrap.appendChild(actions);
-    const b=document.createElement('div');b.className='bub'+(m.deleted?' deleted':'');b.dataset.id=m.id;b.innerHTML=m.deleted?'🗑️ deleted':linkify(esc(m.content));wrap.appendChild(b);grpEl.appendChild(wrap);}
+    const b=document.createElement('div');b.className='bub'+(m.deleted?' deleted':'');b.dataset.id=m.id;if(extraBubStyle)b.style.cssText=extraBubStyle;b.innerHTML=m.deleted?'🗑️ deleted':linkify(esc(m.content));wrap.appendChild(b);grpEl.appendChild(wrap);}
   else if(m.type==='image'){const w=document.createElement('div');w.className='mimg';const img=document.createElement('img');img.src=m.content;img.loading='lazy';img.onclick=()=>openLb(m.content);w.appendChild(img);grpEl.appendChild(w);}
   else if(m.type==='file'){const f=document.createElement('div');f.className='mfile';f.innerHTML=`<div class="fic">📄</div><div><div class="fnm">${esc(m.fileName||'file')}</div><div class="fsz">${m.fileSize||''}</div></div>`;f.onclick=()=>{const a=document.createElement('a');a.href=m.content;a.download=m.fileName||'file';a.click();};grpEl.appendChild(f);}
   else if(m.type==='voice'){renderVoiceBub(m,grpEl,mine);}
 }
 function renderVoiceBub(m,grpEl,mine){const wrap=document.createElement('div');wrap.className='bub-wrap';wrap.dataset.id=m.id;const vm=document.createElement('div');vm.className='voice-msg';vm.dataset.vmid=m.id;const playBtn=document.createElement('div');playBtn.className='vm-play';playBtn.textContent='▶';const audioSrc=m.content;const msgId=m.id;playBtn.onclick=()=>playVoiceMsg(msgId,audioSrc);const body=document.createElement('div');body.className='vm-body';body.innerHTML=`<div class="vm-wave">${buildVmBars(20)}</div><div class="vm-dur">${m.fileSize||'🎙️ Voice'}</div>`;vm.appendChild(playBtn);vm.appendChild(body);if(mine&&!m.deleted){const db=document.createElement('button');db.className='del-btn';db.title='Delete';db.innerHTML='🗑️';db.onclick=()=>askDelete(m.id);wrap.appendChild(db);}wrap.appendChild(vm);grpEl.appendChild(wrap);}
 function setupFileInputs(){document.getElementById('imgIn').addEventListener('change',function(){const f=this.files[0];if(!f)return;if(f.size>2097152){toast('Max 2MB for images','error');this.value='';return;}const r=new FileReader();r.onload=async e=>{await sendMedia('image',e.target.result);toast('Image sent 🖼️','success');};r.readAsDataURL(f);this.value='';});document.getElementById('fileIn').addEventListener('change',function(){const f=this.files[0];if(!f)return;if(f.size>4194304){toast('Max 4MB','error');this.value='';return;}const r=new FileReader();r.onload=async e=>{await sendMedia('file',e.target.result,f.name,fmt(f.size));toast('File shared 📎','success');};r.readAsDataURL(f);this.value='';});}
-function renderUsersSidebar(){const state=realtimeCh?.presenceState()||{};const users=Object.values(state).flat();document.getElementById('ucCountNum').textContent=users.length;document.getElementById('ucInCall').textContent=Object.keys(callMembers).length||'0';const list=document.getElementById('ucList');list.innerHTML='';const sorted=[...users].sort((a,b)=>{if(a.uid===me.id)return -1;if(b.uid===me.id)return 1;return (a.name||'').localeCompare(b.name||'');});sorted.forEach(u=>{if(!u.uid)return;const isMe=u.uid===me.id;const inCall=callMembers[u.uid];const unread=dmUnread[u.uid]||0;const div=document.createElement('div');div.className='uc-user'+(isMe?' is-me':'');const avHtml=(u.avatar&&u.avatar.startsWith('http'))?`<div class="uc-av${inCall?' in-call':''}"><img src="${u.avatar}" alt=""></div>`:`<div class="uc-av${inCall?' in-call':''}">${u.avatar||'👤'}</div>`;const role=ADMIN_IDS.includes(u.uid)?'admin':inCall?'incall':'';const roleLabel=ADMIN_IDS.includes(u.uid)?'ADMIN':inCall?'IN CALL':'ONLINE';div.innerHTML=`<div class="uc-av-wrap">${avHtml}<div class="uc-online-dot"></div>${unread>0?`<div class="uc-unread">${unread>9?'9+':unread}</div>`:''}</div><div class="uc-info"><div class="uc-name${isMe?' is-me-label':''}">${esc(u.name||'Unknown')}</div><div class="uc-role ${role}">${roleLabel}</div></div>${!isMe?`<div class="uc-actions"><button class="uc-act-btn" title="DM" onclick="openDm('${u.uid}','${esc(u.name||'')}','${esc(u.avatar||'')}','${esc((u.avatar&&u.avatar.startsWith('http'))?u.avatar:'')}');event.stopPropagation()">💬</button><button class="uc-act-btn" title="Call" onclick="callUser('${u.uid}');event.stopPropagation()">📞</button></div>`:''}`;list.appendChild(div);});}
+function renderUsersSidebar(){const state=realtimeCh?.presenceState()||{};const users=Object.values(state).flat();document.getElementById('ucCountNum').textContent=users.length;document.getElementById('ucInCall').textContent=Object.keys(callMembers).length||'0';const list=document.getElementById('ucList');list.innerHTML='';const sorted=[...users].sort((a,b)=>{if(a.uid===me.id)return -1;if(b.uid===me.id)return 1;return (a.name||'').localeCompare(b.name||'');});sorted.forEach(u=>{if(!u.uid)return;const isMe=u.uid===me.id;const inCall=callMembers[u.uid];const unread=dmUnread[u.uid]||0;const prof=profCache[u.uid]||{};const nc=isMe?(userPrefs.nameColor||'#c084fc'):(prof.name_color||'');const badge=isMe?(userPrefs.statusBadge||''):(prof.status_badge||'');const isRainbow=isMe?!!userPrefs.rainbowName:!!prof.rainbow_name;const nameStyle=isRainbow?'animation:ncRainbow 2s linear infinite;':(nc&&nc!=='#c084fc'?`color:${nc};`:'');const div=document.createElement('div');div.className='uc-user'+(isMe?' is-me':'');const avHtml=(u.avatar&&u.avatar.startsWith('http'))?`<div class="uc-av${inCall?' in-call':''}"><img src="${u.avatar}" alt=""></div>`:`<div class="uc-av${inCall?' in-call':''}">${u.avatar||'👤'}</div>`;const role=ADMIN_IDS.includes(u.uid)?'admin':inCall?'incall':'';const roleLabel=ADMIN_IDS.includes(u.uid)?'ADMIN':inCall?'IN CALL':'ONLINE';div.innerHTML=`<div class="uc-av-wrap">${avHtml}<div class="uc-online-dot"></div>${unread>0?`<div class="uc-unread">${unread>9?'9+':unread}</div>`:''}</div><div class="uc-info"><div class="uc-name${isMe?' is-me-label':''}" style="${nameStyle}">${esc(u.name||'Unknown')}${badge?`<span style="margin-left:3px;font-size:11px;">${badge}</span>`:''}</div><div class="uc-role ${role}">${roleLabel}</div></div>${!isMe?`<div class="uc-actions"><button class="uc-act-btn" title="DM" onclick="openDm('${u.uid}','${esc(u.name||'')}','${esc(u.avatar||'')}','${esc((u.avatar&&u.avatar.startsWith('http'))?u.avatar:'')}');event.stopPropagation()">💬</button><button class="uc-act-btn" title="Call" onclick="callUser('${u.uid}');event.stopPropagation()">📞</button></div>`:''}`;list.appendChild(div);});}
 function subscribeDms(){if(dmCh)sb.removeChannel(dmCh);dmCh=sb.channel('dm-channel-'+me.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`receiver_id=eq.${me.id}`},p=>{const msg=dbToDm(p.new);const sid=msg.sender_id;if(!dmCache[sid])dmCache[sid]=[];dmCache[sid].push(msg);if(currentDmUid===sid)appendDmMsg(msg);else{dmUnread[sid]=(dmUnread[sid]||0)+1;renderUsersSidebar();showDmNotif(msg);}}).subscribe();}
 window.openDm = function(uid,name,avatar,avatarUrl){currentDmUid=uid;currentDmName=name;currentDmAv=avatar;currentDmAvUrl=avatarUrl||null;dmUnread[uid]=0;renderUsersSidebar();document.getElementById('dmPanel').classList.add('open');const hav=document.getElementById('dmHav');if(avatarUrl)hav.innerHTML=`<img src="${avatarUrl}" alt="">`;else hav.textContent=avatar||'👤';document.getElementById('dmHName').textContent=name;loadDmHistory(uid);};
 window.closeDm = ()=>{document.getElementById('dmPanel').classList.remove('open');currentDmUid=null;};
@@ -2334,8 +2438,24 @@ function loadPrefs(){
 }
 function savePrefs(){
   try{localStorage.setItem('nexus_prefs',JSON.stringify(userPrefs));}catch(e){}
-  // Also persist to Supabase profile metadata if logged in
-  if(me&&sb)sb.from('profiles').upsert({id:me.id,prefs:userPrefs,updated_at:new Date().toISOString()}).then(()=>{}).catch(()=>{});
+  // Save to Supabase — both jsonb blob AND dedicated public columns
+  if(me&&sb){
+    sb.from('profiles').upsert({
+      id: me.id,
+      prefs: userPrefs,
+      // Public customization columns — visible to other users
+      name_color:   userPrefs.nameColor    || '#c084fc',
+      bubble_color: userPrefs.bubbleColor  || 'default',
+      bubble_style: userPrefs.bubbleStyle  || 'default',
+      status_badge: userPrefs.statusBadge  || '',
+      chat_bg:      userPrefs.chatBg       || 'none',
+      name_font:    userPrefs.font         || 'space',
+      rainbow_name: !!userPrefs.rainbowName,
+      updated_at:   new Date().toISOString(),
+    }).then(()=>{}).catch(()=>{});
+  }
+  // Update own entry in profCache so rendering is instant
+  if(typeof updateOwnProfCache==='function')updateOwnProfCache();
 }
 
 function applyAllPrefs(){
@@ -2484,18 +2604,18 @@ function _applyBubbleColor(c){
   _injectCss('pref-bubble-color',`.bub.mine{background:${clrs[c]}!important;}`);
 }
 function _applyNameColor(c){
+  // Only apply to OWN messages via scoped selector — other users' colors come from profCache in renderGrp
+  if(!me){return;} // defer until logged in
+  const uid=me?.id||'';
   if(!c||c==='#c084fc'){_injectCss('pref-name-color','');return;}
-  if(c==='rainbow'){_injectCss('pref-name-color','@keyframes ncRainbow{0%{color:#f43f5e}17%{color:#f97316}33%{color:#eab308}50%{color:#22c55e}67%{color:#3b82f6}83%{color:#a855f7}100%{color:#f43f5e}}.fnm{animation:ncRainbow 2s linear infinite!important;}');return;}
-  _injectCss('pref-name-color',`.fnm{color:${c}!important;text-shadow:0 0 8px ${c}55!important;}`);
+  if(c==='rainbow'){_injectCss('pref-name-color',`@keyframes ncRainbow{0%{color:#f43f5e}17%{color:#f97316}33%{color:#eab308}50%{color:#22c55e}67%{color:#3b82f6}83%{color:#a855f7}100%{color:#f43f5e}}.mg[data-uid="${uid}"] .mname{animation:ncRainbow 2s linear infinite!important;}`);return;}
+  _injectCss('pref-name-color',`.mg[data-uid="${uid}"] .mname{color:${c}!important;text-shadow:0 0 8px ${c}55!important;}`);
 }
 function _applyStatusBadge(b){
   document.getElementById('__statusBadge')?.remove();
-  if(!b)return;
-  const el=document.createElement('style');el.id='__statusBadge';
-  el.textContent=`.tbar-av::after{content:'${b}';position:absolute;bottom:-5px;right:-5px;font-size:10px;line-height:1;}`;
-  document.head.appendChild(el);
-  // also update name display
-  _injectCss('pref-status-badge',`.fnm::after{content:' ${b}';font-size:10px;}`);
+  // Status badge is now rendered inline in renderGrp via profCache — no global CSS needed
+  // Just update own cache entry so new renders pick it up
+  if(me&&profCache[me.id])profCache[me.id].status_badge=b||'';
 }
 function _injectCss(id,css){
   let el=document.getElementById('__css_'+id);
