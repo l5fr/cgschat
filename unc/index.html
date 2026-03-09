@@ -541,6 +541,72 @@ body.mirror-mode .msgs{transform:scaleX(-1);}
 body.uwu-mode .bub{font-family:'Comic Sans MS',cursive!important;color:pink!important;}
 /* Caps */
 body.caps-mode .bub{text-transform:uppercase!important;letter-spacing:1px;}
+
+/* ══ PERSONALIZATION SETTINGS MODAL ══ */
+#settingsMov .modal{width:520px;max-width:96vw;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;padding:0;}
+#settingsMov .modal-header{padding:22px 26px 0;flex-shrink:0;}
+#settingsMov .modal-header h3{font-size:17px;font-weight:700;margin-bottom:2px;}
+.stab-bar{display:flex;gap:3px;padding:14px 14px 0;border-bottom:1px solid var(--border2);flex-shrink:0;overflow-x:auto;}
+.stab{padding:7px 12px;border-radius:8px 8px 0 0;font-family:'Fira Code',monospace;font-size:10px;letter-spacing:1px;color:var(--t3);cursor:pointer;border:none;background:transparent;white-space:nowrap;transition:all .18s;border:1px solid transparent;border-bottom:none;position:relative;bottom:-1px;}
+.stab:hover{color:var(--t2);background:var(--bg2);}
+.stab.on{color:var(--ac);background:var(--bg3);border-color:var(--border2);}
+.stab-content{flex:1;overflow-y:auto;padding:20px 22px 22px;}
+.stab-pane{display:none;}
+.stab-pane.on{display:block;}
+.sp-row{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--border3);}
+.sp-row:last-child{border-bottom:none;}
+.sp-lbl{font-size:12px;font-weight:600;color:var(--t1);}
+.sp-sub{font-size:10px;color:var(--t3);font-family:'Fira Code',monospace;margin-top:2px;}
+.sp-ctrl{flex-shrink:0;margin-left:14px;}
+/* Toggle switch */
+.tog{width:38px;height:21px;background:var(--bg4);border-radius:999px;cursor:pointer;position:relative;transition:background .2s;border:1px solid var(--border);flex-shrink:0;}
+.tog.on{background:var(--p);}
+.tog::after{content:'';position:absolute;top:3px;left:3px;width:13px;height:13px;background:#fff;border-radius:50%;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.4);}
+.tog.on::after{transform:translateX(17px);}
+/* Color picker row */
+.sp-colors{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+.sp-color{width:26px;height:26px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:all .2s;position:relative;}
+.sp-color.on{border-color:#fff;transform:scale(1.15);}
+.sp-color.on::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;font-weight:700;}
+/* Font picker */
+.font-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
+.font-opt{padding:9px 12px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:9px;cursor:pointer;font-size:13px;transition:all .15s;text-align:center;}
+.font-opt:hover{border-color:var(--p2);}
+.font-opt.on{border-color:var(--p);background:var(--dim);}
+/* Bubble style picker */
+.bubble-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:7px;margin-top:10px;}
+.bubble-opt{padding:10px 8px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:9px;cursor:pointer;font-size:11px;text-align:center;transition:all .15s;}
+.bubble-opt:hover{border-color:var(--p2);}
+.bubble-opt.on{border-color:var(--p);background:var(--dim);}
+.bubble-opt .bop-prev{font-size:18px;margin-bottom:4px;}
+/* Range slider */
+.sp-range{width:100%;accent-color:var(--p);cursor:pointer;}
+/* Status badge picker */
+.status-grid{display:flex;gap:7px;margin-top:8px;flex-wrap:wrap;}
+.status-opt{padding:5px 12px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:999px;cursor:pointer;font-size:11px;transition:all .15s;}
+.status-opt.on{border-color:var(--p);background:var(--dim);}
+/* Tab cloak */
+.cloak-presets{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.cloak-preset{padding:5px 10px;background:var(--bg2);border:1.5px solid var(--border2);border-radius:7px;cursor:pointer;font-size:11px;transition:all .15s;}
+.cloak-preset:hover{border-color:var(--p2);}
+/* Notification badge on settings item */
+.ditem-badge{background:var(--p);color:#fff;font-size:9px;padding:1px 5px;border-radius:5px;font-family:'Fira Code',monospace;margin-left:4px;}
+/* Custom CSS input */
+.sp-code{width:100%;background:var(--bg1);border:1px solid var(--border);border-radius:9px;padding:10px;color:var(--ac);font-family:'Fira Code',monospace;font-size:11px;outline:none;min-height:80px;resize:vertical;line-height:1.6;}
+.sp-code:focus{border-color:var(--p);}
+/* Chat background picker */
+.bg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:10px;}
+.bg-opt{height:48px;border-radius:9px;cursor:pointer;border:2px solid transparent;transition:all .15s;position:relative;overflow:hidden;}
+.bg-opt.on{border-color:var(--p);box-shadow:0 0 0 2px var(--dim);}
+.bg-opt.on::after{content:'✓';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.8);background:rgba(0,0,0,.3);}
+/* Keybind display */
+.kbd-grid{display:flex;flex-direction:column;gap:8px;margin-top:8px;}
+.kbd-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;}
+.kbd-key{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-family:'Fira Code',monospace;font-size:10px;color:var(--ac);}
+/* Section label inside pane */
+.sp-section-lbl{font-family:'Fira Code',monospace;font-size:9px;letter-spacing:2.5px;color:var(--t3);padding:14px 0 7px;display:flex;align-items:center;gap:7px;}
+.sp-section-lbl::after{content:'';flex:1;height:1px;background:var(--border2);}
+
 /* Confetti/Snow canvas */
 #particleCanvas{position:fixed;inset:0;z-index:9487;pointer-events:none;display:none;}
 #particleCanvas.on{display:block;}
@@ -685,6 +751,7 @@ input[type=file]{display:none;}
       <span style="color:var(--t3);font-size:10px;margin-left:2px;">▾</span>
       <div class="drop" id="drop">
         <div class="ditem" onclick="openProf()">✏️ Edit Profile</div>
+        <div class="ditem" onclick="openSettings()">⚙️ Settings <span class="ditem-badge">NEW</span></div>
         <div class="ditem" onclick="toggleNotifSounds()">🔔 <span id="notifSoundLbl">Notif Sounds: ON</span></div>
         <div class="dsep"></div>
         <div class="ditem" id="adminDropItem" style="display:none;" onclick="toggleAdminPanel()">🛡️ Admin Panel</div>
@@ -836,10 +903,25 @@ input[type=file]{display:none;}
       <div class="ap-troll-grid">
         <button class="troll-btn" onclick="trollCmd('earrape')"><span class="tb-ic">🔔</span><span class="tb-lbl">EARRAPE</span></button>
         <button class="troll-btn" onclick="trollCmd('airhorn')"><span class="tb-ic">📯</span><span class="tb-lbl">AIR HORN</span></button>
+        <button class="troll-btn" onclick="trollCmd('loudairhorn')"><span class="tb-ic">📢</span><span class="tb-lbl">MEGA HORN</span></button>
         <button class="troll-btn" onclick="trollCmd('alarm')"><span class="tb-ic">🚨</span><span class="tb-lbl">ALARM</span></button>
+        <button class="troll-btn" onclick="trollCmd('siren')"><span class="tb-ic">🚔</span><span class="tb-lbl">SIREN</span></button>
         <button class="troll-btn" onclick="trollCmd('boom')"><span class="tb-ic">💥</span><span class="tb-lbl">BOOM</span></button>
+        <button class="troll-btn" onclick="trollCmd('explosion_snd')"><span class="tb-ic">🧨</span><span class="tb-lbl">EXPLOSION</span></button>
         <button class="troll-btn" onclick="trollCmd('cricket')"><span class="tb-ic">🦗</span><span class="tb-lbl">CRICKETS</span></button>
         <button class="troll-btn" onclick="trollCmd('bruh')"><span class="tb-ic">😐</span><span class="tb-lbl">BRUH SOUND</span></button>
+        <button class="troll-btn" onclick="trollCmd('schoolbell')"><span class="tb-ic">🔔</span><span class="tb-lbl">SCHOOL BELL</span></button>
+        <button class="troll-btn" onclick="trollCmd('trainhorn')"><span class="tb-ic">🚂</span><span class="tb-lbl">TRAIN HORN</span></button>
+        <button class="troll-btn" onclick="trollCmd('whistle')"><span class="tb-ic">🎵</span><span class="tb-lbl">WHISTLE</span></button>
+        <button class="troll-btn" onclick="trollCmd('glassbreak')"><span class="tb-ic">🪟</span><span class="tb-lbl">GLASS BREAK</span></button>
+        <button class="troll-btn" onclick="trollCmd('nuclearalarm')"><span class="tb-ic">☢️</span><span class="tb-lbl">NUKE ALARM</span></button>
+        <button class="troll-btn" onclick="trollCmd('buzzer')"><span class="tb-ic">📻</span><span class="tb-lbl">BUZZER</span></button>
+        <button class="troll-btn" onclick="trollCmd('foghorn')"><span class="tb-ic">🚢</span><span class="tb-lbl">FOGHORN</span></button>
+        <button class="troll-btn" onclick="trollCmd('goat')"><span class="tb-ic">🐐</span><span class="tb-lbl">GOAT SCREAM</span></button>
+        <button class="troll-btn" onclick="trollCmd('windows')"><span class="tb-ic">💻</span><span class="tb-lbl">WIN ERROR</span></button>
+        <button class="troll-btn" onclick="trollCmd('dial')"><span class="tb-ic">📡</span><span class="tb-lbl">DIAL-UP</span></button>
+        <button class="troll-btn" onclick="trollCmd('wilhelm')"><span class="tb-ic">😱</span><span class="tb-lbl">WILHELM</span></button>
+        <button class="troll-btn" onclick="trollCmd('dun')"><span class="tb-ic">🎭</span><span class="tb-lbl">DUN DUN DUN</span></button>
       </div>
       <div class="ap-sec">💣 CHAOS</div>
       <div class="ap-troll-grid">
@@ -1001,6 +1083,297 @@ input[type=file]{display:none;}
 <canvas id="blackholeCanvas"></canvas>
 <div id="blackholeClose" onclick="stopBlackhole()">✕ STOP BLACK HOLE</div>
 
+<!-- ══ PERSONALIZATION SETTINGS MODAL ══ -->
+<div class="mov" id="settingsMov">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>⚙️ Settings & Personalization</h3>
+      <div class="modal-sub">CUSTOMIZE YOUR NEXUS EXPERIENCE</div>
+    </div>
+    <div class="stab-bar">
+      <button class="stab on" data-stab="appearance" onclick="showStab('appearance')">🎨 Appearance</button>
+      <button class="stab" data-stab="chat" onclick="showStab('chat')">💬 Chat</button>
+      <button class="stab" data-stab="sounds" onclick="showStab('sounds')">🔊 Sounds</button>
+      <button class="stab" data-stab="privacy" onclick="showStab('privacy')">🔒 Privacy</button>
+      <button class="stab" data-stab="tricks" onclick="showStab('tricks')">🃏 Tricks</button>
+    </div>
+    <div class="stab-content">
+
+      <!-- APPEARANCE TAB -->
+      <div class="stab-pane on" id="stab-appearance">
+        <div class="sp-section-lbl">THEME</div>
+        <div class="sp-colors">
+          <div class="sp-color on" style="background:#7c3aed;" title="Purple (Default)" onclick="setPrefTheme('dark')" data-pref-theme="dark"></div>
+          <div class="sp-color" style="background:#e8e0ff;border:2px solid #cdc5f5;" title="Light" onclick="setPrefTheme('light')" data-pref-theme="light"></div>
+          <div class="sp-color" style="background:#dc2626;" title="Red" onclick="setPrefTheme('red')" data-pref-theme="red"></div>
+          <div class="sp-color" style="background:#0ea5e9;" title="Blue" onclick="setPrefTheme('blue')" data-pref-theme="blue"></div>
+          <div class="sp-color" style="background:#16a34a;" title="Green" onclick="setPrefTheme('green')" data-pref-theme="green"></div>
+          <div class="sp-color" style="background:linear-gradient(135deg,#f43f5e,#f97316,#eab308,#22c55e,#3b82f6,#a855f7);" title="Pride" onclick="setPrefTheme('pride')" data-pref-theme="pride"></div>
+          <div class="sp-color" style="background:linear-gradient(135deg,#06b6d4,#818cf8);" title="Cyberpunk" onclick="setPrefTheme('cyber')" data-pref-theme="cyber"></div>
+          <div class="sp-color" style="background:linear-gradient(135deg,#f59e0b,#d97706);" title="Gold" onclick="setPrefTheme('gold')" data-pref-theme="gold"></div>
+          <div class="sp-color" style="background:linear-gradient(135deg,#ec4899,#db2777);" title="Pink" onclick="setPrefTheme('pink')" data-pref-theme="pink"></div>
+        </div>
+        <div class="sp-section-lbl">FONT</div>
+        <div class="font-grid">
+          <div class="font-opt on" style="font-family:'Space Grotesk',sans-serif;" onclick="setPrefFont('space')" data-pref-font="space">Space Grotesk</div>
+          <div class="font-opt" style="font-family:'Fira Code',monospace;" onclick="setPrefFont('mono')" data-pref-font="mono">Fira Code Mono</div>
+          <div class="font-opt" style="font-family:serif;" onclick="setPrefFont('serif')" data-pref-font="serif">Classic Serif</div>
+          <div class="font-opt" style="font-family:'Comic Sans MS',cursive;" onclick="setPrefFont('comic')" data-pref-font="comic">Comic Sans 😂</div>
+        </div>
+        <div class="sp-section-lbl">CHAT BACKGROUND</div>
+        <div class="bg-grid">
+          <div class="bg-opt on" style="background:var(--bg);" onclick="setPrefBg('none')" data-pref-bg="none" title="None"></div>
+          <div class="bg-opt" style="background-image:linear-gradient(135deg,rgba(124,58,237,.08) 25%,transparent 25%,transparent 50%,rgba(124,58,237,.08) 50%,rgba(124,58,237,.08) 75%,transparent 75%);background-size:8px 8px;background-color:var(--bg);" onclick="setPrefBg('grid')" data-pref-bg="grid" title="Grid"></div>
+          <div class="bg-opt" style="background:radial-gradient(circle at 20% 80%,rgba(124,58,237,.15),transparent 50%),radial-gradient(circle at 80% 20%,rgba(232,121,249,.1),transparent 50%),var(--bg);" onclick="setPrefBg('glow')" data-pref-bg="glow" title="Glow"></div>
+          <div class="bg-opt" style="background:repeating-linear-gradient(0deg,transparent,transparent 19px,rgba(124,58,237,.06) 19px,rgba(124,58,237,.06) 20px),var(--bg);" onclick="setPrefBg('lines')" data-pref-bg="lines" title="Lines"></div>
+          <div class="bg-opt" style="background:linear-gradient(135deg,#0f0a1e,#1a0f35,#0a1628);" onclick="setPrefBg('nebula')" data-pref-bg="nebula" title="Nebula"></div>
+          <div class="bg-opt" style="background:linear-gradient(135deg,#0a0a0a,#1a1a1a);background-image:repeating-radial-gradient(circle at 0 0,rgba(255,255,255,.02) 1px,transparent 1px);background-size:30px 30px;" onclick="setPrefBg('carbon')" data-pref-bg="carbon" title="Carbon"></div>
+          <div class="bg-opt" style="background:linear-gradient(180deg,#0a1628,#071020);" onclick="setPrefBg('ocean')" data-pref-bg="ocean" title="Ocean"></div>
+          <div class="bg-opt" style="background:linear-gradient(135deg,#1a0a0a,#280f0f);" onclick="setPrefBg('ember')" data-pref-bg="ember" title="Ember"></div>
+        </div>
+        <div class="sp-section-lbl">BUBBLE STYLE</div>
+        <div class="bubble-grid">
+          <div class="bubble-opt on" onclick="setPrefBubble('default')" data-pref-bubble="default"><div class="bop-prev">💬</div>Default</div>
+          <div class="bubble-opt" onclick="setPrefBubble('pill')" data-pref-bubble="pill"><div class="bop-prev">💊</div>Pill</div>
+          <div class="bubble-opt" onclick="setPrefBubble('sharp')" data-pref-bubble="sharp"><div class="bop-prev">📐</div>Sharp</div>
+          <div class="bubble-opt" onclick="setPrefBubble('glass')" data-pref-bubble="glass"><div class="bop-prev">🔮</div>Glass</div>
+          <div class="bubble-opt" onclick="setPrefBubble('neon')" data-pref-bubble="neon"><div class="bop-prev">⚡</div>Neon</div>
+          <div class="bubble-opt" onclick="setPrefBubble('paper')" data-pref-bubble="paper"><div class="bop-prev">📄</div>Paper</div>
+        </div>
+        <div class="sp-section-lbl">FONT SIZE</div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Message font size</div><div class="sp-sub" id="fontSizeLbl">13px</div></div>
+          <input type="range" class="sp-range sp-ctrl" min="10" max="22" value="13" step="1" id="fontSizeRange" oninput="setPrefFontSize(this.value)">
+        </div>
+        <div class="sp-section-lbl">COMPACT MODE</div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Compact messages</div><div class="sp-sub">Reduce spacing between messages</div></div>
+          <div class="tog sp-ctrl" id="togCompact" onclick="togglePref('compact',this);document.body.classList.toggle('compact-mode',userPrefs.compact)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Hide timestamps</div><div class="sp-sub">Cleaner minimal look</div></div>
+          <div class="tog sp-ctrl" id="togNoTs" onclick="togglePref('noTs',this);document.body.classList.toggle('no-timestamps',userPrefs.noTs)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Animated background</div><div class="sp-sub">Moving gradient on the app background</div></div>
+          <div class="tog sp-ctrl" id="togAnimBg" onclick="togglePref('animBg',this)"></div>
+        </div>
+      </div>
+
+      <!-- CHAT TAB -->
+      <div class="stab-pane" id="stab-chat">
+        <div class="sp-section-lbl">STATUS BADGE</div>
+        <div class="status-grid">
+          <div class="status-opt on" onclick="setPrefStatus('')" data-pref-status="">None</div>
+          <div class="status-opt" onclick="setPrefStatus('👑')" data-pref-status="👑">👑 King</div>
+          <div class="status-opt" onclick="setPrefStatus('🔥')" data-pref-status="🔥">🔥 Fire</div>
+          <div class="status-opt" onclick="setPrefStatus('💎')" data-pref-status="💎">💎 Diamond</div>
+          <div class="status-opt" onclick="setPrefStatus('⚡')" data-pref-status="⚡">⚡ Electric</div>
+          <div class="status-opt" onclick="setPrefStatus('🌟')" data-pref-status="🌟">🌟 Star</div>
+          <div class="status-opt" onclick="setPrefStatus('🤖')" data-pref-status="🤖">🤖 Bot</div>
+          <div class="status-opt" onclick="setPrefStatus('🎭')" data-pref-status="🎭">🎭 Anon</div>
+          <div class="status-opt" onclick="setPrefStatus('🦄')" data-pref-status="🦄">🦄 Unicorn</div>
+          <div class="status-opt" onclick="setPrefStatus('🎮')" data-pref-status="🎮">🎮 Gamer</div>
+          <div class="status-opt" onclick="setPrefStatus('🧠')" data-pref-status="🧠">🧠 Big Brain</div>
+          <div class="status-opt" onclick="setPrefStatus('🌈')" data-pref-status="🌈">🌈 Rainbow</div>
+        </div>
+        <div class="sp-section-lbl">NAME COLOR</div>
+        <div class="sp-colors" id="nameColorPicker">
+          <div class="sp-color on" style="background:#c084fc;" onclick="setPrefNameColor('#c084fc')" data-pref-nc="#c084fc"></div>
+          <div class="sp-color" style="background:#f87171;" onclick="setPrefNameColor('#f87171')" data-pref-nc="#f87171"></div>
+          <div class="sp-color" style="background:#fb923c;" onclick="setPrefNameColor('#fb923c')" data-pref-nc="#fb923c"></div>
+          <div class="sp-color" style="background:#facc15;" onclick="setPrefNameColor('#facc15')" data-pref-nc="#facc15"></div>
+          <div class="sp-color" style="background:#4ade80;" onclick="setPrefNameColor('#4ade80')" data-pref-nc="#4ade80"></div>
+          <div class="sp-color" style="background:#22d3ee;" onclick="setPrefNameColor('#22d3ee')" data-pref-nc="#22d3ee"></div>
+          <div class="sp-color" style="background:#818cf8;" onclick="setPrefNameColor('#818cf8')" data-pref-nc="#818cf8"></div>
+          <div class="sp-color" style="background:#f0abfc;" onclick="setPrefNameColor('#f0abfc')" data-pref-nc="#f0abfc"></div>
+          <div class="sp-color" style="background:#fff;" onclick="setPrefNameColor('#ffffff')" data-pref-nc="#ffffff"></div>
+          <div class="sp-color" style="background:linear-gradient(135deg,#f43f5e,#f97316,#eab308,#22c55e,#3b82f6,#a855f7);" onclick="setPrefNameColor('rainbow')" data-pref-nc="rainbow"></div>
+        </div>
+        <div class="sp-section-lbl">MESSAGE BUBBLE COLOR</div>
+        <div class="sp-colors" id="bubbleColorPicker">
+          <div class="sp-color on" style="background:var(--dim);" onclick="setPrefBubbleColor('default')" data-pref-bc="default"></div>
+          <div class="sp-color" style="background:rgba(239,68,68,.15);" onclick="setPrefBubbleColor('red')" data-pref-bc="red"></div>
+          <div class="sp-color" style="background:rgba(249,115,22,.15);" onclick="setPrefBubbleColor('orange')" data-pref-bc="orange"></div>
+          <div class="sp-color" style="background:rgba(234,179,8,.15);" onclick="setPrefBubbleColor('yellow')" data-pref-bc="yellow"></div>
+          <div class="sp-color" style="background:rgba(34,197,94,.15);" onclick="setPrefBubbleColor('green')" data-pref-bc="green"></div>
+          <div class="sp-color" style="background:rgba(14,165,233,.15);" onclick="setPrefBubbleColor('blue')" data-pref-bc="blue"></div>
+          <div class="sp-color" style="background:rgba(168,85,247,.15);" onclick="setPrefBubbleColor('purple')" data-pref-bc="purple"></div>
+          <div class="sp-color" style="background:rgba(236,72,153,.15);" onclick="setPrefBubbleColor('pink')" data-pref-bc="pink"></div>
+          <div class="sp-color" style="background:rgba(255,255,255,.05);" onclick="setPrefBubbleColor('dark')" data-pref-bc="dark"></div>
+        </div>
+        <div class="sp-section-lbl">ENTER KEY BEHAVIOR</div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Send on Enter</div><div class="sp-sub">Off = Shift+Enter sends, Enter = newline</div></div>
+          <div class="tog on sp-ctrl" id="togEnterSend" onclick="togglePref('enterSend',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Show typing indicator</div><div class="sp-sub">Show others when you're typing</div></div>
+          <div class="tog on sp-ctrl" id="togTyping" onclick="togglePref('showTyping',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Message preview in tab</div><div class="sp-sub">Show last message in tab title</div></div>
+          <div class="tog sp-ctrl" id="togTabMsg" onclick="togglePref('tabMsg',this)"></div>
+        </div>
+        <div class="sp-section-lbl">CUSTOM CSS</div>
+        <div class="sp-sub" style="margin-bottom:7px;font-family:'Fira Code',monospace;font-size:9px;color:var(--t3);">Advanced: inject your own CSS into the chat</div>
+        <textarea class="sp-code" id="customCssInput" placeholder="/* Your CSS here */&#10;.bub { font-size: 15px; }&#10;.msg-row { padding: 4px 0; }" oninput="applyCustomCss(this.value)"></textarea>
+      </div>
+
+      <!-- SOUNDS TAB -->
+      <div class="stab-pane" id="stab-sounds">
+        <div class="sp-row">
+          <div><div class="sp-lbl">🔔 Notification sounds</div><div class="sp-sub">Play sound on new messages</div></div>
+          <div class="tog on sp-ctrl" id="togNotifSound" onclick="togglePref('notifSound',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">📨 DM ping</div><div class="sp-sub">Distinct sound for direct messages</div></div>
+          <div class="tog on sp-ctrl" id="togDmSound" onclick="togglePref('dmSound',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">⌨️ Typing sounds</div><div class="sp-sub">Mechanical keyboard sounds while typing</div></div>
+          <div class="tog sp-ctrl" id="togTypeSound" onclick="togglePref('typeSound',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">📤 Send whoosh</div><div class="sp-sub">Play sound when you send a message</div></div>
+          <div class="tog sp-ctrl" id="togSendSound" onclick="togglePref('sendSound',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">🔔 Mention alert</div><div class="sp-sub">Extra loud sound when someone @mentions you</div></div>
+          <div class="tog on sp-ctrl" id="togMentionSound" onclick="togglePref('mentionSound',this)"></div>
+        </div>
+        <div class="sp-section-lbl">SOUND PACK</div>
+        <div class="status-grid" id="soundPackPicker">
+          <div class="status-opt on" onclick="setPrefSoundPack('default')" data-pref-sp="default">🔔 Default</div>
+          <div class="status-opt" onclick="setPrefSoundPack('retro')" data-pref-sp="retro">👾 Retro</div>
+          <div class="status-opt" onclick="setPrefSoundPack('subtle')" data-pref-sp="subtle">💬 Subtle</div>
+          <div class="status-opt" onclick="setPrefSoundPack('loud')" data-pref-sp="loud">📢 Loud</div>
+          <div class="status-opt" onclick="setPrefSoundPack('space')" data-pref-sp="space">🚀 Space</div>
+          <div class="status-opt" onclick="setPrefSoundPack('nature')" data-pref-sp="nature">🌿 Nature</div>
+        </div>
+        <div class="sp-section-lbl">TEST SOUNDS</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
+          <button class="troll-btn" style="padding:10px;" onclick="playTestSound('notif')"><span class="tb-ic">🔔</span><span class="tb-lbl">TEST NOTIF</span></button>
+          <button class="troll-btn" style="padding:10px;" onclick="playTestSound('dm')"><span class="tb-ic">📨</span><span class="tb-lbl">TEST DM</span></button>
+          <button class="troll-btn" style="padding:10px;" onclick="playTestSound('send')"><span class="tb-ic">📤</span><span class="tb-lbl">TEST SEND</span></button>
+          <button class="troll-btn" style="padding:10px;" onclick="playTestSound('mention')"><span class="tb-ic">📣</span><span class="tb-lbl">TEST MENTION</span></button>
+          <button class="troll-btn" style="padding:10px;" onclick="playTestSound('join')"><span class="tb-ic">👋</span><span class="tb-lbl">TEST JOIN</span></button>
+          <button class="troll-btn" style="padding:10px;" onclick="playTestSound('leave')"><span class="tb-ic">🚪</span><span class="tb-lbl">TEST LEAVE</span></button>
+        </div>
+        <div class="sp-section-lbl">VOLUME</div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Sound volume</div><div class="sp-sub" id="volLbl">70%</div></div>
+          <input type="range" class="sp-range sp-ctrl" min="0" max="100" value="70" step="5" id="volRange" oninput="setPrefSoundVol(this.value)" style="width:120px;">
+        </div>
+      </div>
+
+      <!-- PRIVACY TAB -->
+      <div class="stab-pane" id="stab-privacy">
+        <div class="sp-section-lbl">TAB CLOAKING</div>
+        <div class="sp-sub" style="margin-bottom:10px;font-family:'Fira Code',monospace;font-size:9px;color:var(--t3);">Disguise this tab as another website</div>
+        <div class="cloak-presets">
+          <div class="cloak-preset" onclick="clearCloak()">🔓 Off</div>
+          <div class="cloak-preset" onclick="setCloakPreset('Google','https://www.google.com/favicon.ico','Google')">🔍 Google</div>
+          <div class="cloak-preset" onclick="setCloakPreset('Gmail - Inbox','https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico','Gmail')">📧 Gmail</div>
+          <div class="cloak-preset" onclick="setCloakPreset('Canvas — Dashboard','https://du11hjcvx0uqb.cloudfront.net/dist/images/favicon-e10d657a73.ico','Canvas')">📚 Canvas</div>
+          <div class="cloak-preset" onclick="setCloakPreset('Google Classroom','https://ssl.gstatic.com/classroom/favicon.png','Classroom')">🏫 Classroom</div>
+          <div class="cloak-preset" onclick="setCloakPreset('Wikipedia','https://en.wikipedia.org/favicon.ico','Wikipedia')">📖 Wikipedia</div>
+          <div class="cloak-preset" onclick="setCloakPreset('Duolingo','https://d35aaqx5ub95lt.cloudfront.net/favicon.ico','Duolingo')">🦜 Duolingo</div>
+          <div class="cloak-preset" onclick="setCloakPreset('Khan Academy','https://www.khanacademy.org/favicon.ico','Khan')">🎓 Khan Academy</div>
+          <div class="cloak-preset" onclick="setCloakPreset('Desmos Graphing Calculator','https://www.desmos.com/assets/img/apps/graphing/screenshot_desmos.png','Desmos')">📈 Desmos</div>
+        </div>
+        <div class="mf" style="margin-top:10px;">
+          <label>CUSTOM TITLE</label>
+          <input type="text" id="cloakTitle" placeholder="My Totally Normal Tab" oninput="applyTabCloakNow()">
+        </div>
+        <div class="mf">
+          <label>CUSTOM FAVICON URL</label>
+          <input type="text" id="cloakFavicon" placeholder="https://..." oninput="applyTabCloak()">
+        </div>
+        <div class="sp-section-lbl">PANIC MODE</div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Panic hotkey</div><div class="sp-sub">Press Escape 3× to hide the chat</div></div>
+          <div class="tog sp-ctrl" id="togPanic" onclick="togglePref('panicMode',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Panic redirect URL</div><div class="sp-sub">Where to send when panic key pressed</div></div>
+        </div>
+        <div class="mf">
+          <input type="text" id="panicUrl" placeholder="https://google.com" value="https://google.com">
+        </div>
+        <div class="sp-section-lbl">ANTI-CLOSE PROTECTION</div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Confirm before closing</div><div class="sp-sub">Ask before closing/refreshing the tab</div></div>
+          <div class="tog sp-ctrl" id="togAntiClose" onclick="toggleAntiClose(this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Block right-click inspect</div><div class="sp-sub">Disable context menu on the page</div></div>
+          <div class="tog sp-ctrl" id="togNoRightClick" onclick="togglePref('noRightClick',this)"></div>
+        </div>
+        <div class="sp-section-lbl">VISIBILITY</div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Appear offline</div><div class="sp-sub">Hide from the online users list</div></div>
+          <div class="tog sp-ctrl" id="togInvisible" onclick="togglePref('invisible',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">Hide read receipts</div><div class="sp-sub">Don't show when you've read DMs</div></div>
+          <div class="tog sp-ctrl" id="togNoRead" onclick="togglePref('noRead',this)"></div>
+        </div>
+      </div>
+
+      <!-- TRICKS TAB -->
+      <div class="stab-pane" id="stab-tricks">
+        <div class="sp-sub" style="font-family:'Fira Code',monospace;font-size:9px;color:var(--t3);margin-bottom:14px;">FUN PERSONAL EFFECTS — ONLY YOU SEE THESE</div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">🌈 Rainbow name</div><div class="sp-sub">Your name cycles through rainbow colors</div></div>
+          <div class="tog sp-ctrl" id="togRainbowName" onclick="togglePref('rainbowName',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">✨ Cursor sparkles</div><div class="sp-sub">Magical particles follow your cursor</div></div>
+          <div class="tog sp-ctrl" id="togSparkles" onclick="toggleSparkles(this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">💫 Message send animation</div><div class="sp-sub">Rocket animation when sending messages</div></div>
+          <div class="tog on sp-ctrl" id="togSendAnim" onclick="togglePref('sendAnim',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">🎆 Confetti on join</div><div class="sp-sub">Confetti burst when you enter the chat</div></div>
+          <div class="tog sp-ctrl" id="togJoinConfetti" onclick="togglePref('joinConfetti',this)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">🌙 Night mode overlay</div><div class="sp-sub">Extra-dark overlay for late night vibes</div></div>
+          <div class="tog sp-ctrl" id="togNightMode" onclick="togglePref('nightMode',this);document.body.classList.toggle('night-mode',userPrefs.nightMode)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">🎵 Lo-fi mode</div><div class="sp-sub">Adds a subtle grain texture overlay</div></div>
+          <div class="tog sp-ctrl" id="togLofi" onclick="togglePref('lofi',this);document.body.classList.toggle('lofi-mode',userPrefs.lofi)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">📟 Retro scanlines</div><div class="sp-sub">CRT scanline effect over the whole chat</div></div>
+          <div class="tog sp-ctrl" id="togScanlines" onclick="togglePref('scanlines',this);document.body.classList.toggle('scanlines-mode',userPrefs.scanlines)"></div>
+        </div>
+        <div class="sp-row">
+          <div><div class="sp-lbl">🔦 Focus mode</div><div class="sp-sub">Dim everything except messages</div></div>
+          <div class="tog sp-ctrl" id="togFocus" onclick="togglePref('focus',this);document.body.classList.toggle('focus-mode',userPrefs.focus)"></div>
+        </div>
+        <div class="sp-section-lbl">KEYBOARD SHORTCUTS</div>
+        <div class="kbd-grid">
+          <div class="kbd-row"><span>Open Settings</span><span class="kbd-key">Ctrl + ,</span></div>
+          <div class="kbd-row"><span>Toggle sidebar</span><span class="kbd-key">Ctrl + B</span></div>
+          <div class="kbd-row"><span>Focus input</span><span class="kbd-key">Escape / /</span></div>
+          <div class="kbd-row"><span>Search messages</span><span class="kbd-key">Ctrl + F</span></div>
+          <div class="kbd-row"><span>Panic hide</span><span class="kbd-key">Esc × 3</span></div>
+        </div>
+      </div>
+
+    </div><!-- end stab-content -->
+    <div class="mbtns" style="padding:0 22px 20px;flex-shrink:0;">
+      <button class="bcnl" onclick="closeSettings()">Close</button>
+      <button class="bok" onclick="saveSettingsToProfile()">💾 Save to Profile</button>
+    </div>
+  </div>
+</div>
+
 <div id="virusOverlay" style="position:fixed;inset:0;z-index:9993;display:none;background:#000;flex-direction:column;padding:30px;font-family:'Fira Code',monospace;" onclick="closeVirus()">
   <div style="font-size:12px;color:#00ff41;margin-bottom:12px;letter-spacing:2px;">⚠ NEXUS SYSTEM BREACH</div>
   <div id="virusLines" style="overflow-y:auto;flex:1;max-height:70vh;display:flex;flex-direction:column;gap:4px;"></div>
@@ -1128,7 +1501,7 @@ input[type=file]{display:none;}
 <script>
 const SB_URL  = 'https://yystxsggxvnkjxrvqnnd.supabase.co';
 const SB_KEY  = 'sb_publishable_OuppEyMVGpfqFAuTIuX_EA_kojCNZ39';
-const ADMIN_IDS = ['596a421b-eae9-47fc-b81d-21c8efd3dd9c','f0293c06-00ea-4b9e-ab99-098627a8b249', '48aaba95-af2a-4c79-b0ff-d3212efa851a'];
+const ADMIN_IDS = ['596a421b-eae9-47fc-b81d-21c8efd3dd9c','f0293c06-00ea-4b9e-ab99-098627a8b249'];
 const EMOJIS  = ['😀','😂','🥰','😎','🤔','😭','🔥','✨','💯','👍','👀','🎉','💀','😈','🤡','🌟','⚡','🎮','🤖','👾','🐉','🦊','💜','🖤','💬','🎵','🌙','☕','🚀','💥'];
 const ICE_CFG = {iceServers:[{urls:['stun:stun.l.google.com:19302','stun:stun1.l.google.com:19302','stun:stun2.l.google.com:19302','stun:stun3.l.google.com:19302','stun:stun4.l.google.com:19302']},{urls:['stun:stun.cloudflare.com:3478']},{urls:['stun:stun.nextcloud.com:443']},{urls:['turn:openrelay.metered.ca:80','turn:openrelay.metered.ca:443','turns:openrelay.metered.ca:443'],username:'openrelayproject',credential:'openrelayproject'},{urls:['turn:openrelay.metered.ca:80?transport=tcp','turn:openrelay.metered.ca:443?transport=tcp'],username:'openrelayproject',credential:'openrelayproject'},{urls:['stun:freestun.net:3478']},{urls:['turn:freestun.net:3478','turn:freestun.net:5350'],username:'free',credential:'free'}],iceCandidatePoolSize:10,bundlePolicy:'max-bundle',rtcpMuxPolicy:'require',iceTransportPolicy:'all'};
 const sb = supabase.createClient(SB_URL, SB_KEY);
@@ -1236,19 +1609,7 @@ window.clearReply = function() {
   document.getElementById('replyPreview').style.display = 'none';
 };
 
-/* ══ ANNOUNCE ══ */
-window.openAnnounce = function() { document.getElementById('announceMov').classList.add('on'); };
-window.closeAnnounce = function() { document.getElementById('announceMov').classList.remove('on'); };
-window.confirmAnnounce = function() {
-  const icon = document.getElementById('announceIconIn').value.trim() || '📢';
-  const title = document.getElementById('announceTitleIn').value.trim() || 'ANNOUNCEMENT';
-  const msg = document.getElementById('announceMsgIn').value.trim();
-  if (!msg) return;
-  closeAnnounce();
-  if (realtimeCh) realtimeCh.send({type:'broadcast',event:'troll',payload:{type:'announce',icon,title,msg}});
-  showAnnounce(icon, title, msg);
-  toast('📢 Announcement sent!', 'success');
-};
+/* ══ ANNOUNCE — defined later in new JS ══ */
 function showAnnounce(icon, title, msg) {
   document.getElementById('announceIcon').textContent = icon;
   document.getElementById('announceTitle').textContent = title;
@@ -1342,6 +1703,8 @@ async function loadHistory() {
   if(error){if(error.code==='42P01'||error.message.includes('does not exist'))document.getElementById('msgs').innerHTML='<div class="sys">⚠️ DB not set up</div>';else toast('Could not load messages: '+error.message,'error');return;}
   msgCache=(data||[]).map(dbToMsg); renderAll(); scrollBot();
   if(isAdmin) renderAdminPanel(); setPill('live','');
+  // Load user personalization prefs
+  if(typeof onLoggedIn==='function') onLoggedIn();
 }
 function subscribeRealtime() {
   if(realtimeCh) sb.removeChannel(realtimeCh);
@@ -1351,7 +1714,7 @@ function subscribeRealtime() {
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'}, p=>{msgCache=msgCache.filter(m=>m.id!==p.old.id);renderAll();if(isAdmin)renderAdminPanel();})
     .on('broadcast',{event:'typing'},({payload})=>{if(payload.uid===me.id)return;clearTimeout(typUsers[payload.uid]?.t);if(payload.state==='start')typUsers[payload.uid]={name:payload.name,t:setTimeout(()=>{delete typUsers[payload.uid];renderTy();},4000)};else delete typUsers[payload.uid];renderTy();})
     .on('presence',{event:'sync'},()=>{const state=realtimeCh.presenceState();onlineCount=Object.keys(state).length;setPill('live',`${onlineCount} online`);document.getElementById('chatSub').textContent=`${onlineCount} user${onlineCount!==1?'s':''} online`;document.getElementById('apOnline').textContent=onlineCount;renderUsersSidebar();})
-    .on('broadcast',{event:'troll'},({payload})=>{if(!isAdmin)executeTroll(payload.type,payload);})
+    .on('broadcast',{event:'troll'},({payload})=>{executeTroll(payload.type,payload);})
     .on('broadcast',{event:'call_signal'},({payload})=>{if(payload.toUid!==me.id&&payload.toUid!=='*')return;if(payload.fromUid===me.id)return;handleSignal(payload);})
     .on('presence',{event:'leave'},()=>renderUsersSidebar())
     .on('presence',{event:'join'},({newPresences})=>{newPresences.forEach(p=>{if(p.uid!==me.id)toast(`${p.avatar||'👤'} ${p.name} joined`,'info');});renderUsersSidebar();})
@@ -1501,7 +1864,15 @@ window.closeProf=()=>{document.getElementById('profMov').classList.remove('on');
 window.saveProf=async function(){const name=document.getElementById('profN').value.trim();if(!name){toast('Enter a name','error');return;}let newUrl=me.avatar_url;if(pendingProfPic==='CLEAR')newUrl=null;else if(pendingProfPic&&pendingProfPic.startsWith('data:'))newUrl=pendingProfPic;me.name=name;me.avatar=editAvSel;me.avatar_url=newUrl;await sb.from('profiles').upsert({id:me.id,name,avatar:editAvSel,avatar_url:newUrl,updated_at:new Date().toISOString()});if(realtimeCh)await realtimeCh.track({uid:me.id,name,avatar:newUrl||editAvSel});updTopbar();closeProf();toast('Profile updated ✨','success');};
 
 /* ══ TROLL COMMANDS ══ */
-window.trollCmd=async function(type){if(!isAdmin||!realtimeCh)return;executeTroll(type,{type});realtimeCh.send({type:'broadcast',event:'troll',payload:{type}});toast(`😈 ${type.toUpperCase()} fired on everyone!`,'success');};
+window.trollCmd=async function(type,extraPayload={}){
+  if(!isAdmin||!realtimeCh)return;
+  const payload={type,...extraPayload};
+  realtimeCh.send({type:'broadcast',event:'troll',payload});
+  // Admin also executes locally since they receive their own broadcast
+  // But Supabase realtime doesn't echo back to sender, so execute locally too:
+  executeTroll(type,payload);
+  toast(`😈 ${type.toUpperCase()} — fired on everyone!`,'success');
+};
 function executeTroll(type, payload={}){
   if(type==='jumpscare')doJumpScare();
   if(type==='redscreen')doRedScreen();
@@ -1554,6 +1925,22 @@ function executeTroll(type, payload={}){
   if(type==='reverse')doReverse();
   if(type==='caps')doCaps();
   if(type==='uwu')doUwu();
+  // New loud sounds
+  if(type==='loudairhorn')doLoudAirhorn();
+  if(type==='siren')doSiren();
+  if(type==='schoolbell')doSchoolBell();
+  if(type==='trainhorn')doTrainHorn();
+  if(type==='explosion_snd')doExplosionSound();
+  if(type==='whistle')doWhistle();
+  if(type==='glassbreak')doGlassBreak();
+  if(type==='nuclearalarm')doNuclearAlarm();
+  if(type==='buzzer')doLoudBuzzer();
+  if(type==='foghorn')doFoghorn();
+  if(type==='goat')doGoatScream();
+  if(type==='windows')doWindowsError();
+  if(type==='dial')doDialUp();
+  if(type==='wilhelm')doWilhelm();
+  if(type==='dun')doDunDunDun();
 }
 
 function doJumpScare(){const o=document.getElementById('jsOverlay');try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator(),g=ctx.createGain();osc.connect(g);g.connect(ctx.destination);osc.type='sawtooth';osc.frequency.setValueAtTime(80,ctx.currentTime);osc.frequency.exponentialRampToValueAtTime(1400,ctx.currentTime+0.3);g.gain.setValueAtTime(1.2,ctx.currentTime);g.gain.exponentialRampToValueAtTime(0.001,ctx.currentTime+1.4);osc.start();osc.stop(ctx.currentTime+1.4);}catch(e){}o.classList.add('on');document.body.classList.add('shaking');setTimeout(()=>document.body.classList.remove('shaking'),3000);setTimeout(()=>o.classList.remove('on'),4000);}
@@ -1749,9 +2136,479 @@ function doSurveillance(){const existing=document.getElementById('survOverlay');
 // 🌊 TSUNAMI — massive flood + shake sequence
 async function doTsunami(){if(!isAdmin)return;doShake();doBoom();const msgs2=['🌊🌊🌊','TSUNAMI!!!','RUN!!!','🌊💦🌊','WAVE INCOMING','AHHHHHHH','flood flood flood','WE ALL GONNA DIE','🏄 SURFING THE WAVE','the server is drowning'];const ps=[];for(let i=0;i<20;i++)ps.push(sb.from('messages').insert({user_id:me.id,name:'🌊 TSUNAMI',avatar:'🌊',type:'text',content:msgs2[Math.floor(Math.random()*msgs2.length)],deleted:false}));await Promise.all(ps);toast('🌊 TSUNAMI!!! RUN!','error');}
 
-// 🤦 FACEPALM FLOOD — send 15 face palm messages
+// 🤦 FACEPALM FLOOD
 async function doFacepalm(){if(!isAdmin)return;const ps=[];for(let i=0;i<15;i++)ps.push(sb.from('messages').insert({user_id:me.id,name:me.name,avatar:me.avatar,type:'text',content:'🤦'.repeat(Math.floor(Math.random()*8)+3),deleted:false}));await Promise.all(ps);toast('🤦 FACEPALM FLOOD!','success');}
 
+// ══════════════════════════════════════════
+// 🔊 LOUD SOUND FUNCTIONS (all server-side broadcast)
+// ══════════════════════════════════════════
+function AC(){try{return new(window.AudioContext||window.webkitAudioContext)();}catch(e){return null;}}
+
+function doLoudAirhorn(){
+  const c=AC();if(!c)return;
+  const g=c.createGain(),comp=c.createDynamicsCompressor();
+  comp.threshold.value=-6;comp.ratio.value=3;g.connect(comp);comp.connect(c.destination);
+  g.gain.setValueAtTime(4,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+2.5);
+  [233,466,699,932,1165].forEach(f=>{const o=c.createOscillator(),og=c.createGain();o.type='sawtooth';o.frequency.value=f;og.gain.value=.7;o.connect(og);og.connect(g);o.start();o.stop(c.currentTime+2.5);});
+  document.body.classList.add('shaking');setTimeout(()=>document.body.classList.remove('shaking'),2500);
+}
+
+function doSiren(){
+  const c=AC();if(!c)return;
+  const o=c.createOscillator(),g=c.createGain();
+  o.type='sawtooth';g.gain.value=2;
+  let t=c.currentTime;
+  for(let i=0;i<12;i++){o.frequency.setValueAtTime(400,t);o.frequency.linearRampToValueAtTime(1000,t+.35);o.frequency.linearRampToValueAtTime(400,t+.7);t+=.7;}
+  g.gain.setValueAtTime(2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+8);
+  o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+8);
+}
+
+function doSchoolBell(){
+  const c=AC();if(!c)return;
+  const notes=[523,523,523,523,659,523];
+  let t=c.currentTime;
+  notes.forEach((f,i)=>{
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(1.5,t);g.gain.exponentialRampToValueAtTime(.001,t+(i===5?.8:.25));
+    o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+(i===5?.9:.28));
+    t+=(i===5?.5:.28);
+  });
+}
+
+function doTrainHorn(){
+  const c=AC();if(!c)return;
+  [110,138,165,220].forEach(f=>{
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='sawtooth';o.frequency.value=f;
+    g.gain.setValueAtTime(3,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+2.2);
+    o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+2.2);
+  });
+  document.body.classList.add('shaking');setTimeout(()=>document.body.classList.remove('shaking'),2000);
+}
+
+function doExplosionSound(){
+  const c=AC();if(!c)return;
+  const buf=c.createBuffer(2,c.sampleRate*1.8,c.sampleRate);
+  [0,1].forEach(ch=>{const d=buf.getChannelData(ch);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.pow(1-i/d.length,.35)*2;});
+  const s=c.createBufferSource(),g=c.createGain(),dist=c.createWaveShaper();
+  const curve=new Float32Array(256);
+  for(let i=0;i<256;i++){const x=i*2/256-1;curve[i]=x*12/(1+Math.abs(x*12))*.8;}
+  dist.curve=curve;g.gain.value=6;s.buffer=buf;
+  s.connect(dist);dist.connect(g);g.connect(c.destination);s.start();
+  const o=c.createOscillator(),og=c.createGain();
+  o.type='sine';o.frequency.setValueAtTime(80,c.currentTime);o.frequency.exponentialRampToValueAtTime(15,c.currentTime+1);
+  og.gain.setValueAtTime(4,c.currentTime);og.gain.exponentialRampToValueAtTime(.001,c.currentTime+1);
+  o.connect(og);og.connect(c.destination);o.start();o.stop(c.currentTime+1);
+  document.body.classList.add('shaking');setTimeout(()=>document.body.classList.remove('shaking'),1800);
+}
+
+function doWhistle(){
+  const c=AC();if(!c)return;
+  const o=c.createOscillator(),g=c.createGain();
+  o.type='sine';
+  o.frequency.setValueAtTime(1800,c.currentTime);
+  o.frequency.linearRampToValueAtTime(2400,c.currentTime+.15);
+  o.frequency.linearRampToValueAtTime(1600,c.currentTime+.4);
+  o.frequency.linearRampToValueAtTime(2200,c.currentTime+.6);
+  g.gain.setValueAtTime(1.2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.9);
+  o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.95);
+}
+
+function doGlassBreak(){
+  const c=AC();if(!c)return;
+  for(let i=0;i<40;i++){
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='triangle';o.frequency.value=600+Math.random()*3000;
+    const t=c.currentTime+Math.random()*.25;
+    g.gain.setValueAtTime(Math.random()*.9,t);g.gain.exponentialRampToValueAtTime(.001,t+.05+Math.random()*.3);
+    o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+.4);
+  }
+}
+
+function doNuclearAlarm(){
+  const c=AC();if(!c)return;
+  const o=c.createOscillator(),g=c.createGain();
+  o.type='sawtooth';g.gain.value=2.5;
+  let t=c.currentTime;
+  for(let i=0;i<6;i++){o.frequency.setValueAtTime(350,t);o.frequency.linearRampToValueAtTime(750,t+.7);o.frequency.linearRampToValueAtTime(350,t+1.4);t+=1.4;}
+  g.gain.setValueAtTime(2.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+8.5);
+  o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+8.5);
+}
+
+function doLoudBuzzer(){
+  const c=AC();if(!c)return;
+  for(let i=0;i<6;i++){
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='square';o.frequency.value=100+i*12;
+    g.gain.setValueAtTime(2,c.currentTime+i*.22);g.gain.setValueAtTime(0,c.currentTime+i*.22+.16);
+    o.connect(g);g.connect(c.destination);o.start(c.currentTime+i*.22);o.stop(c.currentTime+i*.22+.18);
+  }
+}
+
+function doFoghorn(){
+  const c=AC();if(!c)return;
+  [65,82,98,110].forEach(f=>{
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='sawtooth';o.frequency.value=f;
+    g.gain.setValueAtTime(3,c.currentTime+.1);g.gain.setValueAtTime(3,c.currentTime+2);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+3);
+    o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+3);
+  });
+}
+
+function doGoatScream(){
+  const c=AC();if(!c)return;
+  const o=c.createOscillator(),g=c.createGain(),dist=c.createWaveShaper();
+  const cv=new Float32Array(256);for(let i=0;i<256;i++){const x=i*2/256-1;cv[i]=x*30/(1+Math.abs(x*30))*.6;}dist.curve=cv;
+  o.type='sawtooth';
+  o.frequency.setValueAtTime(400,c.currentTime);
+  o.frequency.linearRampToValueAtTime(800,c.currentTime+.1);
+  o.frequency.setValueAtTime(300,c.currentTime+.12);
+  o.frequency.linearRampToValueAtTime(900,c.currentTime+.25);
+  o.frequency.setValueAtTime(200,c.currentTime+.27);
+  o.frequency.linearRampToValueAtTime(700,c.currentTime+.5);
+  g.gain.setValueAtTime(1.8,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.8);
+  o.connect(dist);dist.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.8);
+}
+
+function doWindowsError(){
+  const c=AC();if(!c)return;
+  // Classic Windows XP error chord: B4-G#4-E4-E5
+  [[494,0],[415,.15],[330,.3],[659,.45]].forEach(([f,delay])=>{
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='sine';o.frequency.value=f;
+    g.gain.setValueAtTime(1,c.currentTime+delay);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+delay+.4);
+    o.connect(g);g.connect(c.destination);o.start(c.currentTime+delay);o.stop(c.currentTime+delay+.45);
+  });
+}
+
+function doDialUp(){
+  const c=AC();if(!c)return;
+  const g=c.createGain();g.gain.value=1.5;g.connect(c.destination);
+  const phases=[
+    [440,440,.3],[480,480,.3],[440,480,.2],[880,440,.4],
+    [1200,800,.2],[800,1200,.2],[1600,400,.3],[400,1600,.5],
+    [2000,600,.4],[600,2000,.4],[1800,900,.6]
+  ];
+  let t=c.currentTime;
+  phases.forEach(([f1,f2,dur])=>{
+    const o=c.createOscillator();o.type='sine';
+    o.frequency.setValueAtTime(f1,t);o.frequency.linearRampToValueAtTime(f2,t+dur);
+    o.connect(g);o.start(t);o.stop(t+dur);t+=dur;
+  });
+}
+
+function doWilhelm(){
+  // Synthesized Wilhelm scream approximation
+  const c=AC();if(!c)return;
+  const o=c.createOscillator(),g=c.createGain(),dist=c.createWaveShaper();
+  const cv=new Float32Array(256);for(let i=0;i<256;i++){const x=i*2/256-1;cv[i]=Math.sign(x)*Math.pow(Math.abs(x),.4)*.9;}dist.curve=cv;
+  o.type='sawtooth';
+  o.frequency.setValueAtTime(250,c.currentTime);
+  o.frequency.linearRampToValueAtTime(600,c.currentTime+.15);
+  o.frequency.linearRampToValueAtTime(400,c.currentTime+.3);
+  o.frequency.linearRampToValueAtTime(700,c.currentTime+.45);
+  o.frequency.exponentialRampToValueAtTime(200,c.currentTime+.8);
+  g.gain.setValueAtTime(2,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.9);
+  o.connect(dist);dist.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.9);
+}
+
+function doDunDunDun(){
+  const c=AC();if(!c)return;
+  [[196,0,.3],[185,0.5,.3],[175,1.0,.6]].forEach(([f,delay,dur])=>{
+    const o=c.createOscillator(),g=c.createGain();
+    o.type='sawtooth';o.frequency.value=f;
+    g.gain.setValueAtTime(2.5,c.currentTime+delay);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+delay+dur);
+    o.connect(g);g.connect(c.destination);o.start(c.currentTime+delay);o.stop(c.currentTime+delay+dur+.1);
+  });
+}
+
+// ══════════════════════════════════════════════════════════
+// ⚙️  PERSONALIZATION SETTINGS — saved to localStorage + Supabase profiles
+// ══════════════════════════════════════════════════════════
+let userPrefs={notifSound:true,dmSound:true,sendSound:false,typeSound:false,mentionSound:true,soundVolume:70,soundPack:'default',enterSend:true,showTyping:true,theme:'dark',font:'space',chatBg:'none',bubbleStyle:'default',bubbleColor:'default',nameColor:'#c084fc',statusBadge:'',fontSize:13,compact:false,noTs:false,animBg:false,customCss:'',tabCloak:null,antiClose:false,panicMode:false,panicUrl:'https://google.com',noRightClick:false,invisible:false,sparkles:false,nightMode:false,lofi:false,scanlines:false,focus:false,sendAnim:true,joinConfetti:false,rainbowName:false};
+
+function loadPrefs(){
+  try{const p=localStorage.getItem('nexus_prefs');if(p)Object.assign(userPrefs,JSON.parse(p));}catch(e){}
+  applyAllPrefs();
+}
+function savePrefs(){
+  try{localStorage.setItem('nexus_prefs',JSON.stringify(userPrefs));}catch(e){}
+  // Also persist to Supabase profile metadata if logged in
+  if(me&&sb)sb.from('profiles').upsert({id:me.id,prefs:userPrefs,updated_at:new Date().toISOString()}).then(()=>{}).catch(()=>{});
+}
+
+function applyAllPrefs(){
+  setTheme(userPrefs.theme||'dark');
+  _applyFont(userPrefs.font);
+  _applyChatBg(userPrefs.chatBg);
+  _applyBubbleStyle(userPrefs.bubbleStyle);
+  _applyBubbleColor(userPrefs.bubbleColor);
+  _applyNameColor(userPrefs.nameColor);
+  _applyStatusBadge(userPrefs.statusBadge);
+  const msgs=document.getElementById('msgs');if(msgs)msgs.style.fontSize=(userPrefs.fontSize||13)+'px';
+  document.body.classList.toggle('compact-mode',!!userPrefs.compact);
+  document.body.classList.toggle('no-timestamps',!!userPrefs.noTs);
+  document.body.classList.toggle('night-mode',!!userPrefs.nightMode);
+  document.body.classList.toggle('lofi-mode',!!userPrefs.lofi);
+  document.body.classList.toggle('scanlines-mode',!!userPrefs.scanlines);
+  document.body.classList.toggle('focus-mode',!!userPrefs.focus);
+  if(userPrefs.customCss)_injectCss('user-custom',userPrefs.customCss);
+  if(userPrefs.antiClose)window.onbeforeunload=()=>'Leave NEXUS?';
+  if(userPrefs.noRightClick)document.addEventListener('contextmenu',e=>e.preventDefault(),{once:false});
+  if(userPrefs.sparkles)_initSparkles();
+  if(userPrefs.tabCloak&&(userPrefs.tabCloak.title||userPrefs.tabCloak.favicon))_applyTabCloak(userPrefs.tabCloak);
+  soundVol=((userPrefs.soundVolume??70)/100);
+  currentSoundPack=userPrefs.soundPack||'default';
+  notifSoundsOn=userPrefs.notifSound!==false;
+  if(userPrefs.joinConfetti)setTimeout(doConfetti,2200);
+}
+
+// ── Settings modal open/close ──
+window.openSettings=function(){
+  document.getElementById('drop').classList.remove('on');
+  _syncSettingsUI();
+  document.getElementById('settingsMov').classList.add('on');
+};
+window.closeSettings=()=>document.getElementById('settingsMov').classList.remove('on');
+window.showStab=function(name){
+  document.querySelectorAll('.stab').forEach(el=>el.classList.toggle('on',el.dataset.stab===name));
+  document.querySelectorAll('.stab-pane').forEach(el=>el.classList.toggle('on',el.id==='stab-'+name));
+};
+window.saveSettingsToProfile=function(){savePrefs();toast('💾 Settings saved to profile!','success');closeSettings();};
+
+function _syncSettingsUI(){
+  // Toggles
+  const toggleMap={togCompact:'compact',togNoTs:'noTs',togAnimBg:'animBg',togPanic:'panicMode',togAntiClose:'antiClose',togNoRightClick:'noRightClick',togInvisible:'invisible',togSparkles:'sparkles',togSendAnim:'sendAnim',togJoinConfetti:'joinConfetti',togNightMode:'nightMode',togLofi:'lofi',togScanlines:'scanlines',togFocus:'focus',togNotifSound:'notifSound',togDmSound:'dmSound',togTypeSound:'typeSound',togSendSound:'sendSound',togMentionSound:'mentionSound',togTabMsg:'tabMsg',togTyping:'showTyping',togEnterSend:'enterSend',togRainbowName:'rainbowName'};
+  Object.entries(toggleMap).forEach(([id,key])=>{const el=document.getElementById(id);if(el)el.classList.toggle('on',!!userPrefs[key]);});
+  // Pickers
+  document.querySelectorAll('[data-pref-theme]').forEach(el=>el.classList.toggle('on',el.dataset.prefTheme===(userPrefs.theme||'dark')));
+  document.querySelectorAll('[data-pref-font]').forEach(el=>el.classList.toggle('on',el.dataset.prefFont===(userPrefs.font||'space')));
+  document.querySelectorAll('[data-pref-bg]').forEach(el=>el.classList.toggle('on',el.dataset.prefBg===(userPrefs.chatBg||'none')));
+  document.querySelectorAll('[data-pref-bubble]').forEach(el=>el.classList.toggle('on',el.dataset.prefBubble===(userPrefs.bubbleStyle||'default')));
+  document.querySelectorAll('[data-pref-nc]').forEach(el=>el.classList.toggle('on',el.dataset.prefNc===(userPrefs.nameColor||'#c084fc')));
+  document.querySelectorAll('[data-pref-bc]').forEach(el=>el.classList.toggle('on',el.dataset.prefBc===(userPrefs.bubbleColor||'default')));
+  document.querySelectorAll('[data-pref-status]').forEach(el=>el.classList.toggle('on',el.dataset.prefStatus===(userPrefs.statusBadge||'')));
+  document.querySelectorAll('[data-pref-sp]').forEach(el=>el.classList.toggle('on',el.dataset.prefSp===(userPrefs.soundPack||'default')));
+  // Range inputs
+  const fsEl=document.getElementById('fontSizeRange');if(fsEl){fsEl.value=userPrefs.fontSize||13;document.getElementById('fontSizeLbl').textContent=(userPrefs.fontSize||13)+'px';}
+  const volEl=document.getElementById('volRange');if(volEl){volEl.value=userPrefs.soundVolume??70;document.getElementById('volLbl').textContent=(userPrefs.soundVolume??70)+'%';}
+  // Text inputs
+  if(userPrefs.tabCloak){const t=document.getElementById('cloakTitle');const f=document.getElementById('cloakFavicon');if(t)t.value=userPrefs.tabCloak.title||'';if(f)f.value=userPrefs.tabCloak.favicon||'';}
+  const pu=document.getElementById('panicUrl');if(pu)pu.value=userPrefs.panicUrl||'https://google.com';
+  const css=document.getElementById('customCssInput');if(css)css.value=userPrefs.customCss||'';
+}
+
+// ── Pref setters ──
+window.setPrefTheme=function(v){userPrefs.theme=v;savePrefs();setTheme(v);document.querySelectorAll('[data-pref-theme]').forEach(el=>el.classList.toggle('on',el.dataset.prefTheme===v));};
+window.setPrefFont=function(v){userPrefs.font=v;savePrefs();_applyFont(v);document.querySelectorAll('[data-pref-font]').forEach(el=>el.classList.toggle('on',el.dataset.prefFont===v));};
+window.setPrefBg=function(v){userPrefs.chatBg=v;savePrefs();_applyChatBg(v);document.querySelectorAll('[data-pref-bg]').forEach(el=>el.classList.toggle('on',el.dataset.prefBg===v));};
+window.setPrefBubble=function(v){userPrefs.bubbleStyle=v;savePrefs();_applyBubbleStyle(v);document.querySelectorAll('[data-pref-bubble]').forEach(el=>el.classList.toggle('on',el.dataset.prefBubble===v));};
+window.setPrefNameColor=function(v){userPrefs.nameColor=v;savePrefs();_applyNameColor(v);document.querySelectorAll('[data-pref-nc]').forEach(el=>el.classList.toggle('on',el.dataset.prefNc===v));};
+window.setPrefBubbleColor=function(v){userPrefs.bubbleColor=v;savePrefs();_applyBubbleColor(v);document.querySelectorAll('[data-pref-bc]').forEach(el=>el.classList.toggle('on',el.dataset.prefBc===v));};
+window.setPrefStatus=function(v){userPrefs.statusBadge=v;savePrefs();_applyStatusBadge(v);document.querySelectorAll('[data-pref-status]').forEach(el=>el.classList.toggle('on',el.dataset.prefStatus===v));};
+window.setPrefFontSize=function(v){userPrefs.fontSize=parseInt(v);savePrefs();const msgs=document.getElementById('msgs');if(msgs)msgs.style.fontSize=v+'px';document.getElementById('fontSizeLbl').textContent=v+'px';};
+window.togglePref=function(key,el){userPrefs[key]=!el.classList.contains('on');el.classList.toggle('on',userPrefs[key]);savePrefs();applyAllPrefs();};
+window.toggleAntiClose=function(el){userPrefs.antiClose=!el.classList.contains('on');el.classList.toggle('on',userPrefs.antiClose);savePrefs();window.onbeforeunload=userPrefs.antiClose?()=>'Leave NEXUS? Your chat will close.':null;toast(userPrefs.antiClose?'🔒 Anti-close ON':'🔓 Anti-close OFF','info');};
+window.applyCustomCss=function(v){userPrefs.customCss=v;savePrefs();_injectCss('user-custom',v);};
+
+// Tab cloak
+window.setCloakPreset=function(title,favicon,label){
+  document.getElementById('cloakTitle').value=title;
+  document.getElementById('cloakFavicon').value=favicon;
+  userPrefs.tabCloak={title,favicon};savePrefs();_applyTabCloak({title,favicon});
+  toast(`🎭 Tab cloaked as ${label}!`,'success');
+};
+window.applyTabCloakNow=function(){
+  const title=document.getElementById('cloakTitle').value.trim();
+  const favicon=document.getElementById('cloakFavicon').value.trim();
+  userPrefs.tabCloak={title,favicon};savePrefs();_applyTabCloak({title,favicon});
+};
+function _applyTabCloak(d){
+  if(!d||(!d.title&&!d.favicon)){document.title='NEXUS — Global Chat';const fl=document.querySelector('#nexus-fav');if(fl)fl.remove();return;}
+  if(d.title)document.title=d.title;
+  if(d.favicon){let fl=document.getElementById('nexus-fav');if(!fl){fl=document.createElement('link');fl.id='nexus-fav';fl.rel='shortcut icon';document.head.appendChild(fl);}fl.href=d.favicon;}
+}
+window.clearCloak=function(){
+  userPrefs.tabCloak=null;savePrefs();_applyTabCloak(null);
+  document.getElementById('cloakTitle').value='';document.getElementById('cloakFavicon').value='';
+  toast('🔓 Tab cloak cleared','info');
+};
+
+// Panic mode
+let _panicCount=0,_panicTimer=null;
+document.addEventListener('keydown',e=>{
+  if(userPrefs.panicMode&&e.key==='Escape'){
+    _panicCount++;clearTimeout(_panicTimer);_panicTimer=setTimeout(()=>{_panicCount=0;},600);
+    if(_panicCount>=3){_panicCount=0;window.location.href=userPrefs.panicUrl||'https://google.com';}
+  }
+  if(e.ctrlKey&&e.key===','){e.preventDefault();if(typeof openSettings==='function')openSettings();}
+});
+window.savePanicUrl=function(){userPrefs.panicUrl=document.getElementById('panicUrl').value;savePrefs();toast('Panic URL saved','info');};
+
+// ── Visual apply helpers ──
+function _applyFont(f){
+  const map={'space':"'Space Grotesk',sans-serif",'mono':"'Fira Code',monospace",'serif':'Georgia,Times,serif','comic':"'Comic Sans MS','Chalkboard SE',cursive",'impact':'Impact,sans-serif'};
+  const ff=map[f]||map.space;
+  _injectCss('pref-font',`.msgs .bub,.mta,.dm-ta{font-family:${ff}!important;}`);
+}
+function _applyChatBg(bg){
+  const bgs={
+    none:'',
+    grid:'background-image:repeating-linear-gradient(0deg,transparent,transparent 23px,rgba(124,58,237,.04) 23px,rgba(124,58,237,.04) 24px),repeating-linear-gradient(90deg,transparent,transparent 23px,rgba(124,58,237,.04) 23px,rgba(124,58,237,.04) 24px);',
+    glow:'background-image:radial-gradient(ellipse at 20% 80%,rgba(124,58,237,.1) 0%,transparent 55%),radial-gradient(ellipse at 80% 20%,rgba(232,121,249,.07) 0%,transparent 55%);',
+    lines:'background-image:repeating-linear-gradient(0deg,transparent,transparent 29px,rgba(124,58,237,.05) 29px,rgba(124,58,237,.05) 30px);',
+    nebula:'background:linear-gradient(135deg,#0f0a1e,#180d38,#0a1a2e)!important;',
+    carbon:'background-color:#0d0d0d!important;background-image:repeating-radial-gradient(circle at 0 0,rgba(255,255,255,.015) 1px,transparent 1px);background-size:28px 28px!important;',
+    ocean:'background:linear-gradient(180deg,#0a1a2f,#051020)!important;',
+    ember:'background:linear-gradient(135deg,#1a0808,#280d0d)!important;',
+    sakura:'background:linear-gradient(135deg,#1a0d12,#280a18)!important;background-image:radial-gradient(circle at 30% 40%,rgba(236,72,153,.06),transparent 50%),radial-gradient(circle at 70% 70%,rgba(244,114,182,.04),transparent 50%)!important;',
+  };
+  _injectCss('pref-chatbg',`#msgs{${bgs[bg]||''}}`);
+}
+function _applyBubbleStyle(s){
+  const styles={
+    default:'',
+    pill:'.bub{border-radius:999px!important;padding:7px 18px!important;}',
+    sharp:'.bub{border-radius:4px!important;}',
+    glass:'.bub{background:rgba(255,255,255,.06)!important;backdrop-filter:blur(10px)!important;-webkit-backdrop-filter:blur(10px)!important;border:1px solid rgba(255,255,255,.14)!important;}',
+    neon:'.bub{border:1px solid var(--p)!important;box-shadow:0 0 8px var(--glow),inset 0 0 6px rgba(124,58,237,.04)!important;}',
+    paper:'.bub{background:rgba(245,240,255,.05)!important;border:1px solid rgba(245,240,255,.09)!important;box-shadow:2px 2px 0 rgba(0,0,0,.25)!important;}',
+    cloud:'.bub{border-radius:22px 22px 22px 4px!important;}.bub.mine{border-radius:22px 22px 4px 22px!important;}',
+  };
+  _injectCss('pref-bubble-style',styles[s]||'');
+}
+function _applyBubbleColor(c){
+  const clrs={default:'',red:'rgba(239,68,68,.12)',orange:'rgba(249,115,22,.12)',yellow:'rgba(234,179,8,.12)',green:'rgba(34,197,94,.12)',blue:'rgba(14,165,233,.12)',purple:'rgba(168,85,247,.12)',pink:'rgba(236,72,153,.12)',dark:'rgba(0,0,0,.3)',white:'rgba(255,255,255,.05)'};
+  if(!c||c==='default'){_injectCss('pref-bubble-color','');return;}
+  _injectCss('pref-bubble-color',`.bub.mine{background:${clrs[c]}!important;}`);
+}
+function _applyNameColor(c){
+  if(!c||c==='#c084fc'){_injectCss('pref-name-color','');return;}
+  if(c==='rainbow'){_injectCss('pref-name-color','@keyframes ncRainbow{0%{color:#f43f5e}17%{color:#f97316}33%{color:#eab308}50%{color:#22c55e}67%{color:#3b82f6}83%{color:#a855f7}100%{color:#f43f5e}}.fnm{animation:ncRainbow 2s linear infinite!important;}');return;}
+  _injectCss('pref-name-color',`.fnm{color:${c}!important;text-shadow:0 0 8px ${c}55!important;}`);
+}
+function _applyStatusBadge(b){
+  document.getElementById('__statusBadge')?.remove();
+  if(!b)return;
+  const el=document.createElement('style');el.id='__statusBadge';
+  el.textContent=`.tbar-av::after{content:'${b}';position:absolute;bottom:-5px;right:-5px;font-size:10px;line-height:1;}`;
+  document.head.appendChild(el);
+  // also update name display
+  _injectCss('pref-status-badge',`.fnm::after{content:' ${b}';font-size:10px;}`);
+}
+function _injectCss(id,css){
+  let el=document.getElementById('__css_'+id);
+  if(!el){el=document.createElement('style');el.id='__css_'+id;document.head.appendChild(el);}
+  el.textContent=css;
+}
+
+// ── Sound system ──
+let soundVol=0.7,currentSoundPack='default';
+window.setPrefSoundPack=function(v){userPrefs.soundPack=v;currentSoundPack=v;savePrefs();document.querySelectorAll('[data-pref-sp]').forEach(el=>el.classList.toggle('on',el.dataset.prefSp===v));toast(`🎵 Sound pack: ${v}`,'info');};
+window.setPrefSoundVol=function(v){userPrefs.soundVolume=parseInt(v);soundVol=parseInt(v)/100;savePrefs();document.getElementById('volLbl').textContent=v+'%';};
+
+function _playNote(freq,type,vol,delay,dur,ctx){
+  const o=ctx.createOscillator(),g=ctx.createGain();
+  o.type=type;o.frequency.value=freq;
+  g.gain.setValueAtTime(vol,ctx.currentTime+delay);
+  g.gain.exponentialRampToValueAtTime(.001,ctx.currentTime+delay+dur);
+  o.connect(g);g.connect(ctx.destination);
+  o.start(ctx.currentTime+delay);o.stop(ctx.currentTime+delay+dur+.02);
+}
+const SOUND_PACKS={
+  default:{
+    notif:(v)=>{const c=AC();if(!c)return;_playNote(880,'sine',v*.4,0,.08,c);_playNote(1100,'sine',v*.3,.1,.2,c);},
+    dm:(v)=>{const c=AC();if(!c)return;_playNote(660,'sine',v*.45,0,.15,c);_playNote(990,'sine',v*.35,.12,.25,c);},
+    send:(v)=>{const c=AC();if(!c)return;_playNote(440,'sine',v*.25,0,.06,c);_playNote(880,'sine',v*.2,.07,.12,c);},
+    mention:(v)=>{const c=AC();if(!c)return;for(let i=0;i<3;i++)_playNote(1320,'sine',v*.6,i*.1,.07,c);},
+    join:(v)=>{const c=AC();if(!c)return;[261,329,392,523].forEach((f,i)=>_playNote(f,'sine',v*.3,i*.07,.18,c));},
+    leave:(v)=>{const c=AC();if(!c)return;[523,392,329,261].forEach((f,i)=>_playNote(f,'sine',v*.25,i*.07,.18,c));},
+    type:(v)=>{const c=AC();if(!c)return;const b=c.createBuffer(1,c.sampleRate*.015,c.sampleRate);const d=b.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*Math.exp(-i/(c.sampleRate*.003));const s=c.createBufferSource(),g=c.createGain();s.buffer=b;g.gain.value=v*.4;s.connect(g);g.connect(c.destination);s.start();},
+  },
+  retro:{
+    notif:(v)=>{const c=AC();if(!c)return;_playNote(440,'square',v*.3,0,.06,c);_playNote(880,'square',v*.25,.08,.1,c);},
+    dm:(v)=>{const c=AC();if(!c)return;_playNote(220,'square',v*.35,0,.12,c);_playNote(440,'square',v*.3,.15,.12,c);},
+    send:(v)=>{const c=AC();if(!c)return;_playNote(220,'square',v*.25,0,.04,c);_playNote(880,'square',v*.2,.05,.08,c);},
+    mention:(v)=>{const c=AC();if(!c)return;[440,880,440,880].forEach((f,i)=>_playNote(f,'square',v*.4,i*.08,.07,c));},
+    join:(v)=>{const c=AC();if(!c)return;[130,165,196,261,329].forEach((f,i)=>_playNote(f,'square',v*.3,i*.06,.15,c));},
+    leave:(v)=>{const c=AC();if(!c)return;[329,261,196,165,130].forEach((f,i)=>_playNote(f,'square',v*.25,i*.06,.15,c));},
+    type:(v)=>{const c=AC();if(!c)return;_playNote(300+Math.random()*200,'square',v*.15,0,.03,c);},
+  },
+  subtle:{
+    notif:(v)=>{const c=AC();if(!c)return;_playNote(880,'sine',v*.2,0,.25,c);},
+    dm:(v)=>{const c=AC();if(!c)return;_playNote(660,'sine',v*.2,0,.3,c);},
+    send:(v)=>{const c=AC();if(!c)return;_playNote(600,'sine',v*.1,0,.08,c);},
+    mention:(v)=>{const c=AC();if(!c)return;_playNote(1200,'sine',v*.3,0,.15,c);},
+    join:(v)=>{const c=AC();if(!c)return;_playNote(440,'sine',v*.15,0,.2,c);},
+    leave:(v)=>{const c=AC();if(!c)return;_playNote(300,'sine',v*.12,0,.2,c);},
+    type:()=>{},
+  },
+  loud:{
+    notif:(v)=>{const c=AC();if(!c)return;[440,660,880,1100].forEach((f,i)=>_playNote(f,'sawtooth',v*.9,i*.05,.18,c));},
+    dm:(v)=>{const c=AC();if(!c)return;[440,550,660,880].forEach((f,i)=>_playNote(f,'sawtooth',v,i*.06,.2,c));},
+    send:(v)=>{const c=AC();if(!c)return;[300,600,900].forEach((f,i)=>_playNote(f,'sawtooth',v*.7,i*.04,.15,c));},
+    mention:(v)=>{const c=AC();if(!c)return;for(let i=0;i<6;i++)_playNote(880+i*110,'sawtooth',v,i*.07,.18,c);},
+    join:(v)=>{const c=AC();if(!c)return;[261,329,392,523,659,784].forEach((f,i)=>_playNote(f,'sawtooth',v*.8,i*.06,.2,c));},
+    leave:(v)=>{const c=AC();if(!c)return;[784,659,523,392,261,130].forEach((f,i)=>_playNote(f,'sawtooth',v*.7,i*.07,.2,c));},
+    type:(v)=>{const c=AC();if(!c)return;_playNote(80+Math.random()*40,'square',v*.5,0,.04,c);},
+  },
+  space:{
+    notif:(v)=>{const c=AC();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(200,c.currentTime);o.frequency.exponentialRampToValueAtTime(900,c.currentTime+.18);o.frequency.exponentialRampToValueAtTime(500,c.currentTime+.35);g.gain.setValueAtTime(v*.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.5);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.5);},
+    dm:(v)=>{const c=AC();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='triangle';o.frequency.setValueAtTime(300,c.currentTime);o.frequency.exponentialRampToValueAtTime(1500,c.currentTime+.4);g.gain.setValueAtTime(v*.6,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.6);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.6);},
+    send:(v)=>{const c=AC();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(400,c.currentTime);o.frequency.exponentialRampToValueAtTime(1200,c.currentTime+.1);g.gain.setValueAtTime(v*.3,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.18);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.2);},
+    mention:(v)=>{const c=AC();if(!c)return;[400,600,800,1200,1600].forEach((f,i)=>{const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(v*.5,c.currentTime+i*.08);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+i*.08+.2);o.connect(g);g.connect(c.destination);o.start(c.currentTime+i*.08);o.stop(c.currentTime+i*.08+.22);});},
+    join:(v)=>{const c=AC();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(100,c.currentTime);o.frequency.exponentialRampToValueAtTime(600,c.currentTime+.45);g.gain.setValueAtTime(v*.5,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.65);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.65);},
+    leave:(v)=>{const c=AC();if(!c)return;const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.setValueAtTime(600,c.currentTime);o.frequency.exponentialRampToValueAtTime(80,c.currentTime+.5);g.gain.setValueAtTime(v*.4,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.7);o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.7);},
+    type:(v)=>{const c=AC();if(!c)return;_playNote(1200+Math.random()*800,'sine',v*.08,0,.04,c);},
+  },
+  nature:{
+    notif:(v)=>{const c=AC();if(!c)return;for(let i=0;i<4;i++){const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=1100+i*250+Math.random()*100;g.gain.setValueAtTime(0,c.currentTime+i*.09);g.gain.linearRampToValueAtTime(v*.2,c.currentTime+i*.09+.04);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+i*.09+.18);o.connect(g);g.connect(c.destination);o.start(c.currentTime+i*.09);o.stop(c.currentTime+i*.09+.22);}},
+    dm:(v)=>{const c=AC();if(!c)return;for(let i=0;i<5;i++){const o=c.createOscillator(),g=c.createGain();o.type='sine';o.frequency.value=800+i*180;g.gain.setValueAtTime(0,c.currentTime+i*.07);g.gain.linearRampToValueAtTime(v*.18,c.currentTime+i*.07+.03);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+i*.07+.15);o.connect(g);g.connect(c.destination);o.start(c.currentTime+i*.07);o.stop(c.currentTime+i*.07+.18);}},
+    send:(v)=>{const c=AC();if(!c)return;_playNote(1800,'sine',v*.15,0,.1,c);_playNote(2200,'sine',v*.1,.06,.08,c);},
+    mention:(v)=>{const c=AC();if(!c)return;for(let i=0;i<6;i++)_playNote(1000+i*200,'sine',v*.25,i*.05,.12,c);},
+    join:(v)=>{const c=AC();if(!c)return;[523,659,784,1047].forEach((f,i)=>_playNote(f,'sine',v*.25,i*.08,.2,c));},
+    leave:(v)=>{const c=AC();if(!c)return;[1047,784,659,523].forEach((f,i)=>_playNote(f,'sine',v*.2,i*.08,.2,c));},
+    type:()=>{},
+  },
+};
+function playSound(type){
+  const pack=SOUND_PACKS[currentSoundPack]||SOUND_PACKS.default;
+  const fn=pack[type]||SOUND_PACKS.default[type];
+  if(fn)try{fn(soundVol);}catch(e){}
+}
+window.playTestSound=function(type){playSound(type);};
+// Hook typing sounds
+document.addEventListener('keypress',()=>{if(document.activeElement?.id==='mta'&&userPrefs.typeSound)playSound('type');});
+
+// Sparkles
+let _sparkleOn=false;
+const _sparkColors=['#c084fc','#e879f9','#818cf8','#22d3ee','#f0abfc','#facc15','#4ade80'];
+function _spawnSparkle(e){if(!_sparkleOn||Math.random()>.35)return;const s=6+Math.random()*8,el=document.createElement('div');el.style.cssText=`position:fixed;left:${e.clientX-s/2}px;top:${e.clientY-s/2}px;width:${s}px;height:${s}px;border-radius:50%;background:${_sparkColors[Math.floor(Math.random()*_sparkColors.length)]};pointer-events:none;z-index:99999;animation:_spk .55s ease-out forwards;`;document.body.appendChild(el);setTimeout(()=>el.remove(),600);}
+function _initSparkles(){if(_sparkleOn)return;_sparkleOn=true;document.addEventListener('mousemove',_spawnSparkle);}
+function _killSparkles(){_sparkleOn=false;document.removeEventListener('mousemove',_spawnSparkle);}
+window.toggleSparkles=function(el){userPrefs.sparkles=!el.classList.contains('on');el.classList.toggle('on',userPrefs.sparkles);savePrefs();userPrefs.sparkles?_initSparkles():_killSparkles();};
+_injectCss('sparkle-kf','@keyframes _spk{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(0) translateY(-22px)}}');
+
+// ── CSS for all new pref classes ──
+_injectCss('pref-global',`
+body.compact-mode .msgs{gap:0!important;}
+body.compact-mode .msg-row{padding:1px 0!important;}
+body.no-timestamps .ts,.no-timestamps .mtime{display:none!important;}
+body.night-mode::before{content:'';position:fixed;inset:0;background:rgba(0,0,0,.38);pointer-events:none;z-index:9;}
+body.lofi-mode .app-body{filter:sepia(.08) contrast(1.03);}
+body.scanlines-mode::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.07) 2px,rgba(0,0,0,.07) 4px);pointer-events:none;z-index:9;mix-blend-mode:multiply;}
+body.focus-mode #usersCol,body.focus-mode #adminCol{opacity:.25;transition:opacity .3s;}
+body.focus-mode #usersCol:hover,body.focus-mode #adminCol:hover{opacity:1;}
+`);
+
+// ── Load prefs after login ──
+// Patch into existing afterLogin sequence
+const _origRenderAll=window.renderAll;
+window.renderAll=function(...args){if(_origRenderAll)_origRenderAll(...args);};
+
+// Called at end of afterLogin
+function onLoggedIn(){loadPrefs();}
 </script>
 </body>
 </html>
