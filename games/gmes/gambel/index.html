@@ -12,8 +12,8 @@
   --green:#2ecc71;--red:#e74c3c;--text:#e8e8f0;--muted:#7070a0;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
-html,body{width:100%;height:100%;overflow-x:hidden;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;}
+html,body{width:100%;height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;font-size:13px;display:flex;flex-direction:column;}
 header{background:var(--surface);border-bottom:1px solid var(--border);padding:0 12px;height:48px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--gold);}
 .logo span{color:var(--accent);}
@@ -27,42 +27,42 @@ nav.games::-webkit-scrollbar{display:none;}
 nav.games button{background:none;border:none;color:var(--muted);padding:9px 11px;cursor:pointer;font-size:12px;font-weight:500;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;transition:all 0.2s;white-space:nowrap;}
 nav.games button.active{color:var(--gold);border-bottom-color:var(--gold);}
 nav.games button:hover:not(.active){color:var(--text);}
-.main{padding:10px;width:100%;}
+.main{padding:8px;width:100%;flex:1;overflow-y:auto;overflow-x:hidden;}
 .screen{display:none;}
 .screen.active{display:block;}
-.game-layout{display:grid;grid-template-columns:220px 1fr;gap:10px;align-items:start;}
-.bet-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:12px;}
-.bet-panel h3{font-size:10px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;}
-.bet-input{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:7px 10px;border-radius:7px;font-size:14px;font-family:'DM Sans',sans-serif;font-weight:600;outline:none;margin-bottom:8px;}
+.game-layout{display:grid;grid-template-columns:200px 1fr;gap:8px;align-items:start;}
+.bet-panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:10px;}
+.bet-panel h3{font-size:9px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:7px;}
+.bet-input{width:100%;background:var(--card);border:1px solid var(--border);color:var(--text);padding:6px 8px;border-radius:6px;font-size:13px;font-family:'DM Sans',sans-serif;font-weight:600;outline:none;margin-bottom:6px;}
 .bet-input:focus{border-color:var(--accent);}
-.quick-bets{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px;}
-.quick-bet{background:var(--card);border:1px solid var(--border);color:var(--text);padding:4px 8px;border-radius:5px;cursor:pointer;font-size:11px;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
+.quick-bets{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:8px;}
+.quick-bet{background:var(--card);border:1px solid var(--border);color:var(--text);padding:3px 7px;border-radius:4px;cursor:pointer;font-size:10px;font-family:'DM Sans',sans-serif;transition:all 0.15s;}
 .quick-bet:hover{border-color:var(--gold);color:var(--gold);}
-.play-btn{width:100%;background:var(--gold);color:#0a0a0f;border:none;padding:10px;border-radius:7px;cursor:pointer;font-size:14px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all 0.2s;letter-spacing:0.5px;}
+.play-btn{width:100%;background:var(--gold);color:#0a0a0f;border:none;padding:8px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;font-family:'DM Sans',sans-serif;transition:all 0.2s;letter-spacing:0.5px;}
 .play-btn:hover{background:#ffd060;transform:translateY(-1px);}
 .play-btn:active{transform:translateY(0);}
 .play-btn:disabled{background:var(--border);color:var(--muted);cursor:not-allowed;transform:none;}
-.payout-info{margin-top:10px;padding-top:10px;border-top:1px solid var(--border);}
-.payout-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;color:var(--muted);}
+.payout-info{margin-top:8px;padding-top:8px;border-top:1px solid var(--border);}
+.payout-row{display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px;color:var(--muted);}
 .payout-row span:last-child{color:var(--text);font-weight:500;}
-.game-area{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;min-height:320px;display:flex;flex-direction:column;}
-.result-banner{text-align:center;padding:8px 10px;border-radius:7px;font-size:13px;font-weight:600;margin-bottom:12px;display:none;line-height:1.4;}
+.game-area{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px;display:flex;flex-direction:column;}
+.result-banner{text-align:center;padding:7px 10px;border-radius:7px;font-size:12px;font-weight:600;margin-bottom:8px;display:none;line-height:1.4;}
 .result-banner.win{background:rgba(46,204,113,0.15);color:var(--green);display:block;}
 .result-banner.lose{background:rgba(231,76,60,0.15);color:var(--red);display:block;}
 
 /* MINES */
-.mines-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;flex:1;}
-.mine-cell{aspect-ratio:1;background:var(--card);border:1px solid var(--border);border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;transition:all 0.15s;}
+.mines-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;width:100%;}
+.mine-cell{aspect-ratio:1;background:var(--card);border:1px solid var(--border);border-radius:5px;cursor:pointer;font-size:clamp(10px,1.8vw,17px);display:flex;align-items:center;justify-content:center;transition:all 0.15s;min-height:0;}
 .mine-cell:hover:not(.revealed){border-color:var(--gold);background:#1e1e2e;transform:scale(1.04);}
 .mine-cell.gem{background:rgba(124,92,252,0.2);border-color:var(--accent);}
 .mine-cell.bomb{background:rgba(231,76,60,0.2);border-color:var(--red);}
 .mine-cell.bomb-reveal{background:rgba(231,76,60,0.1);border-color:#6a2020;animation:revealBomb 0.4s ease;}
 .mine-cell.safe{background:rgba(46,204,113,0.2);border-color:var(--green);}
 @keyframes revealBomb{from{transform:scale(0.5);opacity:0;}to{transform:scale(1);opacity:1;}}
-.mines-controls{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;}
-.mines-info{display:flex;gap:10px;font-size:11px;color:var(--muted);}
+.mines-controls{display:flex;align-items:center;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.mines-info{display:flex;gap:10px;font-size:10px;color:var(--muted);}
 .mines-info span b{color:var(--text);}
-.cashout-btn{background:var(--green);color:white;border:none;padding:7px 14px;border-radius:7px;cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif;font-size:12px;transition:all 0.2s;display:none;}
+.cashout-btn{background:var(--green);color:white;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif;font-size:11px;transition:all 0.2s;display:none;}
 .cashout-btn:hover{background:#27ae60;}
 
 /* BLACKJACK */
@@ -154,8 +154,8 @@ nav.games button:hover:not(.active){color:var(--text);}
 
 @media(max-width:560px){
   .game-layout{grid-template-columns:1fr;}
-  .main{padding:8px;}
-  nav.games button{padding:8px 9px;font-size:11px;}
+  .main{padding:6px;}
+  nav.games button{padding:7px 8px;font-size:11px;}
 }
 </style>
 </head>
@@ -196,8 +196,8 @@ nav.games button:hover:not(.active){color:var(--text);}
         <button class="quick-bet" onclick="setBet('mines-bet',null,'half')">½</button>
         <button class="quick-bet" onclick="setBet('mines-bet',null,'double')">2×</button>
       </div>
-      <h3 style="margin-top:12px;">Mines Count</h3>
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <h3 style="margin-top:8px;">Mines Count</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
         <input type="range" id="mines-count" min="1" max="20" value="5" class="mult-slider" style="flex:1;" oninput="updateMinesInfo()">
         <span id="mines-count-val" style="color:var(--gold);font-weight:700;font-family:'Bebas Neue',sans-serif;font-size:20px;min-width:28px;">5</span>
       </div>
@@ -419,14 +419,34 @@ nav.games button:hover:not(.active){color:var(--text);}
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Persistent save/load ──
-const SAVE_KEY='vaultx_save';
-function loadSave(){try{const r=localStorage.getItem(SAVE_KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
-function saveData(){try{localStorage.setItem(SAVE_KEY,JSON.stringify({balance,betHistory}));}catch(e){}}
+// ── Persistent save/load (localStorage + cookie fallback) ──
+const SAVE_KEY='vaultx_v2';
+function saveData(){
+  const data=JSON.stringify({balance,betHistory});
+  try{localStorage.setItem(SAVE_KEY,data);}catch(e){}
+  try{
+    const exp=new Date();exp.setFullYear(exp.getFullYear()+1);
+    document.cookie=SAVE_KEY+'='+encodeURIComponent(data)+';expires='+exp.toUTCString()+';path=/;SameSite=Lax';
+  }catch(e){}
+}
+function loadSave(){
+  // Try localStorage first
+  try{
+    const r=localStorage.getItem(SAVE_KEY);
+    if(r){const p=JSON.parse(r);if(p&&p.balance!=null)return p;}
+  }catch(e){}
+  // Try cookie fallback
+  try{
+    const match=document.cookie.match(new RegExp('(?:^|; )'+SAVE_KEY+'=([^;]*)'));
+    if(match){const p=JSON.parse(decodeURIComponent(match[1]));if(p&&p.balance!=null)return p;}
+  }catch(e){}
+  return null;
+}
 window.addEventListener('beforeunload',saveData);
+window.addEventListener('pagehide',saveData);
 const _saved=loadSave();
-let balance=_saved&&_saved.balance!=null?_saved.balance:1000;
-const betHistory=_saved&&_saved.betHistory?_saved.betHistory:[];
+let balance=_saved&&_saved.balance!=null?Math.max(1,_saved.balance):1000;
+const betHistory=_saved&&Array.isArray(_saved.betHistory)?_saved.betHistory:[];
 
 function fmt(n){return Math.round(n).toLocaleString();}
 function updateBalance(delta){
@@ -438,6 +458,7 @@ function updateBalance(delta){
   document.getElementById('balance-display').textContent=fmt(balance);
   saveData();
 }
+function checkBroke(){
   if(balance<1){
     balance=50;updateBalance(50);
     document.getElementById('broke-msg').style.display='inline';
